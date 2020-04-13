@@ -1,0 +1,229 @@
+
+
+/* MAIN BODY of the annotation page */
+body {
+    background-color: #00BFFF;
+}
+
+
+
+/* SECTIONS */
+
+/* Use indent classes to put the image and annotation semantic forms sections side-by-side */
+.indent-1 {
+    float: left;
+    margin: 0 1.5%;
+    
+    
+}
+
+.indent-1 section {
+    width: 50%; float: left;
+}
+
+.indent-2 {
+    float: right;
+    margin: 0 2%;
+    width: 50%;
+}
+
+
+
+
+
+
+/* IMAGE SECTION - Section 1 */
+
+/* Comic page container class*/
+.container {
+    position: relative;
+    text-align: center;
+}
+
+
+/* Canvas */
+canvas{
+    border: 3px solid black;
+    cursor: crosshair;
+
+    /* There is the option to add the comic images as backgrounds
+     background: url("comicPages/Page1.jpeg"); */
+}
+
+
+
+/* Old Image info - before canvas element was added */
+
+/* Comic page image
+img {
+    display: block;
+    margin-left: 100px;
+    margin-right: 100px;
+    width: 75%;
+}
+ */
+
+/* Shadow class - Add a shadow to the comic page :p
+.shadow {
+    
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0,0,0,0.23);
+} */
+
+/* Dot class for marking images
+.dotClass {
+    height: 5px;
+    width: 5px;
+    background-color: #DC143C;
+    border-radius: 50%;
+} */
+
+
+
+
+
+.indicatedPosition {
+    position: absolute;
+    top: 100px;
+    left: 100px;
+    color: red;
+    font-size: 30px;
+    font-family: monospace; 
+}
+
+.indicatedPosition2 {
+    position: absolute;
+    top: 200px;
+    left: 200px;
+    color: blue;
+}
+
+
+
+
+
+
+
+
+
+/* SEMANTIC FORM SECTION - Section 2 */
+
+
+/* Add a vertical scroll to allow for scrolling while the image stays in place */
+.scroll {
+    width: 600px;
+    height: 600px;
+    overflow-x: auto;
+}
+
+
+#initialStartButton {
+    text-align: center; 
+}
+
+#startAnnotation {
+    visibility: visible;
+    background-color: #008CBA;
+    text-align: center;
+    font-size: 25px;
+    font-family: monospace;
+    border: none;
+    color: white;
+    padding: 20px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 12px;
+}
+
+
+
+#panelIdSection {
+    display: none;
+    margin: 10px;
+    height: 300px;
+}
+
+
+.panelIDButtons {
+    background-color: #008CBA;
+    text-align: center;
+    font-size: 18px;
+    font-family: monospace;
+    border: none;
+    color: white;
+    padding: 15px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 12px;
+}
+
+
+
+
+#panelNumSection {
+    display: none;
+    margin: auto;
+    text-align: center;
+    background-color: #008CBA;
+    width: 50%;
+    height: 100px;
+    border-radius: 12px;
+}
+
+#panelCount {
+    text-align: center;
+    vertical-align: middle;
+    color: white;
+    font-size: 18px;
+    font-family: monospace;
+}
+
+
+div.hidden {
+    display: none; 
+}
+
+
+
+.semanticFormDisplay {
+    display: block; 
+    border-radius: 25px;
+    background-color: #87CEFA;
+    border: 3px solid #008CBA;;
+    padding: 20px;
+    margin: 5px;
+
+}
+
+/* All the headers in the semantic forms should have the same font and color */
+h4 {
+    font-family: veranda;
+}
+
+
+
+
+#clickCoordsRecorded {
+
+}
+
+
+
+#submitToNextPage {
+    display: none; 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

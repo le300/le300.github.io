@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link rel="stylesheet" href="comicsAnnotation.css">
+    <script type="text/javascript" src="comicsAnnotation.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    
+    <header>
+        <h3 style="text-align:center"> </h3>
+    </header>
+    
+    
+    <section>
+        <!-- Section 1 (Left side of page) - IMAGES from comics go here -->
+        <!-- <p id="pageNumComicImage">Page 1</p> -->
+        <section id="imageSection" class="indent-1">
+            <!-- Container for comics page - holds dots for panel and other placement of semantic information -->
+            <div id="comicPagesContainer" class="container">
+                <!-- Canvas element to hold  comic pages -->
+                <canvas id="canvas" width="500" height="700">
+                    This browser does not support the HTML5 canvas element - sorry! 
+                </canvas>
+                
+                
+                <!-- Test button to make sure that the images have been preloaded
+                    <button type="button" onclick="testPreload()"> Click to add stored image</button> -->
+                
+                <!-- Old Click Version: Comic Page -->
+                <!--<img id="comicPage" src="comicPages/Page1.jpeg" alt="Page of a comic" class="shadow" onclick="true">-->
+                 <!-- Example panel indicator numbers that dynamically appear where the user clicks on the image
+                <div class="indicatedPosition", id="ip1"> 0 </div>
+                <div class="indicatedPosition2", id="ip2"> 3 </div>
+                  -->
+                 
+                 
+            </div>
+        </section>
+        
+        
+        
+        <!-- Section 2 (Right side of page) - ANNOTATION FORMS go here  -->
+        <section id = "semanticSection" class="scroll" class="indent-2">
+            
+          <div id="initialStartButton">
+                <button id="startAnnotation" onclick="putFirstComicPageOnCanvas()"> Start Annotation </button>
+            </div>
+            
+            <!-- PANEL CLICKS - Ask the user to click on the different sections or panels they see -->
+            <div id="panelIdSection" class="semanticFormDisplay">
+                
+                <h4> Task 1: Specify the Panels or Sections </h4>
+                
+                <p> Instructions go here.  </p>
+                
+                
+                <button id="startButton" type="button" class="panelIDButtons" onclick="recordRectsON(event)">Start</button>
+                
+                <button id="endButton" type="button" class="panelIDButtons" onclick="recordRectsOFF(event)">End </button>
+                
+                <button id="clearButton" type="button" class="panelIDButtons" onclick="recordRectsCLEAR(event)">Clear Rectangles </button>
+                
+                
+                <!-- Debugging check: store click coordinates in a textarea
+                <label for="clickCoordsRecorded"> </label>
+                <textarea id="clickCoordsRecorded" rows="10" cols="30">
+                    Coordinates:
+                </textarea> -->
+                
+            </div>
+            
+            
+            
+            
+            <!-- PANELS IDENTIFIED - Ask the user to then state the number of panels they identified -->
+            <div id="panelNumSection">
+            
+                <!-- State the number of panels/sections inputted by the user clicking on the comic image -->
+                <p id="panelCount"> </p>
+            
+            </div>
+            
+            
+            
+            
+            
+            
+            
+            
+            <!-- The SEMANTIC FORM template -->
+            <!-- The number of panels that the user indicated above should be the number of semantic forms that appear -->
+            <div id="semanticForm" class="hidden">
+                <!-- Specify characters by assigning variables -->
+           <!--     <h3 id="panelNumFormHeading"> Panel 1 </h3> -->
+                <h4> Characters </h4>
+                <p> Please assign a variable (e.g. x1, x2... xn) to all the different characters you identify in this panel or section. Use the same variable for the same character, and introudce a new variable when a new character is introduced.</p>
+                <form>
+                    <input id="charInput1">
+                    <!-- <button type="button">Submit</button> -->
+    
+                
+                <!-- Specify detail in the background -->
+                <h4>Background</h4>
+                    <input type="radio" id="backgroundDrawn" name="background" value="backgroundDrawn">
+                        <label for="backgroundDrawn">Background is detailed</label><br>
+                        <input type="radio" id="backgroundEmpty" name="background" value="backgroundEmpty">
+                            <label for="backgroundEmpty">Background is empty</label><br>
+                           <!-- <input type="submit" value="Submit"> -->
+                </form>
+                <!-- Button to SUBMIT FORMS and move to the NEXT PAGE -->
+                <!-- <button id="submitToNextPage" type="button">Next Page</button> -->
+            </div>
+            <div id="semanticFormContainer" >
+            </div>
+        
+        </section>
+    </section>
+
+        
+</body>
+    
+
+</html>
