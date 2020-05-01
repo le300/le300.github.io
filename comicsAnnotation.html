@@ -2,13 +2,16 @@
 <!DOCTYPE html>
 
 <html>
+    
 <head>
     <link rel="stylesheet" href="comicsAnnotation.css">
-    <script type="text/javascript" src="comicsAnnotation.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-firestore.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
+
 
 <body>
     
@@ -24,7 +27,7 @@
             <!-- Container for comics page - holds dots for panel and other placement of semantic information -->
             <div id="comicPagesContainer" class="container">
                 <!-- Canvas element to hold  comic pages -->
-                <canvas id="canvas" width="500" height="700">
+                <canvas id="canvas" width="600" height="700">
                     This browser does not support the HTML5 canvas element - sorry! 
                 </canvas>
                 
@@ -38,8 +41,6 @@
                 <div class="indicatedPosition", id="ip1"> 0 </div>
                 <div class="indicatedPosition2", id="ip2"> 3 </div>
                   -->
-                 
-                 
             </div>
         </section>
         
@@ -47,48 +48,53 @@
         
         <!-- Section 2 (Right side of page) - ANNOTATION FORMS go here  -->
         <section id = "semanticSection" class="scroll" class="indent-2">
-            
+           
+          <!-- Start Button and Page Number Title -->
           <div id="initialStartButton">
                 <button id="startAnnotation" onclick="putFirstComicPageOnCanvas()"> Start Annotation </button>
             </div>
-            
-            <!-- PANEL CLICKS - Ask the user to click on the different sections or panels they see -->
+          
+            <!-- Test Section for Firbase! -->
+            <div>
+                <ul id="Test"> </ul>
+            </div>
+              
+            <!-- Form Instructions and Task Buttons -->
             <div id="panelIdSection" class="semanticFormDisplay">
                 
                 <h4> Task 1: Specify the Panels or Sections </h4>
                 
                 <p> Instructions go here.  </p>
                 
+                <div>
+                    <button id="startButton" type="button" class="panelIDButtons" onclick="recordRectsON(event)">Start Task</button>
                 
-                <button id="startButton" type="button" class="panelIDButtons" onclick="recordRectsON(event)">Start</button>
+                    <button id="endButton" type="button" class="panelIDButtons" onclick="recordRectsOFF(event)">End Task</button>
+                </div>
                 
-                <button id="endButton" type="button" class="panelIDButtons" onclick="recordRectsOFF(event)">End </button>
+                <div>
+                    <button id="clearLastRectButton" type="button" class="panelIDButtonsVersion2" onclick="clearLastDrawnRectangle(event)">Clear Last Rectangle</button>
                 
-                <button id="clearButton" type="button" class="panelIDButtons" onclick="recordRectsCLEAR(event)">Clear Rectangles </button>
-                
-                
+                    <button id="clearButton" type="button" class="panelIDButtonsVersion2" onclick="recordRectsCLEAR(event)">Clear All Rectangles</button>
+                </div>
                 <!-- Debugging check: store click coordinates in a textarea
                 <label for="clickCoordsRecorded"> </label>
                 <textarea id="clickCoordsRecorded" rows="10" cols="30">
                     Coordinates:
                 </textarea> -->
-                
-            </div>
+             </div>
             
             
-            
-            
-            <!-- PANELS IDENTIFIED - Ask the user to then state the number of panels they identified -->
-            <div id="panelNumSection">
-            
+        <!-- Scroll - just put a scroll around the semantic forms
+        <div id="scrollContainer" class="scroll">  -->
+             <!-- Semantic Form Instructions-->
+             <div id="panelNumSection" class="panelNumSectionFormat">
+    
                 <!-- State the number of panels/sections inputted by the user clicking on the comic image -->
                 <p id="panelCount"> </p>
-            
-            </div>
-            
-            
-            
-            
+                
+                <p id="instructionsForSemanticForms"> Instructions for how to fill out the semantic forms below. </p>
+             </div>
             
             
             
@@ -98,30 +104,84 @@
             <div id="semanticForm" class="hidden">
                 <!-- Specify characters by assigning variables -->
            <!--     <h3 id="panelNumFormHeading"> Panel 1 </h3> -->
-                <h4> Characters </h4>
-                <p> Please assign a variable (e.g. x1, x2... xn) to all the different characters you identify in this panel or section. Use the same variable for the same character, and introudce a new variable when a new character is introduced.</p>
-                <form>
-                    <input id="charInput1">
-                    <!-- <button type="button">Submit</button> -->
-    
+           
+                <!-- <h4 id="charHeading"> Characters: Identify and Describe  </h4> -->
                 
-                <!-- Specify detail in the background -->
-                <h4>Background</h4>
-                    <input type="radio" id="backgroundDrawn" name="background" value="backgroundDrawn">
+                <div id="charTaskContainer" >
+                    
+                   <!-- Button created to start char id task, made for each new cloned semantic form in js
+                    <button id="newChar" type="button" onclick="startIndividualCharID(event)"> Indicate a Character </button> -->
+                    
+                    <!-- Button that are created in the js function tartIndividualCharID(event)
+                    <button id="startTaskCharID" type="button" onclick="startCharIDTask(event)"> Start Click </button>
+                    <button id="startTaskCharID" type="button" onclick="stopCharIDTask(event)"> End Click </button>
+                    <button id="offPanelChar" type="button" onclick="true"> Off Panel Character </button> -->
+                </div>
+                
+                <div id="charFormContainter">
+                    </div>
+    
+                <div id="backgroundFormContainer">
+                    
+                <!-- Specify detail in the background - created in js
+                <h4>Background </h4> -->
+                  <!--  <input type="radio" id="backgroundDrawn" name="background" value="backgroundDrawn">
                         <label for="backgroundDrawn">Background is detailed</label><br>
-                        <input type="radio" id="backgroundEmpty" name="background" value="backgroundEmpty">
-                            <label for="backgroundEmpty">Background is empty</label><br>
-                           <!-- <input type="submit" value="Submit"> -->
-                </form>
-                <!-- Button to SUBMIT FORMS and move to the NEXT PAGE -->
-                <!-- <button id="submitToNextPage" type="button">Next Page</button> -->
-            </div>
-            <div id="semanticFormContainer" >
-            </div>
-        
+                    <input type="radio" id="backgroundEmpty" name="background" value="backgroundEmpty">
+                        <label for="backgroundEmpty">Background is empty</label><br>
+                           -->
+                </div>
+
+                
+             </div>
+            
+            
+             <!-- Containter to add clones of the semantic forms -->
+             <div id="semanticFormContainer" >
+             </div>
+             
+          
+    <!--    </div> End of Scroll Div-->
+          
+             <!-- Containter to add buttons to navigate between semantic forms -->
+             <div id="semanticButtonsContainer">
+             </div>
+             
         </section>
     </section>
 
+    
+    
+    <!-- Firebase SDK - placed in the bottom of the bosy tag, but before using any Firebase services -->
+    
+    <!-- The core Firebase JS SDK is always required and must be listed first
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script> -->
+    
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-analytics.js"></script>
+    
+    <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyAm5SQeNpyhHifon7giZpij3HDooHGsZwY",
+            authDomain: "comicsannotation.firebaseapp.com",
+            databaseURL: "https://comicsannotation.firebaseio.com",
+            projectId: "comicsannotation",
+            storageBucket: "comicsannotation.appspot.com",
+            messagingSenderId: "1040008318250",
+            appId: "1:1040008318250:web:1d57351f4e9d3a14a1a253",
+            measurementId: "G-G6QH4VNP2C"
+        };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+    const db = firebase.firestore(); // Reference to the database, interact with the database through this constant
+    //db.settings({timestampsInSnapshots: true}); // Avoid warnings and errors in the console
+        </script>
+    <!-- Javascript file -->
+    <script type="text/javascript" src="comicsAnnotation.js"></script>
+    
         
 </body>
     

@@ -9,32 +9,40 @@ var canvas, context;
 // Initialize an array to hold preloaded comic page images
 var comicPages = [];
 
+// Array to store data for each comic page
+var pagesData = [];
+
 // Declare the index in the array to retrieve comic pages in order
 var pageNum;
-
 
 // Drawing Rectangles - Variables for drawing on canvas
 var isRecDown = false;
 var startX, startY;
 
-var rects = []; // Individual page data - store rect info per page
+var rects = []; // Individual page data for current page - store rect info per page
 var newRect;
-var pagesData = []; // Array to store data for each comic page
+var rectNum = 1; // Number of drawn rectangle (In the circle on the rectangle)
+
 
 var drawRectsON = false;
+
+// Panel buttons hidden or visible
+panelButtonsVisible = false;
 
 // Create buttons
 buttonsCreated = false;
 
+// Char task
+charIdON = false;
 
-// Index for the number of panels indicated in the panelIndicationByUser function
-// NOTE - these variables are local in the functions below, and it seems to work better this way!
-//var panelRecNum = 1;
-//var panelRecNumStored;
+// Track the number of characters clicked on
+var charClickNum = 0;
 
+// Track the num panel being interacted with
+var currentPanel;
 
-
-
+// Track the current char form being created
+var currentForm;
 
 
 
@@ -48,6 +56,7 @@ buttonsCreated = false;
  https://codepen.io/chrisjaime/pen/lcEpn?editors=1111
  */
 
+/* INITIALIZATION of the WEBPAGE, IMAGES, and CANVAS*/
 
 /* Function to setup the canvas - implemented after the HTML DOM loads*/
 function init() {
@@ -61,6 +70,8 @@ function init() {
                            //  console.log(mousePos.x + ',' + mousePos.y);
                            //  }, false);
     // Add event listeners for rectangle drawing tool to the canvas
+    adjustImageSizes();
+    console.log("image sizes readjusted");
     addCanvasEvents();
 }
 
@@ -75,7 +86,7 @@ function getMousePos(canvas, evt) {
 }
 
 
-/* Function to preload the comic page images */
+/* Function to preload the comic page images and set their sizes */
 function preload() {
     for (var i=0; i < preload.arguments.length; i++) {
         comicPages[i] = new Image();
@@ -97,15 +108,40 @@ preload(
 document.addEventListener("DOMContentLoaded", init);
 
 
+
+/* Function to adjust image sizes for all preloaded images during init*/
+// At the moment, this is specific for the example image set to be 90% the size of the canvas
+function adjustImageSizes() {
+    for (var i=0; i < comicPages.length; i++) {
+        comicPages[i].height = 630;
+        comicPages[i].width = 450;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+/* COMIC PAGE PLACEMENT on CANVAS - AFTER  INITIALIZATION */
+
+
 /* Function to add first comic page image to the canvas, setup the page */
 // The argument pageNum is the index in the array that you want to
 function putFirstComicPageOnCanvas() {
     pageNum = 0;
     // Clear the canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.width, canvas.height);
     // Draw the preloaded comic page image on the canvas
-    context.drawImage(comicPages[pageNum],0, 0, 500, 700);
+    context.drawImage(comicPages[pageNum],canvas.width/2 - comicPages[pageNum].width/2, canvas.height/2-comicPages[pageNum].height/2,  comicPages[pageNum].width, comicPages[pageNum].height);
     // Reveal the next section on the semantic form
+    panelButtonsVisible = true;
     document.getElementById("panelIdSection").style.display = "block";
     // Change the 'Start Annotation' button to 'Page 1' heading
     var startAnnotationButton = document.getElementById("startAnnotation");
@@ -113,44 +149,49 @@ function putFirstComicPageOnCanvas() {
     startAnnotationButton.style.cursor = "default";
     // Turn off the button's onlick capabilties
     startAnnotationButton.setAttribute("onclick", "true");
-    console.log("After Start Annotation Button, pageNum is " + pageNum); //test
+    //console.log("After Start Annotation Button, pageNum is " + pageNum); //test
 }
 
 
 /* Function to put a comic page on canvas (after first page) according to the sequence in comicPages and pageNum */
 function putComicPageOnCanvas(event) {
-    // Store the current page information, rects and form
+    // Store the current page information, rects and form - for now, put in an array
     if (pagesData.length < pageNum+1) {
         pagesData.push({});
     }
+    // Check how the data is being stored in the console
     pagesData[pageNum].rects = rects;
     for (var i=0; i < pagesData.length; i++) {
         for (var j=0; j < pagesData[i].rects.length; j++ ) {
             console.log(pagesData[i].rects[j]);
         }
     }
-    
     //pagesData.push(["Page " + pageNum, rects]);
     //console.log(pagesData[pageNum]); // For now, check data is stored on console
-    
     pageNum += 1;
-    console.log("After next page, pageNum is: " + pageNum);
+    //console.log("After next page, pageNum is: " + pageNum);
     
-    // First, check whether this is the last page. If so, reset bottom buttons
+    // Check whether this is the last page. If so, reset bottom buttons
     if (pageNum == comicPages.length-1) {
         buttonChange = document.getElementById("buttonNextPage");
         buttonChange.innerHTML = "Submit";
         buttonChange.setAttribute("onclick", "submitSemanticForms(event)");
     }
     removeSemanticForms(); // Clear the submission forms
-    //pageNum += 1; // Index to next page
     rects = []; // Clear the comic image and data stored
     context.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-    context.drawImage(comicPages[pageNum], 0, 0, 500, 700); // Draw the comic page
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(comicPages[pageNum],canvas.width/2 - comicPages[pageNum].width/2, canvas.height/2-comicPages[pageNum].height/2,  comicPages[pageNum].width, comicPages[pageNum].height); // Draw the comic page
     // Change the page number indicator at the top of the web page
     pageNumTitle = pageNum + 1;
     document.getElementById("startAnnotation").innerHTML = "Page " + pageNumTitle;
+    // Show the panel demarcation section with the buttons
+    panelButtonsVisible = true;
+    document.getElementById("panelIdSection").style.display = "block";
+    // Change the 'Start Annotation' button to 'Page 1' heading
 }
+
 
 
 /* Function to put the previous page on the canvas according to the current pageNum */
@@ -159,12 +200,18 @@ function putPreviousPageOnCanvas(event) {
     if (pageNum == 0) {
         return
     }
+    if (panelButtonsVisible == false) {
+        panelButtonsVisible = true;
+        document.getElementById("panelIdSection").style.display = "block";
+    }
     pageNum -= 1; // Decrement pageNum index
-    console.log("Previous Page pageNum = " + pageNum);
+    //console.log("Previous Page pageNum = " + pageNum); // test
     removeSemanticForms(); // Clear the submission forms
     rects = []; // Clear the comic image and data stored
     context.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-    context.drawImage(comicPages[pageNum], 0, 0, 500, 700); // Draw the comic page previous to the indicated comic page in pageNum
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(comicPages[pageNum],canvas.width/2 - comicPages[pageNum].width/2, canvas.height/2-comicPages[pageNum].height/2,  comicPages[pageNum].width, comicPages[pageNum].height); // Draw the comic page previous to the indicated comic page in pageNum
     // Change the page number indicator at the top of the web page
     pageNumTitle = pageNum + 1;
     document.getElementById("startAnnotation").innerHTML = "Page " + pageNumTitle;
@@ -203,10 +250,9 @@ function reOffset() {
     recOffsetY = BB.top;
 }
 
-
+// Add mouse events to canvas - use in the init function
 function addCanvasEvents() {
     canvas = document.getElementById("canvas");
-    
     
     reOffset();
     
@@ -216,7 +262,6 @@ function addCanvasEvents() {
     window.onresize = function(e) {
         reOffset();
     }
-    
     
     drawCount = 1;
 
@@ -236,7 +281,7 @@ function addCanvasEvents() {
 }
 
 
-
+// Draw the stored rectangles onto the canvas element
 var drawRectangleOnCanvas = {
 
     
@@ -280,6 +325,19 @@ var drawRectangleOnCanvas = {
         rects.push(newRect);
 
         drawRectangleOnCanvas.drawAll();
+        
+        // For every rect, put a number in the top left corner on the circle
+        for (var i=0; i<rects.length; i++) {
+            var j = rects[i];
+            context.beginPath(); // draw number in circle
+            context.fillStyle = "white";
+            context.font = "20px Arial Black";
+            context.fillText(rectNum, j.left-8, j.top+8); // center into the circle
+            rectNum += 1;
+            //console.log(rectNum); // test
+        }
+        rectNum = 1; // reset numbered rectangles
+        
     },
 
 
@@ -290,8 +348,10 @@ var drawRectangleOnCanvas = {
         canvas = document.getElementById("canvas");
         context = canvas.getContext("2d");
         context.clearRect(0, 0, canvas.width, canvas.height);
-        console.log("Draw function pageNum: " + pageNum); //test
-        context.drawImage(comicPages[pageNum],0, 0, 500, 700);
+        //console.log("Draw function pageNum: " + pageNum); //test
+        context.fillStyle = "white";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(comicPages[pageNum],canvas.width/2 - comicPages[pageNum].width/2, canvas.height/2-comicPages[pageNum].height/2,  comicPages[pageNum].width, comicPages[pageNum].height); // Draw image on canvas
         context.lineWidth = 4;
         for (var i=0; i<rects.length; i++) {
             var r = rects[i];
@@ -299,19 +359,19 @@ var drawRectangleOnCanvas = {
             context.globalAlpha = 1; // set transparency value
             context.strokeRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
     
-            context.beginPath();
-            context.arc(r.left, r.top, 15, 0, Math.PI * 2, true);
+            context.beginPath(); // draw circle
+            context.arc(r.left, r.top, 25, 0, Math.PI * 2, true);
             context.closePath();
             context.fillStyle = r.color;
             context.fill();
-    
-            var text = drawCount;
-            context.fillStyle = "#fff";
-            var font = "bold " + 2 + "px serif";
-            context.font = font;
-            var width = context.measureText(text).width;
-            var height = context.measureText("w").width; // this is a GUESS of height
-            context.fillText(text, r.left - (width / 2), r.top + (height / 2));
+            
+            //var text = drawCount;
+            //context.fillStyle = "#fff";
+            //var font = "bold " + 2 + "px serif";
+            //context.font = font;
+            //var width = context.measureText(text).width;
+            //var height = context.measureText("w").width; // this is a GUESS of height
+            //context.fillText(text, r.left - (width / 2), r.top + (height / 2));
         }
     },
 
@@ -384,6 +444,10 @@ function recordRectsON(event) {
 /* Function to turn OFF the recordClickOnComicImage function and show Semantic Forms */
 function recordRectsOFF(event) {
     //event = button click
+    if (panelButtonsVisible == true) {
+        panelButtonsVisible = false;
+        document.getElementById("panelIdSection").style.display = "none";
+    }
     drawRectsON = false;
     // State how many rectangles were drawn
     document.getElementById("panelNumSection").style.display = "block";
@@ -405,21 +469,31 @@ function recordRectsOFF(event) {
         //console.log("Rectangle Coords: " + rects[i].left + ", " + rects[i].top + ", " + rects[i].right + ", " + rects[i].bottom);
     }
     //pageNum += 1;
-    console.log("After End Button, pageNum is " + pageNum); //test
+    //console.log("After End Button, pageNum is " + pageNum); //test
 }
 
 
-/* Function to clear the drawn rectangles, restart the task */
+/* Function to clear all the drawn rectangles, restart the task */
 function recordRectsCLEAR(event) {
-    //event = button clock
+    // event = button click
     // Clear the rectangles already drawn on the comic image
     context.clearRect(0, 0, canvas.width, canvas.height);
-    context.drawImage(comicPages[pageNum],0, 0, 500, 700);
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(comicPages[pageNum],canvas.width/2 - comicPages[pageNum].width/2, canvas.height/2-comicPages[pageNum].height/2,  comicPages[pageNum].width, comicPages[pageNum].height); // Redraw image on canvas
     // Clear the collected panel/sections info
     rects = [];
 }
 
 
+/*  Function to clear the last drawn rectangle while keeping the others */
+function clearLastDrawnRectangle(event) {
+    // event = button click
+    // clear out the last entry in rects array
+    rects.pop();
+    // Redraw the page with the stored rects
+    drawRectangleOnCanvas.drawAll();
+}
 
 
 
@@ -429,7 +503,8 @@ function recordRectsCLEAR(event) {
 
 
 
-/* SEMANTIC FORM CREATION and SUBMISSION */
+
+/* SEMANTIC FORM CREATION, NAVIGATION and SUBMISSION */
 
 /* Function that states how many panels or sections have been identified by the user */
 
@@ -469,11 +544,31 @@ function showContentForms(x) {
         var newHeading = document.createElement("h3");
         newHeading.innerHTML = "Panel " + j;
         clone.insertBefore(newHeading, clone.childNodes[0]);
+        //Create the char ID that starts the task
+        var newCharHeading = document.createElement("h4"); // Characters heading
+        newCharHeading.innerHTML = "Characters";
+        clone.insertBefore(newCharHeading, newHeading.nextSibling);
+        
+        var newChar = document.createElement("BUTTON"); // start task button
+        newChar.id = "newChar" + j;
+        newChar.innerHTML = "Indicate Characters";
+        newChar.setAttribute("onclick","startIndividualCharID(event)");
+        clone.insertBefore(newChar, newCharHeading.nextSibling);
+        
+        var newBackgroundHeading = document.createElement("h4"); // Background heading
+        newBackgroundHeading.id = "newBackgroundHeading" + j;
+        newBackgroundHeading.innerHTML = "Background";
+        clone.insertBefore(newBackgroundHeading, newChar.nextSibling);
+        
         // Append the cloned semantic form to correct section
         document.getElementById("semanticFormContainer").appendChild(clone);
         //console.log(clone.id); //test
+            
     }
 }
+
+
+
 
 
 /* Function to create Previous Page, Reset, and Next Page buttons */
@@ -484,7 +579,7 @@ function createButtons() {
     buttonPreviousPage.setAttribute("id", "buttonPreviousPage");
     buttonPreviousPage.setAttribute("onclick","putPreviousPageOnCanvas(event)");
     buttonPreviousPage.setAttribute("class","panelIDButtons");
-    document.getElementById("semanticSection").appendChild(buttonPreviousPage);
+    document.getElementById("semanticButtonsContainer").appendChild(buttonPreviousPage);
     
     // Add event handler to the submission button
     //buttonSubmit.addEventListener("click:, function() { write function here });
@@ -495,7 +590,7 @@ function createButtons() {
     buttonReset.setAttribute("id", "buttonReset");
     buttonReset.setAttribute("onclick", "resetSemanticForm(event)");
     buttonReset.setAttribute("class","panelIDButtons");
-    document.getElementById("semanticSection").appendChild(buttonReset);
+    document.getElementById("semanticButtonsContainer").appendChild(buttonReset);
     
     // Add event handler to the reset button button
     //buttonReset.addEventListener("click:, function() { write function here });
@@ -505,7 +600,7 @@ function createButtons() {
     buttonNextPage.innerHTML = "Next Page";
     buttonNextPage.setAttribute("id", "buttonNextPage");
     buttonNextPage.setAttribute("class","panelIDButtons");
-    document.getElementById("semanticSection").appendChild(buttonNextPage);
+    document.getElementById("semanticButtonsContainer").appendChild(buttonNextPage);
     buttonNextPage.setAttribute("onclick", "putComicPageOnCanvas(event)");
 }
 
@@ -523,9 +618,6 @@ function removeSemanticForms() {
     // Reset and hide the panel counter
     document.getElementById("panelNumSection").style.display = "none";
 }
-
-
-
 
 
 
@@ -556,6 +648,354 @@ function submitSemanticForms(event) {
     // For now, just post to console
     console.log("Form submitted");
 }
+
+
+
+
+
+
+
+
+
+/* ANNOTATION within SEMANTIC FORMS - Interaction and data inputs */
+
+
+/* Function to start Char ID task*/
+function startIndividualCharID(event) {
+    if (charIdON){
+        return;   //stopping it regenerating if in the middle of clicking
+    }
+    charIdON = false;
+    //event = click
+    
+    //console.log("button pressed"); //tests
+    // Create and append the buttons
+    var buttonID = event.target.getAttribute('id');
+    var semForm = event.target.parentNode;
+    console.log("button name: ", buttonID); //test
+    console.log("form number: ", semForm.getAttribute('id')); //test
+    
+    
+    // Create a "stop" button
+    var stopCharIDTaskButton = document.createElement("BUTTON");
+    stopCharIDTaskButton.innerHTML = "All Characters Indicated";
+    stopCharIDTaskButton.setAttribute("class", "charIDStopButton");
+    stopCharIDTaskButton.setAttribute("id", "stopCharIDTaskButton" + semForm.getAttribute("id"));
+    stopCharIDTaskButton.setAttribute("onclick", "stopCharIDTask(event)");
+    semForm.insertBefore(stopCharIDTaskButton, document.getElementById(buttonID).nextSibling);
+    
+    
+    // Give simple mouse click instruction
+    var charClickInstructions = document.createElement("p");
+    charClickInstructions.innerHTML = "Click on all the characters in the panel.";
+    charClickInstructions.setAttribute("id", "charClickInstructions" + semForm.getAttribute("id"));
+    semForm.insertBefore(charClickInstructions, document.getElementById(buttonID).nextSibling);
+    
+    // Create a "clear all" button(?)
+    
+
+    
+    // Turn on ability to click on the canvas
+    startCharIDTask(event);
+    
+    // Start click char task button
+    //var startTaskCharID = document.createElement("BUTTON");
+    //startTaskCharID.innerHTML = "Turn On Mouse Click";
+    //startTaskCharID.setAttribute("id", "startTaskCharID" + semForm.getAttribute("id"));
+    //startTaskCharID.setAttribute("class","panelIDButtons");
+    //startTaskCharID.setAttribute("onclick", "startCharIDTask(event)");
+    // Append the button to the semantic form
+    //semForm.insertBefore(startTaskCharID, document.getElementById(buttonID).nextSibling);
+    currentPanel = semForm;
+    
+    // Disable currently pressed newChar button
+    document.getElementById(buttonID).setAttribute("onclick", "true");
+}
+
+
+
+/* Start Char ID Task - Function to enable clicking on the canvas */
+function startCharIDTask(event) {
+    if (charIdON){
+        return;   //stopping it regenerating if in the middle of clicking
+    }
+    //event = click
+    charIdON = true;
+    // Add new event listener to mousedown event
+    canvas = document.getElementById("canvas");
+    context = canvas.getContext("2d");
+    canvas.addEventListener("mousedown",
+                            charIDTask,
+                            false);
+}
+
+
+
+/* Char ID on canvas - Function to click on canvas, get char variables */
+function charIDTask(event) {
+    if (!charIdON) {
+        return;
+    }
+    
+    // Track the click nums
+    charClickNum +=1;
+    // When mouse down, get the coords of the click
+    canvas = document.getElementById("canvas");
+    context = canvas.getContext("2d");
+    // tell the browser we're handling this event
+    event.preventDefault();
+    event.stopPropagation();
+
+    coordX = parseInt(event.clientX - recOffsetX);
+    coordY = parseInt(event.clientY - recOffsetY);
+    console.log(coordX + ", " + coordY); //test, check the mousedown coords
+    
+    // Put down a circle with number of the char
+    context.beginPath(); // draw circle
+    context.arc(coordX, coordY, 25, 0, Math.PI * 2, true);
+    context.closePath();
+    context.fillStyle = "blue";
+    context.fill();
+    console.log("circle created");
+    
+    // Create a new form with the char number/ID
+    var charForm = document.createElement("form");
+    charForm.setAttribute('method',"post");
+    charForm.setAttribute('action',"true");
+    charForm.id = "charForm" + charClickNum;
+    
+    var charFormInput = document.createElement("input"); //input element, text box
+    charFormInput.setAttribute('type',"text");
+    charFormInput.setAttribute('name',"characterDescription");
+    charFormInput.value = "variable (e.g. x1, x2)";
+    charFormInput.setAttribute("id", "charFormInput" + charClickNum);
+    var inputLabel = document.createElement("label");
+    inputLabel.setAttribute("for", "charFormInput" + charClickNum);
+    inputLabel.innerHTML = "Character Variable: ";
+    console.log("char input ID: " + charFormInput.id); //test
+    
+    // Char variable confirmation button
+    var charFormInputConfirmButton = document.createElement("input");
+    charFormInputConfirmButton.setAttribute("type", "button");
+    charFormInputConfirmButton.setAttribute("value", "Confirm");
+    charFormInputConfirmButton.setAttribute("id", charClickNum);
+    charFormInputConfirmButton.setAttribute("onclick", "confirmCharButton(event)");
+    
+    
+    
+    //var s = document.createElement("input"); //input element, Submit button
+    //s.setAttribute('type',"submit");
+    //s.setAttribute('value',"Submit");
+    
+    // Create radio buttons for on/off panel chars
+    var r1 = document.createElement("input"); // on panel radio button
+    r1.setAttribute("type", "radio");
+    r1.setAttribute("id", "onPanel");
+    r1.setAttribute("name", "onOffPanel");
+    r1.setAttribute("value", "onPanel");
+    
+    var l1 = document.createElement("label");
+    l1.setAttribute("for", "onPanel");
+    //l1.appendChild(r1);
+    l1.innerHTML = "On Panel";
+    
+    var r2 = document.createElement("input"); // off panel radio button
+    r2.setAttribute("type", "radio");
+    r2.setAttribute("id", "offPanel");
+    r2.setAttribute("name", "onOffPanel");
+    r2.setAttribute("value", "offPanel");
+    
+    var l2 = document.createElement("label");
+    l2.setAttribute("for", "offPanel");
+    l2.innerHTML = "Off Panel";
+    
+    
+    // Append to the form element
+    charForm.appendChild(inputLabel);
+    charForm.appendChild(charFormInput);
+    charForm.appendChild(charFormInputConfirmButton);
+    charForm.appendChild(r1);
+    charForm.appendChild(l1);
+    charForm.appendChild(r2);
+    charForm.appendChild(l2);
+    
+    
+    // Append the form element to the bottom of the paragraph instructions on the panel semantic form
+    var p = document.getElementById("stopCharIDTaskButton" + currentPanel.getAttribute("id"));
+    console.log("form id: " + charForm.id); //test
+    console.log("char click num: " + charClickNum)
+    // Just append the form that corresponds with current click num
+    //currentForm = charForm;
+    document.getElementById(currentPanel.getAttribute('id')).insertBefore(charForm, p);
+}
+
+
+
+
+/* Function - Confirm Char variable name button */
+// Move the variable name inputted in form to the canvas
+function confirmCharButton(event) {
+    //event = button click
+    
+    // Get the value in the associated text input box - if it is empty or not filled out, return the function
+    
+    var charFormInput = document.getElementById("charFormInput" + event.target.getAttribute('id'));
+    var inputValue = charFormInput.value;
+    if (inputValue.length == 0) {
+        return;
+    }
+    console.log("value: " + inputValue); //test
+    
+    // Place that text on the associated circle on the canvas
+    
+}
+
+
+
+
+
+/* End Char ID Task - Function to turn off the  create a blank form per character */
+function stopCharIDTask(event) {
+    // event = click
+    charIdON = false;
+    charClickNum = 0;
+
+    // Destroy previous newChar button element
+    //var buttonID = event.target.getAttribute('id');
+    //var semForm = event.target.parentNode;
+    //console.log("button name: ", buttonID); //test
+    //console.log("form number: ", semForm.getAttribute('id')); //test
+    //semForm.removeChild(semForm.childNodes[2]);
+    
+    //document.getElementById(buttonID).setAttribute("onclick", "true");
+    
+    // remove  event handler for char clicks
+    canvas = document.getElementById("canvas");
+    context = canvas.getContext("2d");
+    canvas.removeEventListener("mousedown", charIDTask);
+    
+    
+    // Put the old mousedown listener event back - the panel ID event listener
+    canvas.addEventListener("mousedown",
+                            drawRectangleOnCanvas.handleMouseDown,
+                            false);
+    
+    
+    
+    // Create the Background Section
+    // Create a new form with the background number/ID
+    var g = document.createElement("form"); // Location
+    g.setAttribute('method',"post");
+    g.setAttribute('action',"true");
+    
+    var i = document.createElement("input"); //input element, text
+    i.setAttribute('type',"text");
+    i.setAttribute('name',"charactertype");
+    
+    g.appendChild(i); // append to the form element
+    
+    // Append to the panel semantic form
+    document.getElementById(currentPanel.getAttribute('id')).appendChild(g);
+    
+    // Create a new form element for the below radio buttons
+    var g2 = document.createElement("form"); // Background detail radio buttons
+    g2.setAttribute('method',"post");
+    g2.setAttribute('action',"true");
+    
+    // Add background detail radio buttons
+    var b1 = document.createElement("input"); // blank background radio button
+    b1.setAttribute("type", "radio");
+    b1.setAttribute("id", "blankDetail");
+    b1.setAttribute("name", "backgroundDetail");
+    b1.setAttribute("value", "blankBackground");
+    
+    var k1 = document.createElement("label");
+    k1.setAttribute("for", "blankBackground");
+    k1.innerHTML = "Blank/Empty";
+    
+    var b2 = document.createElement("input"); // light detail background radio button
+    b2.setAttribute("type", "radio");
+    b2.setAttribute("id", "lightDetail");
+    b2.setAttribute("name", "backgroundDetail");
+    b2.setAttribute("value", "lightlyDetailedBackground");
+    
+    var k2 = document.createElement("label");
+    k2.setAttribute("for", "lightlyDetailedBackground");
+    k2.innerHTML = "Light Detail";
+    
+    var b3 = document.createElement("input"); // fully drawn background radio button
+    b3.setAttribute("type", "radio");
+    b3.setAttribute("id", "fullyDrawn");
+    b3.setAttribute("name", "backgroundDetail");
+    b3.setAttribute("value", "fullyDrawnBackground");
+    
+    var k3 = document.createElement("label");
+    k3.setAttribute("for", "fullyDrawnBackground");
+    k3.innerHTML = "Fully Drawn";
+    
+    
+    g2.appendChild(b1);  // append to the form element
+    g2.appendChild(k1);
+    g2.appendChild(b2);
+    g2.appendChild(k2);
+    g2.appendChild(b3);
+    g2.appendChild(k3);
+    
+    document.getElementById(currentPanel.getAttribute('id')).appendChild(g2);
+    
+    
+    
+    var semForm = event.target.parentNode;
+    console.log("form number: ", semForm.getAttribute('id')); //test
+    //semForm.removeChild(semForm.childNodes[2]);
+    
+    var newCharButton = semForm.childNodes[2];
+    newCharButton.setAttribute("onclick","startIndividualCharID(event)");
+    
+    
+}
+
+
+
+
+
+
+
+/* Firebase Database Collection and Retreival
+
+// Test - Get and show the stored data from Firebase
+const testList = document.querySelector("#Test");
+
+// Create element and render test
+function renderTest(doc) {
+    let li = document.createElement("li");
+    let name = document.createElement("span");
+    let city = document.createElement("span");
+    
+    li.setAttribute("data-id", doc.id);
+    name.textContent = doc.data().name;
+    city.textContent = doc.data().city;
+    
+    li.appendChild(name);
+    li.appendChild(city);
+    
+    testList.appendChild(li);
+}
+
+db.collection("Test").get().then((snapshot) => {
+                                // console.log(snapshot.docs);
+                                 snapshot.docs.forEach(doc => {
+                                 console.log(doc.data());
+                                 renderTest(doc);
+                                                       });
+                                 });
+*/
+
+// Reference to the collection 'Test', then a method to get all the documents in the collection. The 'then' method calls a function to fire when the data is collected
+
+
+
+
 
 
 

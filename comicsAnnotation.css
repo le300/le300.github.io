@@ -111,7 +111,7 @@ img {
 /* Add a vertical scroll to allow for scrolling while the image stays in place */
 .scroll {
     width: 600px;
-    height: 600px;
+    height: 700px;
     overflow-x: auto;
 }
 
@@ -156,18 +156,36 @@ img {
     border-radius: 12px;
 }
 
+.panelIDButtonsVersion2 {
+    background-color: #008CBA;
+    text-align: center;
+    font-size: 14px;
+    font-family: monospace;
+    border: none;
+    color: white;
+    padding: 15px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 12px;
+}
 
 
 
 #panelNumSection {
     display: none;
-    margin: auto;
+}
+
+
+.panelNumSectionFormat {
+    margin: 10px auto;
     text-align: center;
+    padding: 20px;
     background-color: #008CBA;
-    width: 50%;
-    height: 100px;
+    width: 75%;
+    height: 200px;
     border-radius: 12px;
 }
+
 
 #panelCount {
     text-align: center;
@@ -188,11 +206,25 @@ div.hidden {
     display: block; 
     border-radius: 25px;
     background-color: #87CEFA;
-    border: 3px solid #008CBA;;
+    border: 5px solid #008CBA;;
     padding: 20px;
     margin: 5px;
 
 }
+
+
+.charIDStopButton {
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+
+
+
+
+
 
 /* All the headers in the semantic forms should have the same font and color */
 h4 {
