@@ -178,6 +178,7 @@ function nextPage(event) {
     var errorMessage = validateInputs();
     if (errorMessage != "") {
         console.log(errorMessage);
+        alert(errorMessage);
         return;
     }
 
@@ -354,7 +355,7 @@ function validateInputs() {
         errorMessage = "Please draw at least one panel/section, even if it covers the whole page!";
     }
     console.log("Validate Forms" + errorMessage);
-    return alert(errorMessage);
+    return errorMessage;
 }
 
 
@@ -806,6 +807,7 @@ function submitSemanticForms(event) {
     var errorMessage = validateInputs();
     if (errorMessage != "") {
         console.log(errorMessage);
+        alert(errorMessage);
         return;
     }
     
