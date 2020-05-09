@@ -1,0 +1,22 @@
+
+/* CSS file for the End Page */
+
+
+body {
+    background-color: #00BFFF;
+}
+
+#titleContainer {
+    background-color: #008CBA;
+    border: none;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+h1 {
+    text-align: center;
+    font-family: monospace;
+    color: white;
+    font-size: 35px;
+}
+

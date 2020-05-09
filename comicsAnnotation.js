@@ -42,10 +42,12 @@ var currentPanel;
 var currentForm;
 
 // Preset value for char and description inputs
-const charLabelInstruction = "variable (e.g. x1, x2)";
-const charDescriptionInstruction = "descriptor (e.g. girl)";
-const backgroundLocationInstruction = "descriptor (e.g. forest)";
+const charLabelInstruction = "One letter (e.g. x, y)";
+const charDescriptionInstruction = "One or two words (e.g. girl)";
+const backgroundLocationInstruction = "One or two words (e.g. forest)";
+const indicateCharInstructions = "";
 
+// old indicateCharInstructions: Click on all the characters in the panel/section. Give repeated characters the same label. If the characters appears in a section more than once, indicate each appearance separately.
 
 
 /* CANVAS and COMIC PAGES SETUP */
@@ -146,7 +148,7 @@ function putFirstComicPageOnCanvas() {
     panelButtonsVisible = true;
     document.getElementById("panelIdSection").style.display = "block";
     // Change the 'Start Annotation' button to 'Page 1' heading
-    var startAnnotationButton = document.getElementById("startAnnotation");
+    var startAnnotationButton = document.getElementById("startAnnotationButton");
     startAnnotationButton.innerHTML = "Page 1";
     startAnnotationButton.style.cursor = "default";
     // Turn off the button's onlick capabilties
@@ -190,7 +192,7 @@ function nextPage(event) {
     // Check whether this is the last page. If so, reset bottom buttons
     if (pageNum == comicPages.length-1) {
         buttonChange = document.getElementById("buttonNextPage");
-        buttonChange.innerHTML = "Submit";
+        buttonChange.innerHTML = "Last Page: Submit All Annotations";
         buttonChange.setAttribute("onclick", "submitSemanticForms(event)");
     } else {
         // if not last one then just next page button
@@ -211,7 +213,7 @@ function nextPage(event) {
     
     // Change the page number indicator at the top of the web page
     pageNumTitle = pageNum + 1;
-    document.getElementById("startAnnotation").innerHTML = "Page " + pageNumTitle;
+    document.getElementById("startAnnotationButton").innerHTML = "Page " + pageNumTitle;
     // Show the panel demarcation section with the buttons
     panelButtonsVisible = true;
     document.getElementById("panelIdSection").style.display = "block";
@@ -272,6 +274,13 @@ function putPreviousPageOnCanvas(event) {
         document.getElementById("panelIdSection").style.display = "block";
     }
     
+    // If going back from the last page, change the submit button back to "next page"
+    if (pageNum == comicPages.length-1) {
+        buttonChange = document.getElementById("buttonNextPage");
+        buttonChange.innerHTML = "Next Page";
+        buttonChange.setAttribute("onclick", "nextPage(event)");
+    } 
+    
     pageNum -= 1; // Decrement pageNum index
     charIdON = false;  // turn off both (panel and char ID) event handlers
     drawRectsON = false;
@@ -280,7 +289,7 @@ function putPreviousPageOnCanvas(event) {
     putComicPageOnCanvas(); // Put previous image on canvas
     // Change the page number indicator at the top of the web page
     pageNumTitle = pageNum + 1;
-    document.getElementById("startAnnotation").innerHTML = "Page " + pageNumTitle;
+    document.getElementById("startAnnotationButton").innerHTML = "Page " + pageNumTitle;
     
    
     drawPanelInfoOnCanvas(); // Put stored panel rects on canvas
@@ -316,7 +325,11 @@ function validateInputs() {
         var panel = pagesData[pageNum].panels[i];
         console.log(panel);
         for (var j=0; j<panel.characters.length; j++) {
+            // whatever is in the input box for the label, make that the character label
+            panel.characters[j].label = document.getElementById("charFormInput"  + + i + "." + j).value;
             var character = panel.characters[j];
+            
+            
             if (character.label == "" || character.label == charLabelInstruction ) {
                 errorMessage += "Missing Character Label for Panel " + (i + 1) + " Character Number " + (j + 1) + "\n";
             }
@@ -354,6 +367,9 @@ function validateInputs() {
     if (pagesData[pageNum].panels.length==0){
         errorMessage = "Please draw at least one panel/section, even if it covers the whole page!";
     }
+    putComicPageOnCanvas();
+    drawPanelInfoOnCanvas();
+    drawCharacterInfoOnCanvas();
     console.log("Validate Forms" + errorMessage);
     return errorMessage;
 }
@@ -565,7 +581,7 @@ function recordRectsOFF(event) {
     panelCounter(panelRecNum-1);
     showContentForms(panelRecNum-1);
     // Only create buttons at the bottom page when this function runs for the first page
-    if (document.getElementById("startAnnotation").innerHTML == "Page 1" && !navigationButtonsCreated) {
+    if (document.getElementById("startAnnotationButton").innerHTML == "Page 1" && !navigationButtonsCreated) {
         createNavigationButtons();
         navigationButtonsCreated = true;
     }
@@ -661,6 +677,7 @@ function showContentForms(x) {
         var backgroundLocationInput = document.createElement("input"); //input element for location
         backgroundLocationInput.setAttribute('type',"text");
         backgroundLocationInput.setAttribute('name',"backgroundLocationInput");
+        backgroundLocationInput.setAttribute("class", "locationDescriptionInput");
         backgroundLocationInput.setAttribute('id',"backgroundLocationInput" + j);
         backgroundLocationInput.value = backgroundLocationInstruction;
         
@@ -721,7 +738,7 @@ function createNavigationButtons() {
     buttonPreviousPage.innerHTML = "Previous Page";
     buttonPreviousPage.setAttribute("id", "buttonPreviousPage");
     buttonPreviousPage.setAttribute("onclick","putPreviousPageOnCanvas(event)");
-    buttonPreviousPage.setAttribute("class","panelIDButtons");
+    buttonPreviousPage.setAttribute("class","pageNavigationButtons");
     document.getElementById("semanticButtonsContainer").appendChild(buttonPreviousPage);
     
     // Reset all forms button
@@ -729,14 +746,14 @@ function createNavigationButtons() {
     buttonReset.innerHTML = "Reset Page";
     buttonReset.setAttribute("id", "buttonReset");
     buttonReset.setAttribute("onclick", "resetPage(event)");
-    buttonReset.setAttribute("class","panelIDButtons");
+    buttonReset.setAttribute("class","pageNavigationButtons");
     document.getElementById("semanticButtonsContainer").appendChild(buttonReset);
     
     // Next Page button
     var buttonNextPage = document.createElement("BUTTON");
     buttonNextPage.innerHTML = "Next Page";
     buttonNextPage.setAttribute("id", "buttonNextPage");
-    buttonNextPage.setAttribute("class","panelIDButtons");
+    buttonNextPage.setAttribute("class","pageNavigationButtons");
     document.getElementById("semanticButtonsContainer").appendChild(buttonNextPage);
     buttonNextPage.setAttribute("onclick", "nextPage(event)");
 }
@@ -816,6 +833,9 @@ function submitSemanticForms(event) {
     // For now, just post to console
     console.log(pagesData);
     console.log( JSON.stringify(pagesData) );
+    
+    // Also, go to the last webapge
+    window.location.href = "endPage.html";
 }
 
 
@@ -838,7 +858,7 @@ function startIndividualCharID(event) {
     //Only give instruction if not already created
     if (!charInstructionsCreated) {
         var charClickInstructions = document.createElement("p");
-        charClickInstructions.innerHTML = "Click on all the characters in the panel.";
+        charClickInstructions.innerHTML = indicateCharInstructions;
         charClickInstructions.setAttribute("id", instructionID);
         currentPanel.insertBefore(charClickInstructions, currentPanel.childNodes[3]);
     }
@@ -909,7 +929,7 @@ function charIDTask(event) {
     
     var charFormInputLabel = document.createElement("label"); // Label for the character form input
     charFormInputLabel.setAttribute("for", "charFormInput" + currentPanelNumber +  "." + newCharIndex);
-    charFormInputLabel.innerHTML = "Character Variable: ";
+    charFormInputLabel.innerHTML = "Character Label: ";
     
     //console.log("char input ID: " + charFormInput.id); //test
     
@@ -918,6 +938,7 @@ function charIDTask(event) {
     charDescriptionInput.setAttribute('type',"text");
     charDescriptionInput.setAttribute('name',"characterDescription");
     charDescriptionInput.value = charDescriptionInstruction;
+    charDescriptionInput.setAttribute("class", "charDescriptionInput");
     charDescriptionInput.setAttribute('id', "charDescriptionInput" + currentPanelNumber + "." + newCharIndex);
     
     // Label for the char description form input
@@ -925,10 +946,10 @@ function charIDTask(event) {
     charDescriptionInputLabel.setAttribute("for", "charDescrptionInput" + currentPanelNumber + "." + newCharIndex);
     charDescriptionInputLabel.innerHTML = "Character Description: ";
     
-    // Char variable confirmation button - now listed as "update variable name" button
+    // Char variable confirmation button - now listed as "show label on image" button
     var charFormInputConfirmButton = document.createElement("input");
     charFormInputConfirmButton.setAttribute("type", "button");
-    charFormInputConfirmButton.setAttribute("value", "Update Variable");
+    charFormInputConfirmButton.setAttribute("value", "Show Label on Image");
     charFormInputConfirmButton.setAttribute("id", "charFormInputConfirmButton" + currentPanelNumber +  "." + newCharIndex);
     charFormInputConfirmButton.setAttribute("onclick", "confirmCharButton(event)");
     

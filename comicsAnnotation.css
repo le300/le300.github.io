@@ -18,13 +18,15 @@ body {
 }
 
 .indent-1 section {
-    width: 50%; float: left;
+     width: 50%; float: left;
 }
 
 .indent-2 {
-    float: right;
-    margin: 0 2%;
-    width: 50%;
+    float: left;
+    margin: 0;
+   /* width: 50%; */
+    width: 40%;
+    height: 500px;
 }
 
 
@@ -52,56 +54,6 @@ canvas{
 
 
 
-/* Old Image info - before canvas element was added */
-
-/* Comic page image
-img {
-    display: block;
-    margin-left: 100px;
-    margin-right: 100px;
-    width: 75%;
-}
- */
-
-/* Shadow class - Add a shadow to the comic page :p
-.shadow {
-    
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0,0,0,0.23);
-} */
-
-/* Dot class for marking images
-.dotClass {
-    height: 5px;
-    width: 5px;
-    background-color: #DC143C;
-    border-radius: 50%;
-} */
-
-
-
-
-
-.indicatedPosition {
-    position: absolute;
-    top: 100px;
-    left: 100px;
-    color: red;
-    font-size: 30px;
-    font-family: monospace; 
-}
-
-.indicatedPosition2 {
-    position: absolute;
-    top: 200px;
-    left: 200px;
-    color: blue;
-}
-
-
-
-
-
-
 
 
 
@@ -110,17 +62,20 @@ img {
 
 /* Add a vertical scroll to allow for scrolling while the image stays in place */
 .scroll {
-    width: 600px;
+    width: 500px;
     height: 700px;
     overflow-x: auto;
 }
 
 
-#initialStartButton {
-    text-align: center; 
+
+
+#initialStartButtonContainer {
+    text-align: center;
+    width: 525px;
 }
 
-#startAnnotation {
+#startAnnotationButton {
     visibility: visible;
     background-color: #008CBA;
     text-align: center;
@@ -129,6 +84,7 @@ img {
     border: none;
     color: white;
     padding: 20px;
+    margin: 1px;
     text-decoration: none;
     cursor: pointer;
     border-radius: 12px;
@@ -138,9 +94,16 @@ img {
 
 #panelIdSection {
     display: none;
-    margin: 10px;
-    height: 300px;
+    margin: 5px;
+    padding: 10px;
+    height: 200px;
+    text-align: center;
+    border-radius: 25px;
+    background-color: #87CEFA;
+    border: 5px solid #008CBA;
 }
+
+
 
 
 .panelIDButtons {
@@ -151,6 +114,7 @@ img {
     border: none;
     color: white;
     padding: 15px;
+    margin: 5px; 
     text-decoration: none;
     cursor: pointer;
     border-radius: 12px;
@@ -164,6 +128,7 @@ img {
     border: none;
     color: white;
     padding: 15px;
+    margin: 1px; 
     text-decoration: none;
     cursor: pointer;
     border-radius: 12px;
@@ -177,13 +142,14 @@ img {
 
 
 .panelNumSectionFormat {
-    margin: 10px auto;
+    margin: 5px;
+    width: 450px;
     text-align: center;
     padding: 20px;
     background-color: #008CBA;
-    width: 75%;
-    height: 200px;
-    border-radius: 12px;
+    height: 150px;
+    border-radius: 25px;
+    border: 5px solid #008CBA;
 }
 
 
@@ -201,14 +167,25 @@ div.hidden {
 }
 
 
+#semanticFormContainer {
+    align: center;
+}
+
+.semanticFormContainerScroll {
+    overflow-y: auto;
+    height: 325px;
+}
+
+
 
 .semanticFormDisplay {
-    display: block; 
+    display: inline-block;
     border-radius: 25px;
     background-color: #87CEFA;
-    border: 5px solid #008CBA;;
+    border: 5px solid #008CBA;
     padding: 20px;
     margin: 5px;
+    width: 450px;
 
 }
 
@@ -236,18 +213,48 @@ h4 {
 
 
 .charForms {
+    width: 400px;
     padding: 5px;
-    margin: 4px 0;
-    border: 2px solid #6495ED;
-    border-radius: 5px;
-    background-color: #E6E6FA
+    margin: 3px 0;
+    border: 2px solid #008CBA;
+    border-radius: 10px;
+    background-color: #cce6ff
 }
 
 input[type=text] {
-    margin: 4px 0;
+    margin: 5px 0;
+}
+
+.charDescriptionInput {
+    width: 150px;
+}
+
+.locationDescriptionInput {
+    width: 200px;
+}
+
+input[type=radio] {
+    margin: 0 10px 0 10px;
 }
 
 
+.semanticButtonsContainter {
+    
+}
+
+.pageNavigationButtons {
+    background-color: #008CBA;
+    text-align: center;
+    font-size: 18px;
+    font-family: monospace;
+    border: none;
+    color: white;
+    padding: 20px;
+    margin: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 12px;
+}
 
 
 

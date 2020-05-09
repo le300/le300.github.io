@@ -47,11 +47,11 @@
         
         
         <!-- Section 2 (Right side of page) - ANNOTATION FORMS go here  -->
-        <section id = "semanticSection" class="scroll" class="indent-2">
+        <section id = "semanticSection" class="indent-2">
            
           <!-- Start Button and Page Number Title -->
-          <div id="initialStartButton">
-                <button id="startAnnotation" onclick="putFirstComicPageOnCanvas()"> Start Annotation </button>
+          <div id="initialStartButtonContainer">
+                <button id="startAnnotationButton" onclick="putFirstComicPageOnCanvas()"> Start Annotation </button>
             </div>
           
             <!-- Test Section for Firbase! -->
@@ -60,16 +60,16 @@
             </div>
               
             <!-- Form Instructions and Task Buttons -->
-            <div id="panelIdSection" class="semanticFormDisplay">
+            <div id="panelIdSection">
                 
-                <h4> Task 1: Specify the Panels or Sections </h4>
+                <h4> Specify the Panels or Sections </h4>
                 
-                <p> Instructions go here.  </p>
+                <p>  </p>
                 
                 <div>
                     <button id="startButton" type="button" class="panelIDButtons" onclick="recordRectsON(event)">Start Task</button>
                 
-                    <button id="endButton" type="button" class="panelIDButtons" onclick="recordRectsOFF(event)">End Task</button>
+                    <button id="endButton" type="button" class="panelIDButtons" onclick="recordRectsOFF(event)">All Indicated</button>
                 </div>
                 
                 <div>
@@ -93,7 +93,7 @@
                 <!-- State the number of panels/sections inputted by the user clicking on the comic image -->
                 <p id="panelCount"> </p>
                 
-                <p id="instructionsForSemanticForms"> Instructions for how to fill out the semantic forms below. </p>
+                <p id="instructionsForSemanticForms"> Start annotating characters by clicking the "indicate characters" button, then click on all the characters in the panel/section. Give repeated characters the same label. If the characters appears in a section more than once, indicate each appearance separately. Don't forget to annotate the background as well! </p>
              </div>
             
             
@@ -137,7 +137,7 @@
             
             
              <!-- Containter to add clones of the semantic forms -->
-             <div id="semanticFormContainer" >
+             <div id="semanticFormContainer" class="semanticFormContainerScroll" >
              </div>
              
           

@@ -1,28 +1,106 @@
 
+/* CSS for the Index Page */
 
 body {
-    background-color: powderblue;
+    background-color: #00BFFF;
     
+}
+
+
+#titleContainer {
+    background-color: #008CBA;
+    border: none;
+    padding: 20px;
+    border-radius: 12px;
 }
 
 
 h1 {
-    
     text-align: center;
-    font-style: monospace;
+    font-family: monospace;
+    color: white;
+    font-size: 35px;
 }
 
+
+h2 {
+    text-align: center;
+    font-family: monospace;
+    color: white;
+    font-size: 28px;
+    
+}
+
+#textContainer {
+    position:relative;
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    margin: 10px;
+}
 
 p {
-    
-    text-align: center;
-    font-style: monospace;
+    float: center;
+    font-family: monospace;
+    font-size: 20px;
+    margin: 40px;
+    margin-left: 100px;
+    margin-right: 100px;
 }
 
-#buttonToExample {
+
+#videoInstructionsContainer {
+    text-align: center; 
+}
+
+
+#startButtonContainer {
+    text-align: center;
+}
+
+.startButtonContainer {
+      position: relative;
+      height: 200px;
+}
+
+
+#startButton {
+    visibility: visible;
+    background-color: #008CBA;
+    text-align: center;
+    font-size: 25px;
+    font-family: monospace;
+    border: none;
+    color: white;
+    padding: 20px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 12px;
     
-    align: center;
+}
+
+.startButton {
+    visibility: visible;
+    background-color: #008CBA;
+    text-align: center;
+    font-size: 25px;
+    font-family: monospace;
+    border: none;
+    color: white;
+    padding: 20px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 12px;
     
+}
+
+.center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 }
 
 
