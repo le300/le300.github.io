@@ -54,10 +54,14 @@
                 <button id="startAnnotationButton" onclick="putFirstComicPageOnCanvas()"> Start Annotation </button>
             </div>
           
-            <!-- Test Section for Firbase! -->
+            <!-- Test Section for Firebase!
             <div>
-                <ul id="Test"> </ul>
-            </div>
+                <form id="Test">
+                    <input type="text" name="name" placeholder="Cafe name">
+                    <input type="text" name="city" placeholder="Cafe city">
+                    <button>Add Cafe</button>
+                </form>
+            </div> -->
               
             <!-- Form Instructions and Task Buttons -->
             <div id="panelIdSection">
@@ -159,7 +163,8 @@
     
     <!-- TODO: Add SDKs for Firebase products that you want to use
      https://firebase.google.com/docs/web/setup#available-libraries -->
-    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-analytics.js">
+    </script>
     
     <script>
         // Your web app's Firebase configuration
@@ -173,12 +178,13 @@
             appId: "1:1040008318250:web:1d57351f4e9d3a14a1a253",
             measurementId: "G-G6QH4VNP2C"
         };
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    firebase.analytics();
-    const db = firebase.firestore(); // Reference to the database, interact with the database through this constant
-    //db.settings({timestampsInSnapshots: true}); // Avoid warnings and errors in the console
-        </script>
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+        const db = firebase.firestore(); // Reference to the database, interact with the database through this constant
+        //db.settings({timestampsInSnapshots: true}); // Avoid warnings and errors in the console - not needed in this version of firebase
+    </script>
+    
     <!-- Javascript file -->
     <script type="text/javascript" src="comicsAnnotation.js"></script>
     

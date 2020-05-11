@@ -101,7 +101,7 @@ function preload() {
 preload(
         "comicPages/Page1.jpeg",
         "comicPages/Page2.jpeg",
-        "comicPages/Page3.jpeg"
+        //"comicPages/Page3.jpeg"
         );
 
 
@@ -828,16 +828,51 @@ function submitSemanticForms(event) {
         return;
     }
     
-    // Eventually, get the pagesData file email
-
-    // For now, just post to console
-    console.log(pagesData);
-    console.log( JSON.stringify(pagesData) );
+    // GET THAT DATA!
+    // Post to console
+    console.log(pagesData); // test
+    console.log( JSON.stringify(pagesData) ); //test
     
-    // Also, go to the last webapge
-    window.location.href = "endPage.html";
+    // Save the data to the firebase database
+    sendDataToFireBase(event);
+
+    // Lastly, go to the last webpage
+    //window.location.href = "endPage.html";
 }
 
+
+
+
+// Submit annotated data to firebase database
+function sendDataToFireBase(event) {
+    //convert pagesData to a JSON file
+    event.preventDefault();
+    var jsonString = JSON.stringify(pagesData);
+    // use fs from Node.js to write the file to disk
+    //var fs = require('fs');
+    //fs.writeFile('jsonFile.json', jsonFile, 'utf8', callback);
+    //db.collection("Test").add({
+    //                          jsonString: jsonString
+    //                          });
+    
+    db.collection("Test").add({time: Date().toLocaleString(),
+                              jsonData: jsonString}
+                              ).then(function(snapshot) {
+                                window.location.href = "endPage.html";
+                                console.log("string added");
+                                });
+    
+    
+ /*
+    // Create a root reference
+    var ref = firebase.storage().ref();
+    
+    // Data URL string
+    var message = 'data:text/plain;' + jsonString;
+    ref.putString(message, 'data_url').then(function(snapshot) {
+                                            console.log('Uploaded a data_url string!');
+                                            }); */
+}
 
 
 
@@ -1155,27 +1190,33 @@ function drawCharacterInfoOnCanvas() {
 
 
 
-/* Firebase Database Collection and Retreival
+
+
+
+/* Firebase Database Collection and Retreival */
 
 // Test - Get and show the stored data from Firebase
-const testList = document.querySelector("#Test");
+//const formTest = document.querySelector('#Test');
 
-// Create element and render test
+
+
+// Create element and render Test
 function renderTest(doc) {
-    let li = document.createElement("li");
-    let name = document.createElement("span");
-    let city = document.createElement("span");
+   /*  let li = document.createElement("li");
+    let key = document.createElement("span");
+    let value = document.createElement("span");
     
-    li.setAttribute("data-id", doc.id);
-    name.textContent = doc.data().name;
-    city.textContent = doc.data().city;
+    li.setAttribute('data-id', doc.id);  // Get the name of the retreived document
+    key.textContent = doc.data().key;
+    value.textContent = doc.data().value;
     
-    li.appendChild(name);
-    li.appendChild(city);
-    
-    testList.appendChild(li);
+    li.appendChild(key);
+    li.appendChild(value);
+    testList.appendChild(li); */
 }
 
+
+// Get a representaton of all the documents in the database collection "Test"
 db.collection("Test").get().then((snapshot) => {
                                 // console.log(snapshot.docs);
                                  snapshot.docs.forEach(doc => {
@@ -1183,13 +1224,21 @@ db.collection("Test").get().then((snapshot) => {
                                  renderTest(doc);
                                                        });
                                  });
-*/
+
 
 // Reference to the collection 'Test', then a method to get all the documents in the collection. The 'then' method calls a function to fire when the data is collected
 
+/*
+// Saving inputted data to the firebase database
+formTest.addEventListener('submit', (e) => {
+                          e.preventDefault(); // stops the page refresh default action
+                          db.collection("Test").add({
+                            name: formTest.name.value,
+                            city: formTest.city.value
+                                });
+                          });  */
 
-
-
+// The "add()" method takes in an object as a document
 
 
 
