@@ -101,7 +101,7 @@ function preload() {
 preload(
         "comicPages/Page1.jpeg",
         "comicPages/Page2.jpeg",
-        //"comicPages/Page3.jpeg"
+        "comicPages/Page3.jpeg"
         );
 
 
