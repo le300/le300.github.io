@@ -26,8 +26,11 @@ var panelNum = 1; // ID of current panel being drawn
 // Boolean whether user can draw rects on the canvas
 var drawRectsON = false;
 
-// Boolean to state whether the panel id task buttons are hidden or visible
+// Boolean to state whether the panel id task div is hidden or visible
 var panelButtonsVisible = false;
+
+// Boolean to state whether the last three panel id task buttons are hidden or visible
+var lastThreePanelIDButtonsVisible = false;
 
 // Create between page (previous and next page) navigation buttons
 var navigationButtonsCreated = false;
@@ -41,9 +44,13 @@ var currentPanel;
 // Track the current char form being created
 var currentForm;
 
+// Boolean to track whether the scroll is on or off - it's on when there are semantic forms, and off when there are not
+var scrollON = false; 
+
 // Preset value for char and description inputs
-const charLabelInstruction = "One letter (e.g. x, y)";
+const charLabelInstruction = "One variable (e.g. x1, x2)";
 const charDescriptionInstruction = "One or two words (e.g. girl)";
+const backgroundLabelInstruction = "One variable (e.g. L1)"
 const backgroundLocationInstruction = "One or two words (e.g. forest)";
 const indicateCharInstructions = "";
 
@@ -148,9 +155,17 @@ function putFirstComicPageOnCanvas() {
     panelButtonsVisible = true;
     document.getElementById("panelIdSection").style.display = "block";
     // Change the 'Start Annotation' button to 'Page 1' heading
+    if (lastThreePanelIDButtonsVisible) {
+        lastThreePanelIDButtonsVisible = false;
+        document.getElementById("clearLastRectButton").style.display = "none";
+        document.getElementById("clearButton").style.display = "none";
+        document.getElementById("endButton").style.display = "none";
+    }
+    // Change the Start Annotation button to a page number display
     var startAnnotationButton = document.getElementById("startAnnotationButton");
-    startAnnotationButton.innerHTML = "Page 1";
+    startAnnotationButton.innerHTML = "Page 1 of " + comicPages.length;
     startAnnotationButton.style.cursor = "default";
+    //startAnnotationButton.style.backgroundColor = "#006080";
     // Turn off the button's onlick capabilties
     startAnnotationButton.setAttribute("onclick", "true");
     //console.log("After Start Annotation Button, pageNum is " + pageNum); //test
@@ -183,6 +198,22 @@ function nextPage(event) {
         alert(errorMessage);
         return;
     }
+    
+    // Setup panel ID button situation
+    if (lastThreePanelIDButtonsVisible) {
+        lastThreePanelIDButtonsVisible = false;
+        document.getElementById("clearLastRectButton").style.display = "none";
+        document.getElementById("clearButton").style.display = "none";
+        document.getElementById("endButton").style.display = "none";
+    }
+    
+    // Put the scroll on the semantic forms section
+    if (scrollON) {
+        scrollON = false;
+        document.getElementById("semanticFormContainer").setAttribute("class","true");
+    }
+    
+    
 
     
     // Go to next page
@@ -213,11 +244,12 @@ function nextPage(event) {
     
     // Change the page number indicator at the top of the web page
     pageNumTitle = pageNum + 1;
-    document.getElementById("startAnnotationButton").innerHTML = "Page " + pageNumTitle;
+    document.getElementById("startAnnotationButton").innerHTML = "Page " + pageNumTitle + " of " + comicPages.length;
     // Show the panel demarcation section with the buttons
     panelButtonsVisible = true;
     document.getElementById("panelIdSection").style.display = "block";
-    // Change the 'Start Annotation' button to 'Page 1' heading
+    // But hide all buttons but Start Task button (until Start Button pressed)
+    
     
     // If this is a revisit to a page, populate with right info - elements from the stored semantic container
     if ((pageNum+1) <= pagesData.length) {
@@ -265,6 +297,15 @@ function putPreviousPageOnCanvas(event) {
     if (drawRectsON){
         recordRectsOFF(event);
     }
+    
+    // Setup panel ID button situation
+    if (lastThreePanelIDButtonsVisible) {
+        lastThreePanelIDButtonsVisible = false;
+        document.getElementById("clearLastRectButton").style.display = "none";
+        document.getElementById("clearButton").style.display = "none";
+        document.getElementById("endButton").style.display = "none";
+    }
+    
     // Store current semantic forms - html elements
     pagesData[pageNum].storedSemanticFormContainer = document.getElementById("semanticFormContainer").cloneNode(true);
     
@@ -289,7 +330,7 @@ function putPreviousPageOnCanvas(event) {
     putComicPageOnCanvas(); // Put previous image on canvas
     // Change the page number indicator at the top of the web page
     pageNumTitle = pageNum + 1;
-    document.getElementById("startAnnotationButton").innerHTML = "Page " + pageNumTitle;
+    document.getElementById("startAnnotationButton").innerHTML = "Page " + pageNumTitle + " of " + comicPages.length;
     
    
     drawPanelInfoOnCanvas(); // Put stored panel rects on canvas
@@ -333,13 +374,14 @@ function validateInputs() {
             if (character.label == "" || character.label == charLabelInstruction ) {
                 errorMessage += "Missing Character Label for Panel " + (i + 1) + " Character Number " + (j + 1) + "\n";
             }
-            // Get
+
             var characterDescriptionInput = document.getElementById("charDescriptionInput" + i + "." + j).value;
             if (characterDescriptionInput == "" || characterDescriptionInput == charDescriptionInstruction) {
                 errorMessage += "Missing Character Description for Panel " + (i + 1) + " Character Number " + (j + 1) + "\n";
             } else {
                 pagesData[pageNum].panels[i].characters[j].Description = characterDescriptionInput;
             }
+            
             var offPanelButtonChecked = document.getElementById("offPanel" + i + "." + j).checked;
             var onPanelButtonChecked = document.getElementById("onPanel" + i + "." + j).checked;
             if (!(offPanelButtonChecked || onPanelButtonChecked)) {
@@ -349,9 +391,17 @@ function validateInputs() {
             }
 
         }
+        var backgroundLocationLabelVariableInput = document.getElementById("backgroundLocationLabelInput" + (i + 1)).value;
+        if (backgroundLocationLabelVariableInput == "" || backgroundLocationLabelVariableInput == backgroundLabelInstruction) {
+            errorMessage += "Missing Background Location Label for Panel " + (i + 1) + "\n"
+        } else {
+            pagesData[pageNum].panels[i].background.label = backgroundLocationLabelVariableInput;
+        }
+        
+        
         var backgroundLocationDescriptionInput = document.getElementById("backgroundLocationInput" + (i + 1)).value;
         if (backgroundLocationDescriptionInput == "" || backgroundLocationDescriptionInput == backgroundLocationInstruction) {
-            errorMessage += "Missing Background Location for Panel " + (i + 1) + "\n";
+            errorMessage += "Missing Background Location Description for Panel " + (i + 1) + "\n";
         } else {
             pagesData[pageNum].panels[i].background.location = backgroundLocationDescriptionInput;
         }
@@ -364,15 +414,24 @@ function validateInputs() {
         }
         
     }
-    if (pagesData[pageNum].panels.length==0){
+    if (pagesData[pageNum].panels.length==0) {
         errorMessage = "Please draw at least one panel/section, even if it covers the whole page!";
+        // Get rid of the Page Count and Instructions section
+        document.getElementById("panelNumSection").style.display = "none";
+        // Put the panel ID task buttons back
+        if (panelButtonsVisible == false) {
+            panelButtonsVisible = true;
+            document.getElementById("panelIdSection").style.display = "block";
+        }
     }
+        
     putComicPageOnCanvas();
     drawPanelInfoOnCanvas();
     drawCharacterInfoOnCanvas();
     console.log("Validate Forms" + errorMessage);
     return errorMessage;
 }
+
 
 
 
@@ -564,6 +623,13 @@ function recordRectsON(event) {
     //event = button click
     drawRectsON = true;
     // console.log("After Start Button, pageNum is " + pageNum); //test
+    // Get the rest of the panel ID task buttons, show them
+    if (!lastThreePanelIDButtonsVisible) {
+        lastThreePanelIDButtonsVisible = true;
+        document.getElementById("clearLastRectButton").style.display = "inline-block";
+        document.getElementById("clearButton").style.display = "inline-block";
+        document.getElementById("endButton").style.display = "inline-block";
+    }
 }
 
 
@@ -581,7 +647,7 @@ function recordRectsOFF(event) {
     panelCounter(panelRecNum-1);
     showContentForms(panelRecNum-1);
     // Only create buttons at the bottom page when this function runs for the first page
-    if (document.getElementById("startAnnotationButton").innerHTML == "Page 1" && !navigationButtonsCreated) {
+    if (document.getElementById("startAnnotationButton").innerHTML == "Page 1 of " + comicPages.length && !navigationButtonsCreated) {
         createNavigationButtons();
         navigationButtonsCreated = true;
     }
@@ -628,10 +694,16 @@ function panelCounter(x) {
     // Parameter x is the number of panels or sections specified by the user
     document.getElementById("panelNumSection").style.display = "inline-block"; 
     if (x==1) {
-        document.getElementById("panelCount").innerHTML = "There is " + x + " panel/section on this page.";
+        document.getElementById("panelCount").innerHTML = "There is " + x + " section on this page.";
         return;
     }
-    document.getElementById("panelCount").innerHTML = "There are " + x + " panels/sections on this page.";
+    document.getElementById("panelCount").innerHTML = "There are " + x + " sections on this page.";
+    
+    // Put the scroll on the semantic forms section
+    if (!scrollON) {
+        scrollON = true;
+        document.getElementById("semanticFormContainer").setAttribute("class","semanticFormContainerScroll");
+    }
 }
 
 
@@ -650,7 +722,7 @@ function showContentForms(x) {
         clone.id = "panelForm" + j; // Change the id for the cloned form
         // Create a heading to give the panel number for the new form
         var newHeading = document.createElement("h3");
-        newHeading.innerHTML = "Panel " + j;
+        newHeading.innerHTML = "Section " + j;
         clone.insertBefore(newHeading, clone.childNodes[0]);
         // Character ID and description section
         var newCharHeading = document.createElement("h4"); // Characters heading
@@ -674,6 +746,18 @@ function showContentForms(x) {
         backgroundForm.setAttribute('action',"true");
         backgroundForm.setAttribute('id',"backgroundForm" + j);
         
+        var backgroundLocationLabelInput = document.createElement("input"); //input element for location variable
+        backgroundLocationLabelInput.setAttribute('type',"text");
+        backgroundLocationLabelInput.setAttribute('name', "backgroundLocationLabelInput");
+        backgroundLocationLabelInput.setAttribute('class', "charDescriptionInput");
+        backgroundLocationLabelInput.setAttribute('id', "backgroundLocationLabelInput" + j);
+        backgroundLocationLabelInput.value = backgroundLabelInstruction;
+        
+        var backgroundLocationLabelLabel = document.createElement("label"); // label for location variable input
+        backgroundLocationLabelLabel.setAttribute("for", "backgroundLocationLabel" + j);
+        backgroundLocationLabelLabel.innerHTML = "Location Label: ";
+        backgroundLocationLabelLabel.setAttribute('id', "backgroundLocationLabelLabel" + j);
+        
         var backgroundLocationInput = document.createElement("input"); //input element for location
         backgroundLocationInput.setAttribute('type',"text");
         backgroundLocationInput.setAttribute('name',"backgroundLocationInput");
@@ -681,9 +765,9 @@ function showContentForms(x) {
         backgroundLocationInput.setAttribute('id',"backgroundLocationInput" + j);
         backgroundLocationInput.value = backgroundLocationInstruction;
         
-        var backgroundLocationInputLabel = document.createElement("label"); // label for location
+        var backgroundLocationInputLabel = document.createElement("label"); // label for location description input
         backgroundLocationInputLabel.setAttribute("for", "backgroundLocationInput" + j);
-        backgroundLocationInputLabel.innerHTML = "Location: ";
+        backgroundLocationInputLabel.innerHTML = "Location Description: ";
         backgroundLocationInputLabel.setAttribute('id', "backgroundLocationInputLabel" + j);
         
         var blankBackgroundButton = document.createElement("input"); // blank background radio button
@@ -694,7 +778,7 @@ function showContentForms(x) {
         
         var blankBackgroundButtonLabel = document.createElement("label");
         blankBackgroundButtonLabel.setAttribute("for", "blankBackground");
-        blankBackgroundButtonLabel.innerHTML = "Blank/Empty";
+        blankBackgroundButtonLabel.innerHTML = "Empty";
         blankBackgroundButtonLabel.setAttribute('id', "blankBackgroundButtonLabel" + j);
         
         var detailedBackgroundButton = document.createElement("input"); // fully drawn background radio button
@@ -709,10 +793,14 @@ function showContentForms(x) {
         detailedBackgroundButtonLabel.setAttribute('id', "detailedBackgroundButtonLabel" + j);
         
         // Append the inputs to the form element
+        backgroundForm.appendChild(backgroundLocationLabelLabel);
+        backgroundForm.appendChild(backgroundLocationLabelInput);
+        var breakElementX = document.createElement("br");
+        backgroundForm.appendChild(breakElementX); // Add a break element between inputs
         backgroundForm.appendChild(backgroundLocationInputLabel);
         backgroundForm.appendChild(backgroundLocationInput);
-        var breakElement = document.createElement("br");
-        backgroundForm.appendChild(breakElement); // Add a break element between inputs
+        var breakElementY = document.createElement("br");
+        backgroundForm.appendChild(breakElementY); // Add a break element between inputs
         backgroundForm.appendChild(blankBackgroundButton);
         backgroundForm.appendChild(blankBackgroundButtonLabel);
         backgroundForm.appendChild(detailedBackgroundButton);
@@ -784,6 +872,22 @@ function resetPage(event) {
     pagesData[pageNum].storedSemanticFormContainer = document.getElementById("semanticFormContainer").cloneNode(true);
     charIdON = false;  // turn off both (panel ID and char ID) event handlers
     drawRectsON = false;
+    
+    
+    // Take the scroll off the semantic forms section
+    if (scrollON) {
+        scrollON = false;
+        document.getElementById("semanticFormContainer").setAttribute("class","true");
+    }
+    
+    // Setup panel ID button situation
+    if (lastThreePanelIDButtonsVisible) {
+        lastThreePanelIDButtonsVisible = false;
+        document.getElementById("clearLastRectButton").style.display = "none";
+        document.getElementById("clearButton").style.display = "none";
+        document.getElementById("endButton").style.display = "none";
+    }
+    
     
     putComicPageOnCanvas(); // Put next page on canvas
     
@@ -888,15 +992,15 @@ function startIndividualCharID(event) {
     //console.log("currentPanel: " + currentPanelNumber); // test
     var instructionID = "charClickInstructions" + currentPanelNumber;
     //boolean expression gives true if element already there, false otherwise
-    var charInstructionsCreated = !!document.getElementById(instructionID);
+    //var charInstructionsCreated = !!document.getElementById(instructionID);
     // Give simple instruction when indicateCharButton clicked - only do this once per button
     //Only give instruction if not already created
-    if (!charInstructionsCreated) {
-        var charClickInstructions = document.createElement("p");
-        charClickInstructions.innerHTML = indicateCharInstructions;
-        charClickInstructions.setAttribute("id", instructionID);
-        currentPanel.insertBefore(charClickInstructions, currentPanel.childNodes[3]);
-    }
+    //if (!charInstructionsCreated) {
+        //var charClickInstructions = document.createElement("p");
+        //charClickInstructions.innerHTML = indicateCharInstructions;
+        //charClickInstructions.setAttribute("id", instructionID);
+        //currentPanel.insertBefore(charClickInstructions, currentPanel.childNodes[3]);
+    //}
     //console.log("button pressed"); //tests
     // Create and append the buttons
     //var buttonID = event.target.getAttribute('id');

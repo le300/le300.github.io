@@ -31,6 +31,14 @@ h2 {
     
 }
 
+h3 {
+    text-align: center;
+    font-family: monospace;
+    color: white;
+    font-size: 30px;
+}
+
+
 #textContainer {
     position:relative;
     width: 100%;
@@ -47,6 +55,19 @@ p {
     margin-left: 100px;
     margin-right: 100px;
 }
+
+
+
+#instructionsContainer {
+    text-align: center;
+}
+
+.divBackgroundStyle{
+    background-color: #004d66;
+    padding: 1px;
+    margin-bottom: 20px;
+}
+
 
 
 #videoInstructionsContainer {
@@ -68,7 +89,7 @@ p {
     visibility: visible;
     background-color: #008CBA;
     text-align: center;
-    font-size: 25px;
+    font-size: 35px;
     font-family: monospace;
     border: none;
     color: white;
@@ -103,6 +124,9 @@ p {
     transform: translate(-50%, -50%);
 }
 
+.fontsizeP {
+    font-size: 16px; 
+}
 
 
 

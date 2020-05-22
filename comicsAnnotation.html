@@ -66,20 +66,23 @@
             <!-- Form Instructions and Task Buttons -->
             <div id="panelIdSection">
                 
-                <h4> Specify the Panels or Sections </h4>
+                <img src="Instructions1.jpg" alt="Panel/Section ID Task Instructions">
                 
                 <p>  </p>
                 
                 <div>
                     <button id="startButton" type="button" class="panelIDButtons" onclick="recordRectsON(event)">Start Task</button>
-                
-                    <button id="endButton" type="button" class="panelIDButtons" onclick="recordRectsOFF(event)">All Indicated</button>
                 </div>
                 
                 <div>
                     <button id="clearLastRectButton" type="button" class="panelIDButtonsVersion2" onclick="clearLastDrawnRectangle(event)">Clear Last Rectangle</button>
                 
                     <button id="clearButton" type="button" class="panelIDButtonsVersion2" onclick="recordRectsCLEAR(event)">Clear All Rectangles</button>
+                </div>
+                    <button id="endButton" type="button" class="panelIDButtons" onclick="recordRectsOFF(event)">End Task</button>
+                <div>
+                    
+                    
                 </div>
                 <!-- Debugging check: store click coordinates in a textarea
                 <label for="clickCoordsRecorded"> </label>
@@ -97,7 +100,9 @@
                 <!-- State the number of panels/sections inputted by the user clicking on the comic image -->
                 <p id="panelCount"> </p>
                 
-                <p id="instructionsForSemanticForms"> Start annotating characters by clicking the "indicate characters" button, then click on all the characters in the panel/section. Give repeated characters the same label. If the characters appears in a section more than once, indicate each appearance separately. Don't forget to annotate the background as well! </p>
+                <img src="Instructions2.jpg" alt="Semantic Form Task Instructions" height=200px >
+                
+                <!-- <p id="instructionsForSemanticForms"> Start annotating characters by clicking the "indicate characters" button, then click on all the characters in the panel/section. Give repeated characters the same label. If the characters appears in a section more than once, indicate each appearance separately. Don't forget to annotate the background as well! (Add an image here as well)</p> -->
              </div>
             
             
@@ -109,7 +114,7 @@
                 <!-- Specify characters by assigning variables -->
            <!--     <h3 id="panelNumFormHeading"> Panel 1 </h3> -->
            
-                <!-- <h4 id="charHeading"> Characters: Identify and Describe  </h4> -->
+                <!-- <h4 id="charHeading"> Characters: Identify and Describe  </h4>
                 
                 <div id="charTaskContainer" >
                     
@@ -120,7 +125,7 @@
                     <button id="startTaskCharID" type="button" onclick="startCharIDTask(event)"> Start Click </button>
                     <button id="startTaskCharID" type="button" onclick="stopCharIDTask(event)"> End Click </button>
                     <button id="offPanelChar" type="button" onclick="true"> Off Panel Character </button> -->
-                </div>
+                <!-- </div>
                 
                 <div id="charFormContainter">
                     </div>
@@ -134,14 +139,14 @@
                     <input type="radio" id="backgroundEmpty" name="background" value="backgroundEmpty">
                         <label for="backgroundEmpty">Background is empty</label><br>
                            -->
-                </div>
+                <!-- </div> -->
 
                 
              </div>
             
             
              <!-- Containter to add clones of the semantic forms -->
-             <div id="semanticFormContainer" class="semanticFormContainerScroll" >
+             <div id="semanticFormContainer" class="true" >
              </div>
              
           
