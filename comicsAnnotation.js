@@ -959,7 +959,7 @@ function sendDataToFireBase(event) {
     //                          jsonString: jsonString
     //                          });
     
-    db.collection("Test").add({time: Date().toLocaleString(),
+    db.collection("Annotation").add({time: Date().toLocaleString(),
                               jsonData: jsonString}
                               ).then(function(snapshot) {
                                 window.location.href = "endPage.html";
@@ -1321,7 +1321,7 @@ function renderTest(doc) {
 
 
 // Get a representaton of all the documents in the database collection "Test"
-db.collection("Test").get().then((snapshot) => {
+db.collection("Annotation").get().then((snapshot) => {
                                 // console.log(snapshot.docs);
                                  snapshot.docs.forEach(doc => {
                                  console.log(doc.data());
