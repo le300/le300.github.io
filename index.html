@@ -10,13 +10,23 @@
     
     <div id="titleContainer">
        <h1> Comics Annotation Tool (CAT) </h1>
-       <h2> Prototype Version 1.0 </h2>
+       <h2> Prototype Version 1.2 </h2>
         </div>
     
-    <div id="textContainer">
-        <p> This is a web-based annotation tool for marking up comics. See the instructions below for an overview of how to use the CAT. After reading the instructions, click the Start button below to begin. Thanks for giving it a try! </p>
+    <div id="textContainer" style="width: 100%;">
+        
+        <div style="float:left; width: 50%">
+             <img src="gif2.gif" alt="The CAT in use">
+            </div>
+        
+        <div style="float:right; width: 50%">
+            <p> This is a web-based annotation tool for marking up comics. See the video below for a quick run-through of the CAT. <a href="CAT_Instructions.pdf" target="_blank">Click here</a> to download the CAT instruction manual for more detailed instructions on how to use the CAT. <a href="CAT_Annotation_Examples.pdf" target="_blank">Click here</a> to download the annotation scheme, which has numerous example annotations. </p>
+            
+            <p> Once you've read through the annotation examples, click the Start button at the bottom of this page to begin annotating comic pages. Thank you for your help in this research! </p>
+            </div>
+        
         </div>
-    
+<!--
     <div id="instructionsContainer">
         <div class="divBackgroundStyle">
             <h3> How to Use the CAT: </h3>
@@ -99,6 +109,10 @@
     
     
     </div>
+ 
+ -->
+
+<div style="clear:both"></div>
     
     <br>
  
@@ -106,21 +120,96 @@
      <h3>  </h3>
  </div>
  
- 
-    <!--
+
     <div id="videoInstructionsContainer">
         <video width="960" height="540" controls>
-            <source src="CATInstructionsVersion2.mp4" type="video/mp4" >
+            <source src="CATInstructions.mp4" type="video/mp4" >
                 Your browser does not support the video tag - soz :(
             </video>
-        </div> -->
+        </div>
     
+<div class="divBackgroundStyle" >
+    <h3> </h3>
+    </div>
+
+
+
+
+
     <div id="startButtonContainer" class="startButtonContainer">
+      
+      <!-- Start button - replaced by individual story buttons for now
+      
         <a href="comicsAnnotation.html" ><button id="startButton" class="center" > Start </button></a>
+       
+        -->
+      
+        <form name="participantNumForm">
+          <label for="participantNum" class="labelFont"> Participant Number: </label>
+          <input type="text" id="participantNum" for="participantNum">
+              </form>
+      
+        <br></br>
+      
+            <button id="startButton" onclick="startAnnotation(1)" > Start Story 1 </button>
+      
+        <br></br>
+      
+            <button id="startButton" onclick="startAnnotation(2)" > Start Story 2 </button>
+        
+        <br></br>
+        
+            <button id="startButton" onclick="startAnnotation(3)" > Start Story 3 </button>
+        
+        <br></br>
+        
         </div>
     
     
+    <script>
+        
+        // Validates and stores participant number to add to pagesData on next page
+        function recordParticipantNum() {
+            var participantNum = document.forms["participantNumForm"]["participantNum"].value;
+            
+            if (participantNum == "") {
+                alert("Please fill in your participant number!");
+                return false;
+            } else {
+                // store the participantNum
+                localStorage.setItem("participantNum", participantNum);
+                return true;
+            }
+        }
+        
+        
+        
+        var storyNum = "";
+        
+        // Go to comics annotation page, with the correct story downloaded
+        function startAnnotation(num) {
+            
+            storyNum = num; // assign number to storyNum variable
+            
+            // Assign variable beyond the annotation page
+            localStorage.setItem("storyNumKey", storyNum);  // track which story will be uploaded for annotation
+            //console.log("storyNum: " + storyNum); //test
+            
+            var x = recordParticipantNum();
+            console.log(x);
+            
+            if (x == false) {
+                return;
+            }
+            if (x == true) {
+                // go the the annotation tool with correct storyNum in place
+                location.href = 'comicsAnnotation.html'; // go back to the main annotation page
+            }
+            
+        }
     
+        
+        </script>
     
 </body>
     

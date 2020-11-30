@@ -8,9 +8,93 @@
 </head>
 
 <body>
-    <div id="titleContainer">
-        <h1> Thanks for using the CAT! </h1>
-    </div>
+    
+    <div id="storyCounterContainer" class="storyCounterContainer">
+        <h1 id="storyCounter"> </h1>
+        <h2 id="closeBrowserMessage"> </h2>
+        
+        <h1>Thank you for using the CAT! </h1>
+        
+        <h2> You many now close this tab or browser, or click "Next Story" below to return to the home page to choose another story to annotate. </h2>
+        
+        </div>
+    
+    <div id="nextStoryButtonContainer">
+        <button id="nextStoryButton" onclick="nextStory(event)">
+            Next Story
+            </button>
+        </div>
+    
+    
+    
+    
+    <!-- Extra script to keep track of the stories and end button(s) -->
+    <script>
+        
+        /* This section of script below allows for multiple stories to be annotated in a row! At the moment, the stories are annotation one at a time */
+        
+        // GLOBAL VARIABLES (or this page!)
+        //const totalStories = 4; // this should match the number of story folders
+        
+        /* Wait for HTML to load and then setup the canvas */
+        //document.addEventListener("DOMContentLoaded", storyNumIncrease());
+        
+        /* Increments storyNum counter, and puts the right elements on the page */
+        //function storyNumIncrease() {
+            
+            // get storyNum from local storage
+            //var storyNum = localStorage.getItem("storyNumKey");
+            //var storyNumAsInt = parseInt(storyNum, 10); // change to int
+            
+            //storyCounter(storyNumAsInt, totalStories); // put the correct paragraph on the page
+            
+            //storyNumAsInt += 1; // increment
+            
+            // check if the storyNum is greater than the number of stories designated for this task
+            //if (storyNumAsInt == (totalStories+1)) {
+                //var nextStoryButton = document.getElementById("nextStoryButton");
+                //nextStoryButton.style.display = "none";
+                
+                //document.getElementById("storyCounter").innerHTML = "Thank you for using the CAT!";
+                
+                //document.getElementById("closeBrowserMessage").innerHTML = "You may now close the broswer or exit the browser tab.";
+                
+            //} else {
+                //localStorage.setItem("storyNumKey", storyNumAsInt); // set into local storage
+            //}
+
+            //console.log("storyNum: " + storyNumAsInt); //test
+        //}
+    
+    
+        /* puts a statement saying how many stories are left to annotate */
+        // this runs at the end of the storyNumIncrease function
+        //function storyCounter(storyNum, totalStories) {
+            
+            //var storiesRemaining = (totalStories-storyNum);
+            //console.log("storyNum: " + storyNum); // test
+            //console.log("totalStories: " + totalStories); // test
+            
+            // update the story counter heading
+            //if (storyNum == 1) {
+                //document.getElementById("storyCounter").innerHTML = "You have completed " + storyNum + " story - there are " + storiesRemaining + " remaining stories!";
+                //return;
+            //}
+            //if (storiesRemaining == 1) {
+                //document.getElementById("storyCounter").innerHTML = "You have completed " + storyNum + " stories - there is " + storiesRemaining + " remaining story!";
+                //return;
+            //}
+           // document.getElementById("storyCounter").innerHTML = "You have completed " + storyNum + " stories - there are " + storiesRemaining + " remaining stories!";
+            
+        //}
+
+        
+        
+        </script>
+    
+    
+    <!-- Javascript file -->
+    <script type="text/javascript" src="comicsAnnotation.js"></script>
     
 </body>
 

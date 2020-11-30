@@ -6,7 +6,7 @@ body {
     background-color: #00BFFF;
 }
 
-#titleContainer {
+#storyCounterContainer {
     background-color: #008CBA;
     border: none;
     padding: 20px;
@@ -17,6 +17,31 @@ h1 {
     text-align: center;
     font-family: monospace;
     color: white;
-    font-size: 35px;
+    font-size: 30px;
+}
+
+h2 {
+    text-align: center;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    color: white;
+    font-size: 18px;
+}
+
+#nextStoryButtonContainer {
+    text-align: center;
+}
+
+#nextStoryButton {
+    background-color: #004d66;
+    text-align: center;
+    font-size: 25px;
+    font-family: monospace;
+    border: none;
+    color: white;
+    padding: 30px;
+    margin: 5px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 12px;
 }
 

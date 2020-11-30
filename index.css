@@ -8,7 +8,7 @@ body {
 
 
 #titleContainer {
-    background-color: #008CBA;
+    background-color: #004d66;
     border: none;
     padding: 20px;
     border-radius: 12px;
@@ -75,15 +75,22 @@ p {
 }
 
 
+.labelFont {
+    font-family: monospace;
+    font-size: 30px;
+    color: #004d66;
+    
+}
+
+
 #startButtonContainer {
     text-align: center;
 }
 
 .startButtonContainer {
       position: relative;
-      height: 200px;
+      height: 400px;
 }
-
 
 #startButton {
     visibility: visible;
@@ -128,6 +135,11 @@ p {
     font-size: 16px; 
 }
 
+
+
+img {
+    border: 5px solid black;
+}
 
 
 
