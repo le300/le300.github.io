@@ -132,7 +132,7 @@ preload(
         "comicPages/Story" + storyNum  + "/Page2.jpeg",
         "comicPages/Story" + storyNum + "/Page3.jpeg",
         "comicPages/Story" + storyNum + "/Page4.jpeg",
-        //"comicPages/Story" + storyNum + "/Page5.jpeg"
+        "comicPages/Story" + storyNum + "/Page5.jpeg"
         );
 
 
