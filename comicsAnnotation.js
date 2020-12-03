@@ -63,7 +63,8 @@ var currentPanel;
 var currentForm;
 
 // Boolean to track whether the scroll is on or off - it's on when there are semantic forms, and off when there are not
-var scrollON = false; 
+var scrollON = false;
+
 
 // Preset value for char and description inputs
 const charLabelInstruction = "One variable (e.g. X1)";
@@ -181,6 +182,7 @@ function putComicPageOnCanvas() {
 
 /* Add first comic page image to the canvas, add a new entry to the list that stores all data */
 function putFirstComicPageOnCanvas() {
+    
     pageNum = 0;
     putComicPageOnCanvas();
     
@@ -205,6 +207,41 @@ function putFirstComicPageOnCanvas() {
     // Push new dict to pagesData and add empty panels list
     pagesData.push({});
     pagesData[pageNum].panels = [];
+    
+    // REUPLOAD an ANNOATED PAGE (offline use!)
+    
+    //if (localStorage.getItem("jsonPreloaded")) {
+        // Check if the file is an image.
+        //pagesData = put whole json data dict in here!
+        
+        //nextPage(event);
+        //putPreviousPageOnCanvas(event);
+
+        // outputs a javascript object from the parsed json
+        //const fs = require('fs');
+        
+        //fs.readFile('Annotations/Participant2_Story1.json', 'utf8', (err, jsonString) => {
+          //          if (err) {
+            //            console.log("Error reading file from disk:", err);
+              //          return;
+                //    }
+                  //  try {
+                    //    pagesData = JSON.parse(jsonString)["pagesData"];
+                //
+                //    } catch(err) {
+                //        console.log('Error parsing JSON string:', err);
+                //    }
+                //    });
+    
+        drawPanelInfoOnCanvas(); // Put stored panel rects on canvas
+        drawCharacterInfoOnCanvas(); // Put stored char info on canvas
+        drawTextSectionInfoOnCanvas(); // Put stored text section info on canvas
+        
+        displayCharsAndLocsSoFar(); // update the charList and locList
+        
+        
+    //}
+    
 }
 
 
@@ -480,6 +517,10 @@ function displayCharsAndLocsSoFar() {
 function validateInputs() {
     //  Returns boolean and a warning string
     // Go through each input on the semantic forms to check that they are filled in
+    // for now if json preloaded don't check annotations
+    //if (localStorage.getItem("jsonPreloaded")) {
+        //return "";
+    //}
     var errorMessage = "";
     
     //console.log(pagesData); //test
@@ -527,11 +568,14 @@ function validateInputs() {
             }
             
             var characterActionInput = document.getElementById("charActionInput" + i + "." + j).value;
-            if (characterActionInput = "" || characterActionInput == charActionInstruction) {
+            //console.log("characterActionInput: " + characterActionInput); //test
+            if (characterActionInput == "" || characterActionInput == charActionInstruction) {
                 errorMessage += "Missing Character Action for Section " + (i + 1) + " Character Number " + (j + 1) + "\n"; // send message
                 document.getElementById("charActionInput" + i + "." + j).style.backgroundColor = "LightPink"; // highlight input
             } else {
+                //console.log("characterActionInput: " + characterActionInput); //test
                 pagesData[pageNum].panels[i].characters[j].Action = characterActionInput;
+                //console.log("Data in the pageData: " + pagesData[pageNum].panels[i].characters[j].Action); //test
             }
         }
         
@@ -614,6 +658,9 @@ function validateInputs() {
             document.getElementById("textBackgroundButtonLabel" + (i+1)).style.backgroundColor = "LightPink"; // highlight input
         } else {
             pagesData[pageNum].panels[i].background.detail = backgroundDetailedButtonChecked;
+            pagesData[pageNum].panels[i].background.textOnly = backgroundTextButtonChecked;
+            //console.log("Check textOnly var: " + pagesData[pageNum].panels[i].background.textOnly); // test
+            //console.log("Check Detail var: " + pagesData[pageNum].panels[i].background.detail); // test
         }
         
     }
@@ -817,7 +864,9 @@ var drawRectangleOnCanvas = {
             characters:[],
             textSections: [],
             background: {location : "",
-                detail : 0}
+                detail : 0,
+                textOnly: 0
+            }
         }
         drawRectangleOnCanvas.drawAll();
         context.strokeStyle = "#FF0000";
@@ -2665,11 +2714,6 @@ function drawTextSectionInfoOnCanvas() {
 }
 
 
-
-
-
-
-
 /* End Page 'Next Story' Resetting Button and End Annotations */
 
 /* Starts the annotation task with the Next Story */
@@ -2681,52 +2725,13 @@ function nextStory(event) {
 
 
 
+/* Read in JSON DATA to Check Annotated Pages */
 
 
 
-/* Firebase Database Collection and Retreival */
-
-// Test - Get and show the stored data from Firebase
-//const formTest = document.querySelector('#Test');
 
 
 
-// Create element and render Test
-function renderTest(doc) {
-   /*  let li = document.createElement("li");
-    let key = document.createElement("span");
-    let value = document.createElement("span");
-    
-    li.setAttribute('data-id', doc.id);  // Get the name of the retreived document
-    key.textContent = doc.data().key;
-    value.textContent = doc.data().value;
-    
-    li.appendChild(key);
-    li.appendChild(value);
-    testList.appendChild(li); */
-}
 
 
-// Get a representaton of all the documents in the database collection "Test"
-//db.collection("Annotation").get().then((snapshot) => {
-//                                // console.log(snapshot.docs);
-//                                 snapshot.docs.forEach(doc => {
-//                                 console.log(doc.data());
-//                                 renderTest(doc);
-//                                                       });
-//                                 });
 
-
-// Reference to the collection 'Test', then a method to get all the documents in the collection. The 'then' method calls a function to fire when the data is collected
-
-/*
-// Saving inputted data to the firebase database
-formTest.addEventListener('submit', (e) => {
-                          e.preventDefault(); // stops the page refresh default action
-                          db.collection("Test").add({
-                            name: formTest.name.value,
-                            city: formTest.city.value
-                                });
-                          });  */
-
-// The "add()" method takes in an object as a document
