@@ -600,6 +600,7 @@ function validateInputs() {
                 } else {
                     pagesData[pageNum].panels[i].textSections[j].type = "Speech/Thought: " + textSpeechFormInputValue;
                 }
+                console.log("Speech/Thought: " + pagesData[pageNum].panels[i].textSections[j].type); //test
             }
             if (otherTextSectionButtonChecked) {
                 var otherFormInputValue = document.getElementById("otherFormInput" + i + "." + (j+1)).value;
@@ -609,9 +610,11 @@ function validateInputs() {
                 } else {
                     pagesData[pageNum].panels[i].textSections[j].type = "Other: " + otherFormInputValue;
                 }
-            } else {
+            }
+            if (narrationTextSectionButtonChecked) {
                 pagesData[pageNum].panels[i].textSections[j].type = "Narration";
             }
+            //console.log("Check: " + pagesData[pageNum].panels[i].textSections[j].type); //test
 
         }
         
