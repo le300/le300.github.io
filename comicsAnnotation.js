@@ -133,7 +133,8 @@ preload(
         "comicPages/Story" + storyNum  + "/Page2.jpeg",
         "comicPages/Story" + storyNum + "/Page3.jpeg",
         "comicPages/Story" + storyNum + "/Page4.jpeg",
-        "comicPages/Story" + storyNum + "/Page5.jpeg"
+        "comicPages/Story" + storyNum + "/Page5.jpeg",
+        //"comicPages/Story" + storyNum + "/Page6.jpeg"
         );
 
 
@@ -210,28 +211,28 @@ function putFirstComicPageOnCanvas() {
     
     // REUPLOAD an ANNOATED PAGE (offline use!)
     
-    //if (localStorage.getItem("jsonPreloaded")) {
-        // Check if the file is an image.
-        //pagesData = put whole json data dict in here!
-        
-        //nextPage(event);
-        //putPreviousPageOnCanvas(event);
-
-        // outputs a javascript object from the parsed json
-        //const fs = require('fs');
-        
-        //fs.readFile('Annotations/Participant2_Story1.json', 'utf8', (err, jsonString) => {
-          //          if (err) {
-            //            console.log("Error reading file from disk:", err);
-              //          return;
-                //    }
-                  //  try {
-                    //    pagesData = JSON.parse(jsonString)["pagesData"];
-                //
-                //    } catch(err) {
-                //        console.log('Error parsing JSON string:', err);
-                //    }
-                //    });
+//    if (localStorage.getItem("jsonPreloaded")) {
+//
+//        pagesData =
+//
+//        nextPage(event);
+//        putPreviousPageOnCanvas(event);
+//
+//        outputs a javascript object from the parsed json
+//        const fs = require('fs');
+//
+//        fs.readFile('Annotations/Participant2_Story1.json', 'utf8', (err, jsonString) => {
+//                    if (err) {
+//                        console.log("Error reading file from disk:", err);
+//                        return;
+//                    }
+//                    try {
+//                        pagesData = JSON.parse(jsonString)["pagesData"];
+//
+//                    } catch(err) {
+//                        console.log('Error parsing JSON string:', err);
+//                    }
+//                    });
     
         drawPanelInfoOnCanvas(); // Put stored panel rects on canvas
         drawCharacterInfoOnCanvas(); // Put stored char info on canvas
@@ -662,6 +663,7 @@ function validateInputs() {
         } else {
             pagesData[pageNum].panels[i].background.detail = backgroundDetailedButtonChecked;
             pagesData[pageNum].panels[i].background.textOnly = backgroundTextButtonChecked;
+            pagesData[pageNum].panels[i].background.empty = backgroundEmptyButtonChecked;
             //console.log("Check textOnly var: " + pagesData[pageNum].panels[i].background.textOnly); // test
             //console.log("Check Detail var: " + pagesData[pageNum].panels[i].background.detail); // test
         }
