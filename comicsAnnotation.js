@@ -211,37 +211,48 @@ function putFirstComicPageOnCanvas() {
     
     // REUPLOAD an ANNOATED PAGE (offline use!)
     
+    // STEPS TO USE:
+    //  1. uncomment out the below section
+    //  2. copy and paste the uncleaned json file of "pagesData" you want to examine
+    //  3. in the nextPage function, disable the validateForms functions.
+    //  4. on index.html, uncomment localStorage.setItem("jsonPreloaded", true); at 204
+    //  5. to switch back, reverse steps 1-4!
+    
+//
 //    if (localStorage.getItem("jsonPreloaded")) {
+//
+//        // copy and past uncleaned json file below
 //
 //        pagesData =
 //
-//        nextPage(event);
-//        putPreviousPageOnCanvas(event);
+//        //nextPage(event);
+//        //putPreviousPageOnCanvas(event);
 //
-//        outputs a javascript object from the parsed json
-//        const fs = require('fs');
+//        drawPanelInfoOnCanvas(); // Put stored panel rects on canvas
+//        drawCharacterInfoOnCanvas(); // Put stored char info on canvas
+//        drawTextSectionInfoOnCanvas(); // Put stored text section info on canvas
 //
-//        fs.readFile('Annotations/Participant2_Story1.json', 'utf8', (err, jsonString) => {
-//                    if (err) {
-//                        console.log("Error reading file from disk:", err);
-//                        return;
-//                    }
-//                    try {
-//                        pagesData = JSON.parse(jsonString)["pagesData"];
+//        displayCharsAndLocsSoFar(); // update the charList and locList
 //
-//                    } catch(err) {
-//                        console.log('Error parsing JSON string:', err);
-//                    }
-//                    });
-    
-        drawPanelInfoOnCanvas(); // Put stored panel rects on canvas
-        drawCharacterInfoOnCanvas(); // Put stored char info on canvas
-        drawTextSectionInfoOnCanvas(); // Put stored text section info on canvas
-        
-        displayCharsAndLocsSoFar(); // update the charList and locList
-        
-        
-    //}
+//        //outputs a javascript object from the parsed json
+//        //const fs = require('fs');
+//
+//        // refer to the file in the Annotations folder. These are copies of
+//        // unclean json files
+//        //fs.readFile('Annotations/Participant2_Story1.json', 'utf8', (err, jsonString) => {
+//                    //if (err) {
+//                        //console.log("Error reading file from disk:", err);
+//                        //return;
+//                    //}
+//                    //try {
+//                        //pagesData = JSON.parse(jsonString)["pagesData"];
+//
+//                    //} catch(err) {
+//                        //console.log('Error parsing JSON string:', err);
+//                    //}
+//                    //});
+//
+//    }
     
 }
 
