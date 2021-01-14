@@ -214,11 +214,11 @@ function putFirstComicPageOnCanvas() {
     // STEPS TO USE:
     //  1. uncomment out the below section
     //  2. copy and paste the uncleaned json file of "pagesData" you want to examine
-    //  3. in the nextPage function, disable the validateForms functions.
+    //  3. in the nextPage function just below, disable the validateForms functions.
     //  4. on index.html, uncomment localStorage.setItem("jsonPreloaded", true); at 204
     //  5. to switch back, reverse steps 1-4!
     
-//
+
 //    if (localStorage.getItem("jsonPreloaded")) {
 //
 //        // copy and past uncleaned json file below
