@@ -26,8 +26,9 @@
         <section id="imageSection" class="indent-1">
             <!-- Container for comics page - holds dots for panel and other placement of semantic information -->
             <div id="comicPagesContainer" class="container">
-                <!-- Canvas element to hold  comic pages -->
-                <canvas id="canvas" width="600" height="700">
+                <!-- Canvas element to hold  comic pages
+                 Note: original size was width: 600, height: 700-->
+                <canvas id="canvas" width="650" height="750">
                     This browser does not support the HTML5 canvas element - sorry! 
                 </canvas>
                 
@@ -100,7 +101,7 @@
                 <!-- State the number of panels/sections inputted by the user clicking on the comic image -->
                 <p id="panelCount"> </p>
                 
-                <div id="listContainer" style="height: 100px; position: relative;">
+                <div id="listContainer" class="listContainer" style="height: 100px; position: relative;">
                 
                 <div id="charactersListContainer" class="list1" style="max-height:100%;overflow:auto;">
                     <!-- <label for="characterList" class="listLabel">Characters in this story so far: </label> -->
@@ -201,14 +202,12 @@
     <script>
         // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
-            apiKey: "AIzaSyCxNNwRXPj2CsZmZz93wUKwqPu_HFgxyKQ",
-            authDomain: "comicsannotationtool.firebaseapp.com",
-            databaseURL: "https://comicsannotationtool.firebaseio.com",
-            projectId: "comicsannotationtool",
-            storageBucket: "comicsannotationtool.appspot.com",
-            messagingSenderId: "691571356549",
-            appId: "1:691571356549:web:64ed5e3c9acc4b69a64aec",
-            measurementId: "G-HRWN8GDQ00"
+            apiKey: "AIzaSyAuZQ2Nbyi1UupCppz-QgkEEZKvshWBnJw",
+            authDomain: "annotationround2.firebaseapp.com",
+            projectId: "annotationround2",
+            storageBucket: "annotationround2.appspot.com",
+            messagingSenderId: "1016715410498",
+            appId: "1:1016715410498:web:cd10794ba6145b825c01db"
         };
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -221,7 +220,7 @@
     
     <!-- Javascript file -->
     <script type="text/javascript" src="comicsAnnotation.js"></script>
-    
+
         
 </body>
     

@@ -83,20 +83,27 @@ p {
 }
 
 
-#startButtonContainer {
+#startContainer {
     text-align: center;
 }
 
-.startButtonContainer {
+.startContainer {
       position: relative;
       height: 400px;
 }
+
+.annotationChoiceLayout {
+    font-family: monospace;
+    font-size: 25px;
+}
+
+
 
 #startButton {
     visibility: visible;
     background-color: #008CBA;
     text-align: center;
-    font-size: 35px;
+    font-size: 20px;
     font-family: monospace;
     border: none;
     color: white;
@@ -122,6 +129,7 @@ p {
     
 }
 
+ 
 .center {
     margin: 0;
     position: absolute;

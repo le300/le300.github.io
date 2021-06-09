@@ -10,22 +10,23 @@
     
     <div id="titleContainer">
        <h1> Comics Annotation Tool (CAT) </h1>
-       <h2> Prototype Version 1.2 </h2>
+       <h2> Prototype Version 2.0 </h2>
         </div>
     
     <div id="textContainer" style="width: 100%;">
         
-        <div style="float:left; width: 50%">
+      <!--  <div style="float:left; width: 50%">
              <img src="gif2.gif" alt="The CAT in use">
-            </div>
+            </div> -->
         
         <div style="float:right; width: 50%">
-            <p> This is a web-based annotation tool for marking up comics. See the video below for a quick run-through of the CAT. <a href="CAT_Instructions.pdf" target="_blank">Click here</a> to download the CAT instruction manual for more detailed instructions on how to use the CAT. <a href="CAT_Annotation_Examples.pdf" target="_blank">Click here</a> to download the annotation scheme, which has numerous example annotations. </p>
+         <!--   <p> This is a web-based annotation tool for marking up comics. See the video below for a quick run-through of the CAT. <a href="CAT_Instructions.pdf" target="_blank">Click here</a> to download the CAT instruction manual for more detailed instructions on how to use the CAT. <a href="CAT_Annotation_Examples.pdf" target="_blank">Click here</a> to download the annotation scheme, which has numerous example annotations. </p>
             
-            <p> Once you've read through the annotation examples, click the Start button at the bottom of this page to begin annotating comic pages. Thank you for your help in this research! </p>
+            <p> Once you've read through the annotation examples, click the Start button at the bottom of this page to begin annotating comic pages. Thank you for your help in this research! </p> -->
             </div>
         
         </div>
+
 <!--
     <div id="instructionsContainer">
         <div class="divBackgroundStyle">
@@ -112,112 +113,93 @@
  
  -->
 
-<div style="clear:both"></div>
+  <!--  <div style="clear:both"></div>
     
-    <br>
+        <br>
  
- <div class="divBackgroundStyle">
-     <h3>  </h3>
- </div>
+    <div class="divBackgroundStyle">
+        <h3>  </h3>
+        </div> -->
  
 
-    <div id="videoInstructionsContainer">
+  <!--  <div id="videoInstructionsContainer">
         <video width="960" height="540" controls>
             <source src="CATInstructions.mp4" type="video/mp4" >
                 Your browser does not support the video tag - soz :(
             </video>
-        </div>
+        </div> -->
     
-<div class="divBackgroundStyle" >
-    <h3> </h3>
-    </div>
+    <div class="divBackgroundStyle" >
+        <h3> </h3>
+        </div>
 
 
+<!--
+    startButtonContainer - older versions had the start button, or a participant number input and buttons to start individual stories.
+ 
+ The newer version below comments out the old parts, and now contains:
+ 
+ -->
 
 
-
-    <div id="startButtonContainer" class="startButtonContainer">
+    <div id="startContainer" class="startContainer">
       
       <!-- Start button - replaced by individual story buttons for now
-      
         <a href="comicsAnnotation.html" ><button id="startButton" class="center" > Start </button></a>
-       
         -->
       
-        <form name="participantNumForm">
+      <!--  <form name="participantNumForm">
           <label for="participantNum" class="labelFont"> Participant Number: </label>
           <input type="text" id="participantNum" for="participantNum">
-              </form>
+              </form> -->
       
         <br></br>
-      
-          <!-- <button id="startButton" onclick="startAnnotation(1)" > Start Story 1 </button> -->
-      
-        <br></br>
-      
-          <!--  <button id="startButton" onclick="startAnnotation(2)" > Start Story 2 </button> -->
+        
+        <form name="annotationChoice" id="annotationChoice" class="annotationChoiceLayout">
+            Participant Number: <select name="participantNumberMenu" id="participantNumberMenu">
+                <option value="" selected="selected"> Select Participant Number </option>
+                </select>
+            <br></br>
+            Story Number: <select name="storyNumberMenu" id="storyNumberMenu">
+                <option value="" selected="selected"> Select Story Number </option>
+                </select>
+            <br></br>
+            Annotation Type: <select name="annotationTypeMenu" id="annotationTypeMenu">
+                <option value="" selected="selected"> Select Annotation </option>
+                </select>
+            </form>
+        
         
         <br></br>
         
-          <!--  <button id="startButton" onclick="startAnnotation(3)" > Start Story 3 </button> -->
+        <button id="startButton" onclick="startAnnotation()" > Start </button>
+        
+  <!--
+           <button id="startButton" onclick="startAnnotation(1)" > Start Story 1 </button>
+      
+        <br></br>
+      
+           <button id="startButton" onclick="startAnnotation(2)" > Start Story 2 </button>
         
         <br></br>
         
-            <button id="startButton" onclick="startAnnotation(4)" > Start Story 4 </button>
+          <button id="startButton" onclick="startAnnotation(3)" > Start Story 3 </button>
+        
+        <br></br>
+        
+           <button id="startButton" onclick="startAnnotation(4)" > Start Story 4 </button>
             
         <br></br>
         
-         <!-- <button id="startButton" onclick="startAnnotation(11)" > Start Story 11 </button> -->
+            <button id="startButton" onclick="startAnnotation(13)" > Start Story 13 </button>
+   -->
         
         </div>
     
     
-    <script>
-        
-        // Validates and stores participant number to add to pagesData on next page
-        function recordParticipantNum() {
-            var participantNum = document.forms["participantNumForm"]["participantNum"].value;
-            
-            if (participantNum == "") {
-                alert("Please fill in your participant number!");
-                return false;
-            } else {
-                // store the participantNum
-                localStorage.setItem("participantNum", participantNum);
-                return true;
-            }
-        }
-        
-        
-        
-        var storyNum = "";
-        
-        // Go to comics annotation page, with the correct story downloaded
-        function startAnnotation(num) {
-            
-            storyNum = num; // assign number to storyNum variable
-            
-            // Assign variable beyond the annotation page
-            localStorage.setItem("storyNumKey", storyNum);  // track which story will be uploaded for annotation
-            //console.log("storyNum: " + storyNum); //test
-            
-            //localStorage.setItem("jsonPreloaded", true); // this is used only to check a previously annotated page - offline use!
-            
-            var x = recordParticipantNum();
-            console.log(x);
-            
-            if (x == false) {
-                return;
-            }
-            if (x == true) {
-                // go the the annotation tool with correct storyNum in place
-                location.href = 'comicsAnnotation.html'; // go back to the main annotation page
-            }
-            
-        }
+    <!-- Javascript file -->
+    <script type="text/javascript" src="index.js"></script>
     
-        
-        </script>
     
 </body>
     

@@ -78,6 +78,7 @@ canvas{
 
 #startAnnotationButton {
     visibility: visible;
+    display: none; 
     background-color: #008CBA;
     text-align: center;
     font-size: 20px;
@@ -187,11 +188,11 @@ h4 {
 
 .panelNumSectionFormat {
     margin: 5px;
-    width: 450px;
+    width: 475px;
     text-align: center;
-    padding: 20px;
+    padding: 10px; /* 20px when char and locs display is there */
     background-color: #008CBA;
-    height: 150px;
+    height: 20px; /* 150px when char and locs display is there */
     border-radius: 25px;
     border: 5px solid #008CBA;
 }
@@ -202,12 +203,13 @@ h4 {
     text-align: center;
     vertical-align: middle;
     color: white;
-    font-size: 18px;
+    font-size: 14px;
     font-family: "Lucida Console", Monaco, monospace;
 }
 
 
-#listContainer {
+.listContainer {
+    display: none;
 }
 
 h2 {
@@ -239,7 +241,8 @@ h2 {
     padding: 5px;
 }
 
-ul li {
+
+.cList {
     display: table;
     background: #b5e3ff;
     margin: 5px;
@@ -252,12 +255,17 @@ ul li {
     list-style-position: inside;
 }
 
-.cList {
-    
-}
-
 .lList {
-    
+    display: table;
+    background: #b5e3ff;
+    margin: 5px;
+    padding: 5px;
+    border-radius: 10px;
+    list-style-type: none;
+    font-size: 12px;
+    font-family: monospace;
+    text-align: center;
+    list-style-position: inside;
 }
 
 
@@ -272,20 +280,18 @@ div.hidden {
 
 .semanticFormContainerScroll {
     overflow-y: auto;
-    height: 300px;
+    height: 500px;
 }
 
 
-
 .semanticFormDisplay {
-    display: inline-block;
+    display: block;
     border-radius: 25px;
     background-color: #87CEFA;
     border: 5px solid #008CBA;
     padding: 20px;
-    margin: 5px;
+    margin: 2px;
     width: 450px;
-
 }
 
 
@@ -295,23 +301,170 @@ div.hidden {
 }
 
 
-
-
-
-
 #submitToNextPage {
     display: none; 
 }
 
 
-.charForms {
-    width: 400px;
-    padding: 5px;
+.charNumIndexForm {
+    display: inline-block;
+    text-align: center;
+    width: 25px;
+    height: 25px;
+    padding: 3px;
     margin: 3px 0;
+    font-family: monospace;
     border: 2px solid #C942FF;
     border-radius: 10px;
     background-color: #F5E0FC;
 }
+
+.charForms {
+    display: inline-block;
+    width: 400px;
+    padding: 5px;
+    margin: 3px 0;
+    border: 2px solid #7E06DA;
+    border-radius: 10px;
+    background-color: #D4B1EF;
+}
+
+.charFeaturesForms {
+    display: inline-block;
+    width: 360px;
+    padding: 5px;
+    margin: 3px 0;
+    border: 3px solid #A456E0;
+    border-radius: 10px;
+    background-color: #f6ebff;
+}
+
+.charIDSquareContainer {
+    text-align: center;
+    vertical-align: middle;
+    line-height: 50px;
+    float: left;
+    padding-right: 10px;
+}
+
+.charIDSquare {
+    height: 50px;
+    width: 50px;
+    background-color: #A456E0;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 20px;
+    font-family: monospace;
+    color: white;
+    
+}
+
+.charAreasAndOrientationHeadingsContainer {
+    padding-top: 10px;
+}
+
+.areasDepictedHeading {
+    display: inline;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size: 14px;
+    color: #7E06DA;
+    padding-left: 10px;
+}
+
+.charOrientationHeading {
+    display: inline;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size: 14px;
+    color: #7E06DA;
+    padding-left: 50px;
+}
+
+.charBodyMapContainer {
+    float: left;
+}
+
+.charOrientationContainer {
+    display: inline-block;
+    padding-left: 10px;
+    /* height: 310px; */
+}
+
+.charReferenceTasksContainer {
+    
+}
+
+.charDescriptionContainer {
+    padding-left: 60px;
+}
+
+.charEmotionContainer {
+    padding-left: 60px;
+    padding-top: 8px;
+}
+
+
+.headingsInCharForm {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size: 14px;
+    color: #7E06DA;
+}
+
+.charImageFeaturesContainer {
+    display: inline-block;
+   /* padding-top: 5px; */
+    padding-left: 10px;
+    margin-right: 50px;
+}
+
+.selectAllCharBodyMapButton {
+    display: inline-block;
+    background-color: #A456E0;
+    color: white;
+    text-align: center;
+    font-size: 10px;
+    font-family: monospace;
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    margin-right: 2px;
+}
+
+.clearAllCharBodyMapButton {
+    display: inline-block;
+    background-color: #A456E0;
+    color: white;
+    text-align: center;
+    font-size: 10px;
+    font-family: monospace;
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+
+
+.likert li {
+    float: left;
+    list-style-type: none;
+}
+
+.imageDetailScaleLabels {
+    display: block;
+    text-align: left;
+    padding-left: 125px;
+    padding-bottom: 5px;
+}
+
+.imageDetailScaleIndividualLabels {
+    padding: 8px;
+}
+
+
+.charBodyMap {
+    width: 30px;
+    height: 40px;
+}
+
 
 .textForms {
     width: 400px;
@@ -366,6 +519,20 @@ label {
     vertical-align: middle;
     text-align: center;
 }
+
+
+/* charBodyMap Image styles */
+
+.headDiv {
+   position: absolute;
+   color: blue;
+}
+
+
+
+
+
+/* Page navigation buttons */
 
 .pageNavigationButtons {
     background-color: #008CBA;
