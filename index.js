@@ -35,47 +35,34 @@ var stateObject = { // The possible states of the dropdown menus
         //"17": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
         "32": ["Character Features"]
     },
-    
+
     "1" : {
         "32": ["Character Features"]
     },
-    
+
     "2" : {
         "32": ["Character Features"]
     },
-    
+
     "3" : {
         "32": ["Character Features"]
     }
-    
+}
 
 //var stateObject = { // The possible states of the dropdown menus
 //    "0" : {
-//        //"1": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
-//        //"9": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
-//        //"17": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
-//        "32": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"]
-//        },
-//
-//    "1" : {
-//        "32": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"]
-//    },
-//
-//    "2" : {
-//        "32": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"]
-//    },
-//
-//    "3" : {
-//        "32": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"]
-//    }
-    
-    
-//    "1" : {
 //        "1": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
 //        "9": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
+//        "17": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
 //        "32": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"]
 //        }
-}
+//
+////    "1" : {
+////        "1": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
+////        "9": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
+////        "32": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"]
+////        }
+//}
 
 window.onload = function() { // function to populate the cascading dropdown forms
     var participantSelector = document.getElementById("participantNumberMenu")
