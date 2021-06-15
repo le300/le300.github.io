@@ -28,23 +28,50 @@ var validateMenusAlertText = "" // init string for the menu alerts if values are
 // Set up the annotation choice dropdown menu
 // Code adapted from: https://jsfiddle.net/mplungjan/65Q9L/
 
+//var stateObject = { // The possible states of the dropdown menus
+//    "0" : {
+//        //"1": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
+//        //"9": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
+//        //"17": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
+//        "32": ["Character Features"]
+//    },
+//
+//    "1" : {
+//        "32": ["Character Features"]
+//    },
+//
+//    "2" : {
+//        "32": ["Character Features"]
+//    },
+//
+//    "3" : {
+//        "32": ["Character Features"]
+//    }
+//}
+
+
 var stateObject = { // The possible states of the dropdown menus
     "0" : {
-        //"1": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
-        //"9": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
-        //"17": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
+        "1": ["Character Features"],
+        "2": ["Character Features"],
         "32": ["Character Features"]
     },
-
+    
     "1" : {
+        "1": ["Character Features"],
+        "2": ["Character Features"],
         "32": ["Character Features"]
     },
-
+    
     "2" : {
+        "1": ["Character Features"],
+        "2": ["Character Features"],
         "32": ["Character Features"]
     },
-
+    
     "3" : {
+        "1": ["Character Features"],
+        "2": ["Character Features"],
         "32": ["Character Features"]
     }
 }
@@ -52,17 +79,29 @@ var stateObject = { // The possible states of the dropdown menus
 //var stateObject = { // The possible states of the dropdown menus
 //    "0" : {
 //        "1": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
-//        "9": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
-//        "17": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
+//        "2": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
+//        "32": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"]
+//        },
+//
+//    "1" : {
+//        "1": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
+//        "2": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
+//        "32": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"]
+//        },
+//
+//    "2" : {
+//        "1": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
+//        "2": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
+//        "32": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"]
+//        },
+//
+//    "3" : {
+//        "1": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
+//        "2": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
 //        "32": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"]
 //        }
-//
-////    "1" : {
-////        "1": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
-////        "9": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"],
-////        "32": ["Page Segmentation", "Text Sections", "Character Segmentation", "Character Features"]
-////        }
 //}
+
 
 window.onload = function() { // function to populate the cascading dropdown forms
     var participantSelector = document.getElementById("participantNumberMenu")

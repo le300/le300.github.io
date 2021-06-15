@@ -147,6 +147,8 @@ var charCanvasAreasList = [] // init empty list to hold list of clickable areas 
 // Declare charOrientation canvas elements
 var canvas_charOrientation, context_charOrientation;
 
+//var errorFound = false; // init a switch to track if an error is found in the validateInput function - this is used to track things in the drawCharacters function
+
 
 
 // Preset value for char and description inputs
@@ -596,6 +598,7 @@ function nextPage(event) {
     }
     
     //console.log("number of comic pages: " + comicPages.length); // debugging
+    //console.log(pagesData[pageNum].panels);
     
     // Go to next page
     pageNum += 1;
@@ -604,6 +607,8 @@ function nextPage(event) {
     textIdON = false;
     removeSemanticForms(); // Clear the panel submission forms
     putComicPageOnCanvas(); // Put next page on canvas
+    
+    //console.log(pagesData[pageNum].panels);
     
     // Change the page number indicator at the top of the web page
     pageNumTitle = pageNum + 1;
@@ -670,6 +675,26 @@ function nextPage(event) {
         if (characterFeaturesTaskSwitch == true) {
             // add the canvas images and mouse click event listener:
             
+            drawCharacterInfoOnCanvas(true);
+            
+            // get the original emotion value per section
+            for (var p=0; p<pagesData[pageNum].panels.length; p++) {
+                for (var c=0; c<pagesData[pageNum].panels[p].characters.length; c++) {
+                    var getEmotionInput = document.getElementById("charEmotionSelect" + (p+1) + "." + c);
+                    //console.log(p);
+                    //console.log(c);
+                    var emotionValue = pagesData[pageNum].panels[p].characters[c].emotion;
+                    
+                    getEmotionInput.value = emotionValue;
+                    //console.log(emotionValue);
+                    
+                    console.log("after next page");
+                    console.log(pagesData[pageNum].panels[p].characters[c]);
+                    console.log(getEmotionInput.id);
+                }
+            }
+            
+            
             var canvases = document.getElementsByTagName('canvas'); // get all canvases
     
             var numCanvases = canvases.length;
@@ -684,9 +709,47 @@ function nextPage(event) {
                     //console.log("panelNum: " + panelNum);
                     var charFigureNum = parseInt(canvasNum.split(".")[2]);
                     drawSelectedAreasOnCharBodyImage(canvases[i], panelNum, charFigureNum);
+                    //console.log(pagesData[pageNum].panels[panelNum].characters);
                     // add mouse click event listener to each canvas
                     canvases[i].addEventListener('mousedown', function(e) {handleMouseClick(e)
                                                  });
+                }
+                if (canvases[i].id.includes("canvas_charOrientation")) {
+                    context_of_charOrientation = canvases[i].getContext('2d');
+                    // put in the white background
+                    context_of_charOrientation.fillStyle = "white";
+                    context_of_charOrientation.fillRect(0, 0, canvas.width, canvas.height);
+                    context_of_charOrientation.restore();
+                    // put the purple circle
+                    context_of_charOrientation.beginPath();
+                    context_of_charOrientation.arc(cx, cy, 80, 0, 2 * Math.PI, false);
+                    context_of_charOrientation.fillStyle = '#7E06DA';
+                    context_of_charOrientation.fill();
+                    context_of_charOrientation.restore();
+                    // put the little rectangle
+                    context_of_charOrientation.beginPath();
+                    context_of_charOrientation.rect(80, 190, 40, 40);
+                    context_of_charOrientation.fillStyle = '#7E06DA';
+                    context_of_charOrientation.fill();
+                    context_of_charOrientation.restore();
+                    
+                    //var num_of_canvas = canvases[i].id.replace("canvas_charOrientation", "");
+                    //var panel_nemm = parseInt(num_of_canvas.split(".")[1]-1);
+                    //var char_nemm = parseInt(canvasNum.split(".")[2]);
+                    
+                    drawOrientationImage(canvases[i].id);
+//                    console.log(pagesData[pageNum].panels[panel_nemm]);
+//
+//                    vars_charOrientation[canvases[i].id] = {
+//                        isDown : false,
+//                        r : pagesData[pageNum].panels[panel_nemm].characters[char_nemm].orientationAngle["radians"]
+//                    }
+                    
+                    // add event listeners
+                    canvases[i].addEventListener('mousedown', function(e) {rotateImage.handleMouseDown(e)});
+                    canvases[i].addEventListener('mousemove', function(e) {rotateImage.handleMouseMove(e)});
+                    canvases[i].addEventListener('mouseup', function(e) {rotateImage.handleMouseUp(e)});
+                    canvases[i].addEventListener('mouseout', function(e) {rotateImage.handleMouseOut(e)});
                 }
             }
         }
@@ -986,11 +1049,16 @@ function validateInputs() {
                     
                     // Char emotion input check
                     panel.characters[j].emotion = document.getElementById("charEmotionSelect" + (i+1) +  "." + j).value;
+                    //console.log(panel.characters[j].emotion);
                     
-                    if (panel.characters[j].emotion == "Select an Emotion") {
+                    if (panel.characters[j].emotion == "Select an Emotion" || panel.characters[j].emotion == "") {
                         errorMessage += "Missing Emotion Selection for Section "  + (i + 1) + " Character Number " + (j + 1) + "\n";
                         document.getElementById("charEmotionSelect" + (i+1) +  "." + j).style.color = "red";
                     }
+                    
+                    //console.log("after validate input");
+                    //console.log(panel.characters[j]);
+                    
                     
                     
                     // Char Body Map image
@@ -1044,10 +1112,10 @@ function validateInputs() {
                     //console.log(panel.characters[j]);
                     
                     // create variables for each char orientation form created
-                    //vars_charOrientation[charOrientation_canvasid] = {
-                        //isDown : false,
-                        //r : 0
-                    //};
+                    vars_charOrientation[charOrientation_canvasid] = {
+                        isDown : false,
+                        r : charOrientationRadians
+                    };
                     //"canvas_charOrientation" + pageNum + "." + y + "." + x;
                     
                     // Color and Style - must have at least one selected
@@ -1161,41 +1229,40 @@ function validateInputs() {
         for (var i=0; i<pagesData[pageNum].panels.length; i++) {
             var panel = pagesData[pageNum].panels[i];
         
-        // Text Sections Checks:
-        for (var j=0; j<panel.textSections.length; j++) {
-        
-            var narrationTextSectionButtonChecked = document.getElementById("narrationTextSection" + i + "." + (j+1)).checked;
-            var speechTextSectionButtonChecked = document.getElementById("speechTextSection" + i + "." + (j+1)).checked;
-            var otherTextSectionButtonChecked = document.getElementById("otherTextSection" + i + "." + (j+1)).checked;
-            if (!(narrationTextSectionButtonChecked || speechTextSectionButtonChecked || otherTextSectionButtonChecked)) {
-                errorMessage += "Missing Text Section Choice for Section " + (i +1) + " Text Section " + (j +1) + "\n"; // send message
-                document.getElementById("textSectionNumberLabel" + i + "." + (j+1)).style.backgroundColor = "LightPink"; // highlight input
-            }
-            //console.log("Text box number: " + i + (j+1)); //test
+            // Text Sections Checks:
+            for (var j=0; j<panel.textSections.length; j++) {
             
-            if (speechTextSectionButtonChecked) {
-                var textSpeechFormInputValue = document.getElementById("textSpeechFormInput" + i + "." + (j+1)).value;
-                if (textSpeechFormInputValue == "" || textSpeechFormInputValue == textSpeechInstruction) {
-                    errorMessage += "Missing Speech/Thought Character for Section " + (i+1) + " Text Section " + (j+1) + "\n"; // send message
-                    document.getElementById("textSpeechFormInput" + i + "." + (j+1)).style.backgroundColor = "LightPink"; // highlight input
-                } else {
-                    pagesData[pageNum].panels[i].textSections[j].type = "Speech/Thought: " + textSpeechFormInputValue;
+                var narrationTextSectionButtonChecked = document.getElementById("narrationTextSection" + i + "." + (j+1)).checked;
+                var speechTextSectionButtonChecked = document.getElementById("speechTextSection" + i + "." + (j+1)).checked;
+                var otherTextSectionButtonChecked = document.getElementById("otherTextSection" + i + "." + (j+1)).checked;
+                if (!(narrationTextSectionButtonChecked || speechTextSectionButtonChecked || otherTextSectionButtonChecked)) {
+                    errorMessage += "Missing Text Section Choice for Section " + (i +1) + " Text Section " + (j +1) + "\n"; // send message
+                    document.getElementById("textSectionNumberLabel" + i + "." + (j+1)).style.backgroundColor = "LightPink"; // highlight input
                 }
-                console.log("Speech/Thought: " + pagesData[pageNum].panels[i].textSections[j].type); //test
-            }
-            if (otherTextSectionButtonChecked) {
-                var otherFormInputValue = document.getElementById("otherFormInput" + i + "." + (j+1)).value;
-                if (otherFormInputValue == "" || otherFormInputValue == otherTextInstruction) {
-                    errorMessage = "Missing Other Description for Section " + (i+1) + " Text Section " + (j+1) + "\n"; // send message
-                    document.getElementById("otherFormInput" + i + "." + (j+1)).style.backgroundColor = "LightPink"; // highlight input
-                } else {
-                    pagesData[pageNum].panels[i].textSections[j].type = "Other: " + otherFormInputValue;
+                //console.log("Text box number: " + i + (j+1)); //test
+                if (speechTextSectionButtonChecked) {
+                    var textSpeechFormInputValue = document.getElementById("textSpeechFormInput" + i + "." + (j+1)).value;
+                    if (textSpeechFormInputValue == "" || textSpeechFormInputValue == textSpeechInstruction) {
+                        errorMessage += "Missing Speech/Thought Character for Section " + (i+1) + " Text Section " + (j+1) + "\n"; // send message
+                        document.getElementById("textSpeechFormInput" + i + "." + (j+1)).style.backgroundColor = "LightPink"; // highlight input
+                    } else {
+                        pagesData[pageNum].panels[i].textSections[j].type = "Speech/Thought: " + textSpeechFormInputValue;
+                    }
+                    console.log("Speech/Thought: " + pagesData[pageNum].panels[i].textSections[j].type); //test
                 }
-            }
-            if (narrationTextSectionButtonChecked) {
-                pagesData[pageNum].panels[i].textSections[j].type = "Narration";
-            }
-            //console.log("Check: " + pagesData[pageNum].panels[i].textSections[j].type); //test
+                if (otherTextSectionButtonChecked) {
+                    var otherFormInputValue = document.getElementById("otherFormInput" + i + "." + (j+1)).value;
+                    if (otherFormInputValue == "" || otherFormInputValue == otherTextInstruction) {
+                        errorMessage = "Missing Other Description for Section " + (i+1) + " Text Section " + (j+1) + "\n"; // send message
+                        document.getElementById("otherFormInput" + i + "." + (j+1)).style.backgroundColor = "LightPink"; // highlight input
+                    } else {
+                        pagesData[pageNum].panels[i].textSections[j].type = "Other: " + otherFormInputValue;
+                    }
+                }
+                if (narrationTextSectionButtonChecked) {
+                    pagesData[pageNum].panels[i].textSections[j].type = "Narration";
+                }
+                //console.log("Check: " + pagesData[pageNum].panels[i].textSections[j].type); //test
             }
         }
     } // end of text section annotation task validate input check
@@ -1270,9 +1337,10 @@ function validateInputs() {
     
     putComicPageOnCanvas();
     drawPanelInfoOnCanvas();
-    drawCharacterInfoOnCanvas();
+    drawCharacterInfoOnCanvas(true);
     drawTextSectionInfoOnCanvas();
     console.log("Validate Forms" + errorMessage);
+    errorFound = false;
     return errorMessage;
 } // end of validateInputs()
 
@@ -3132,6 +3200,8 @@ function drawSelectedAreasOnCharBodyImage(canvas, panelNum, charFigureNum) {
     canvas.getContext.globalAlpha = 1.0; // reset opacity
     canvas.getContext('2d').drawImage(charBodyMapImage, 0, 0, 125, 300);
     
+    //console.log(canvas.id);
+    
     for (var i=0; i<areas.length; i++) {
         var areaVar = areas[i]
         var areaName = areas[i].name;
@@ -3471,7 +3541,6 @@ function createCharFeaturesForm(x, y) {
     charEmotionContainer.appendChild(charEmotionSelectLabel);
     charEmotionContainer.appendChild(charEmotionSelect);
     
-    
     charDescriptionContainer.appendChild(charDescriptionButtonLabel);
     charDescriptionContainer.appendChild(charDescriptionButton);
     
@@ -3482,6 +3551,16 @@ function createCharFeaturesForm(x, y) {
     charReferenceTasksContainer.appendChild(charDescriptionContainer);
     charReferenceTasksContainer.appendChild(charEmotionContainer);
 
+    console.log(charEmotionSelect.id);
+    console.log(pagesData[pageNum].panels[y-1].characters[x].emotion)
+    //console.log(pagesData[pageNum].panels[y-1].characters[x]);
+    if (pagesData[pageNum].panels[y-1].characters[x].emotion === undefined) {
+        pagesData[pageNum].panels[y-1].characters[x].emotion = "Select an Emotion";
+        //console.log(pagesData[pageNum].panels[y-1].characters[x]);
+    }
+//    else {
+//        charEmotionSelect.value = pagesData[pageNum].panels[y-1].characters[x].emotion;
+//    }
 
     
     // Character Features Inputs (image features):
@@ -3530,9 +3609,13 @@ function createCharFeaturesForm(x, y) {
     // create a new set of area switches to the character in pagesData - set all switched to false
     var depictedCharAreas = {"head":false, "shouldersEast":false, "shouldersWest":false, "upperBody":false, "armWest":false, "handWest":false, "armEast":false, "handEast":false, "lowerBody":false, "legWest":false, "footWest":false, "legEast":false, "footEast":false};
     
-    // add a new set of area switches to the character in pagesData
-    pagesData[pageNum].panels[(y-1)].characters[x].areasShown = depictedCharAreas;
-    // console.log(pagesData[pageNum].panels[(y-1)].characters[x]); // Deboog
+    // if the page has been created once already, apply the values to the areasShown that was already created
+    //console.log(pagesData[pageNum].panels[(y-1)].characters[x].areasShown);
+    if (pagesData[pageNum].panels[(y-1)].characters[x].areasShown === undefined) {
+        // add a new set of area switches to the character in pagesData
+        pagesData[pageNum].panels[(y-1)].characters[x].areasShown = depictedCharAreas;
+        // console.log(pagesData[pageNum].panels[(y-1)].characters[x]); // Deboog
+    }
     
     // add mouse click event listener to each canvas
     canvas_charBodyImage_clone.addEventListener('mousedown', function(e) {handleMouseClick(e)
@@ -3587,12 +3670,21 @@ function createCharFeaturesForm(x, y) {
     context_charOrientation_clone.restore();
     
     context_charOrientation_clone.drawImage(charOrientationImage, cx-35, cy-30, 70, 60);
+    
+    // if the page has been created once already, apply the values to the orientationAngle that was already created
+    ///console.log(vars_charOrientation);
+    //console.log(pagesData[pageNum].panels[(y-1)].characters[x].orientationAngle);
+    //if (pagesData[pageNum].panels[(y-1)].characters[x].orientationAngle === undefined)
+    //console.log(vars_charOrientation[charOrientation_canvasid]);
+    if (vars_charOrientation[charOrientation_canvasid] === undefined) {
+        // create variables for each char orientation form created
+        vars_charOrientation[charOrientation_canvasid] = {
+            isDown : false,
+            r : 0
+        }
+    }
 
-    // create variables for each char orientation form created
-    vars_charOrientation[charOrientation_canvasid] = {
-        isDown : false,
-        r : 0
-    };
+    
     
     //console.log(vars_charOrientation);
     
@@ -3602,6 +3694,7 @@ function createCharFeaturesForm(x, y) {
     canvas_charOrientation_clone.addEventListener('mouseout', function(e) {rotateImage.handleMouseOut(e)});
     
     charOrientationContainer.appendChild(canvas_charOrientation_clone);
+    
     
     
     // Image features (Color and Style) - Information change associated with the reference:
@@ -3929,7 +4022,10 @@ function changeSelecttoWhite() {
     
     var emotionInputSelection = document.getElementById("charEmotionSelect" + panelNumber + "." + charIDNum);
     emotionInputSelection.style.color = "black";
+    var emotionValueSelected = emotionInputSelection.value;
     
+    pagesData[pageNum].panels[panelNumber-1].characters[charIDNum].emotion = emotionValueSelected;
+    //console.log(pagesData[pageNum].panels[panelNum].characters[charIDNum].emotion = emotionValueSelected);
 } // end of changeSelecttoWhite()
 
 
@@ -4405,7 +4501,7 @@ function drawPanelInfoOnCanvas() {
 } // end of drawPanelInfoOnCanvas()
 
 /* Draw the stored character rectangle info onto the page */
-function drawCharacterInfoOnCanvas() {
+function drawCharacterInfoOnCanvas(errorFound) {
     canvas = document.getElementById("canvas");
     context = canvas.getContext("2d");
     //console.log("drawCharacterInfoOnCanvas"); //test
@@ -4460,6 +4556,41 @@ function drawCharacterInfoOnCanvas() {
                     context.font = "15px Arial Black";
                     context.fillText(char.id, char.left-6, char.top+6); // center into the circle
                     //console.log(i, j);
+                }
+                
+                if (pressedButtonID == "buttonPreviousPage") {
+                    
+                    context.beginPath(); // put the circles on as well
+                    context.arc(char.left, char.top, 15, 0, Math.PI * 2, true);
+                    context.closePath();
+                    context.fillStyle = char.color_charID;
+                    context.fill();
+                    
+                    context.beginPath(); // draw char id variable in circle
+                    context.fillStyle = "white";
+                    context.font = "15px Arial Black";
+                    context.fillText(char.label, char.left-6, char.top+6); // center into the circle
+                }
+                // if it is buttonNextPage from the validateInput that has been returned due to missing data, keep the labels on the comic page
+                //console.log(errorFound);
+                if (pressedButtonID == "buttonNextPage" && errorFound) {
+
+                    context.beginPath(); // put the circles on as well
+                    context.arc(char.left, char.top, 15, 0, Math.PI * 2, true);
+                    context.closePath();
+                    context.fillStyle = char.color_charID;
+                    context.fill();
+                    
+                    context.beginPath(); // draw char id variable in circle
+                    context.fillStyle = "white";
+                    context.font = "15px Arial Black";
+                    // if there is a label, put that, but if there isn't (because it is a revisit to a page and the label hasn't been assigned) then put the id
+                    if (char.label == "") {
+                        context.fillText(char.id, char.left-6, char.top+6); // center into the circle
+                    }
+                    else {
+                        context.fillText(char.label, char.left-6, char.top+6); // center into the circle
+                    }
                 }
             }
         }
