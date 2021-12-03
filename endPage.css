@@ -15,7 +15,7 @@ body {
 
 h1 {
     text-align: center;
-    font-family: monospace;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
     color: white;
     font-size: 30px;
 }
@@ -25,6 +25,15 @@ h2 {
     font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
     color: white;
     font-size: 18px;
+}
+
+p {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size: 16px;
+}
+
+hr {
+    border: 1px solid white;
 }
 
 #nextStoryButtonContainer {
@@ -44,4 +53,65 @@ h2 {
     cursor: pointer;
     border-radius: 12px;
 }
+
+
+.questionnaire_container {
+   text-align: center;
+    
+}
+
+settings {
+    display:grid;
+    grid-template-columns: max-content max-content;
+    grid-gap:5px;
+}
+
+div.settings label {
+    text-align:right;
+    font-size: 14px;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+
+input[type=text] {
+    margin: 5px 0;
+    width: 100px;
+}
+
+hr {
+    width: 75%;
+}
+
+#submit_form_container {
+    text-align: center;
+    background-color: #008CBA;
+    border: none;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+#submitFormButton {
+    background-color: #004d66;
+    text-align: center;
+    font-size: 25px;
+    font-family: monospace;
+    border: none;
+    color: white;
+    padding: 30px;
+    margin: 5px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 12px;
+}
+
+
+#end_section_container {
+    display: none;
+    background-color: #008CBA;
+    border: none;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+
+
 

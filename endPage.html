@@ -5,96 +5,424 @@
 <html>
 <head>
     <link rel="stylesheet" href="endPage.css">
+    <script src="https://www.gstatic.com/firebasejs/7.22.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.22.1/firebase-firestore.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
     
     <div id="storyCounterContainer" class="storyCounterContainer">
-        <h1 id="storyCounter"> </h1>
-        <h2 id="closeBrowserMessage"> </h2>
         
-        <h1>Thank you for using the CAT! </h1>
+        <h1> Comics Reading Habits Questionnaire </h1>
         
-        <h2> You many now close this tab or browser, or click "Next Story" below to return to the home page to choose another story to annotate. </h2>
+        <h2> Adapted from the Visual Langauge Fluency Index </h2>
         
-        </div>
+    </div>
     
-    <div id="nextStoryButtonContainer">
-        <button id="nextStoryButton" onclick="nextStory(event)">
-            Next Story
+    <br></br>
+    
+    
+    <div id="VLFI_Questionnaire" class="questionnaire_container">
+        
+        <p> Please fill out all sections below: </p>
+        
+        <div id="settings" class="settings">
+            
+            <label for="age_input">Age: </label>
+            <input type="text" id="age_input_textbox" name="age_input" value="" onchange="setupSelection()">
+            
+            <br></br>
+            
+            
+            <label for="gender_select_label"> Gender: </label>
+            <select id="gender_select" name="gender_select" onchange="changeToWhite('gender_select')">
+                <option value="0"> Choose an option </option>
+                <option value="Male"> Male </option>
+                <option value="Female"> Female </option>
+                <option value="Non-Binary"> Non-Binary </option>
+                <option value="Prefer_not_to_say"> Prefer not to say </option>
+            </select>
+            
+            <br></br>
+            
+            <hr>
+            
+            <br></br>
+            
+            <div id="scale">
+                <img src="images/Scale.jpeg" width="450px">
+            </div>
+            
+            <p> Using the above scale, on average, how often per week do/did you...? </p>
+            
+            <label for="Q1" id="Q1_label"> ... <b>currently</b> read text-only books for enjoyment?  </label>
+            <select id="Q1" name="Q1" onchange="changeToWhite('Q1')">
+                <option value="0"> Select </option>
+                <option value="1"> 1 </option>
+                <option value="2"> 2 </option>
+                <option value="3"> 3 </option>
+                <option value="4"> 4 </option>
+                <option value="5"> 5 </option>
+                <option value="6"> 6 </option>
+                <option value="7"> 7 </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q2" id="Q2_label"> ... read text-only books for enjoyment <b>while growing up</b>?  </label>
+            <select id="Q2" name="Q2" onchange="changeToWhite('Q2')">
+                <option value="0"> Select </option>
+                <option value="1"> 1 </option>
+                <option value="2"> 2 </option>
+                <option value="3"> 3 </option>
+                <option value="4"> 4 </option>
+                <option value="5"> 5 </option>
+                <option value="6"> 6 </option>
+                <option value="7"> 7 </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q3" id="Q3_label"> ... <b>currently</b> watch movies?  </label>
+            <select id="Q3" name="Q3" onchange="changeToWhite('Q3')">
+                <option value="0"> Select </option>
+                <option value="1"> 1 </option>
+                <option value="2"> 2 </option>
+                <option value="3"> 3 </option>
+                <option value="4"> 4 </option>
+                <option value="5"> 5 </option>
+                <option value="6"> 6 </option>
+                <option value="7"> 7 </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q4" id="Q4_label"> ... watch movies <b>while growing up</b>?  </label>
+            <select id="Q4" name="Q4" onchange="changeToWhite('Q4')">
+                <option value="0"> Select </option>
+                <option value="1"> 1 </option>
+                <option value="2"> 2 </option>
+                <option value="3"> 3 </option>
+                <option value="4"> 4 </option>
+                <option value="5"> 5 </option>
+                <option value="6"> 6 </option>
+                <option value="7"> 7 </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q5" id="Q5_label"> ... <b>currently</b> watch cartoons/anime?  </label>
+            <select id="Q5" name="Q5" onchange="changeToWhite('Q5')">
+                <option value="0"> Select </option>
+                <option value="1"> 1 </option>
+                <option value="2"> 2 </option>
+                <option value="3"> 3 </option>
+                <option value="4"> 4 </option>
+                <option value="5"> 5 </option>
+                <option value="6"> 6 </option>
+                <option value="7"> 7 </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q6" id="Q6_label"> ... watch cartoons/anime <b>while growing up</b>?  </label>
+            <select id="Q6" name="Q6" onchange="changeToWhite('Q6')">
+                <option value="0"> Select </option>
+                <option value="1"> 1 </option>
+                <option value="2"> 2 </option>
+                <option value="3"> 3 </option>
+                <option value="4"> 4 </option>
+                <option value="5"> 5 </option>
+                <option value="6"> 6 </option>
+                <option value="7"> 7 </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q7" id="Q7_label"> ... <b>currently</b> read comic books?  </label>
+            <select id="Q7" name="Q7" onchange="changeToWhite('Q7')">
+                <option value="0"> Select </option>
+                <option value="1"> 1 </option>
+                <option value="2"> 2 </option>
+                <option value="3"> 3 </option>
+                <option value="4"> 4 </option>
+                <option value="5"> 5 </option>
+                <option value="6"> 6 </option>
+                <option value="7"> 7 </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q8" id="Q8_label"> ... read comic books <b>while growing up</b>?  </label>
+            <select id="Q8" name="Q8" onchange="changeToWhite('Q8')">
+                <option value="0"> Select </option>
+                <option value="1"> 1 </option>
+                <option value="2"> 2 </option>
+                <option value="3"> 3 </option>
+                <option value="4"> 4 </option>
+                <option value="5"> 5 </option>
+                <option value="6"> 6 </option>
+                <option value="7"> 7 </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q9" id="Q9_label"> ... <b>currently</b> read comic strips?  </label>
+            <select id="Q9" name="Q9" onchange="changeToWhite('Q9')">
+                <option value="0"> Select </option>
+                <option value="1"> 1 </option>
+                <option value="2"> 2 </option>
+                <option value="3"> 3 </option>
+                <option value="4"> 4 </option>
+                <option value="5"> 5 </option>
+                <option value="6"> 6 </option>
+                <option value="7"> 7 </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q10" id="Q10_label"> ... read comic strips <b>while growing up</b>?  </label>
+            <select id="Q10" name="Q10" onchange="changeToWhite('Q10')">
+                <option value="0"> Select </option>
+                <option value="1"> 1 </option>
+                <option value="2"> 2 </option>
+                <option value="3"> 3 </option>
+                <option value="4"> 4 </option>
+                <option value="5"> 5 </option>
+                <option value="6"> 6 </option>
+                <option value="7"> 7 </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q11" id="Q11_label"> ... <b>currently</b> read graphic novels?  </label>
+            <select id="Q11" name="Q11" onchange="changeToWhite('Q11')">
+                <option value="0"> Select </option>
+                <option value="1"> 1 </option>
+                <option value="2"> 2 </option>
+                <option value="3"> 3 </option>
+                <option value="4"> 4 </option>
+                <option value="5"> 5 </option>
+                <option value="6"> 6 </option>
+                <option value="7"> 7 </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q12" id="Q12_label"> ... read graphic novels <b>while growing up</b>?  </label>
+            <select id="Q12" name="Q12" onchange="changeToWhite('Q12')">
+                <option value="0"> Select </option>
+                <option value="1"> 1 </option>
+                <option value="2"> 2 </option>
+                <option value="3"> 3 </option>
+                <option value="4"> 4 </option>
+                <option value="5"> 5 </option>
+                <option value="6"> 6 </option>
+                <option value="7"> 7 </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q13" id="Q13_label"> ... <b>currently</b> read Japanese comics (manga)?  </label>
+            <select id="Q13" name="Q13" onchange="changeToWhite('Q13')">
+                <option value="0"> Select </option>
+                <option value="1"> 1 </option>
+                <option value="2"> 2 </option>
+                <option value="3"> 3 </option>
+                <option value="4"> 4 </option>
+                <option value="5"> 5 </option>
+                <option value="6"> 6 </option>
+                <option value="7"> 7 </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q14" id="Q14_label"> ... read Japanese comics (manga) <b>while growing up</b>?  </label>
+            <select id="Q14" name="Q14" onchange="changeToWhite('Q14')">
+                <option value="0"> Select </option>
+                <option value="1"> 1 </option>
+                <option value="2"> 2 </option>
+                <option value="3"> 3 </option>
+                <option value="4"> 4 </option>
+                <option value="5"> 5 </option>
+                <option value="6"> 6 </option>
+                <option value="7"> 7 </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q15" id="Q15_label"> ... <b>currently</b> draw comics?  </label>
+            <select id="Q15" name="Q15" onchange="changeToWhite('Q15')">
+                <option value="0"> Select </option>
+                <option value="1"> 1 </option>
+                <option value="2"> 2 </option>
+                <option value="3"> 3 </option>
+                <option value="4"> 4 </option>
+                <option value="5"> 5 </option>
+                <option value="6"> 6 </option>
+                <option value="7"> 7 </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q16" id="Q16_label"> ... draw comics <b>while growing up</b>?  </label>
+            <select id="Q16" name="Q16" onchange="changeToWhite('Q16')">
+                <option value="0"> Select </option>
+                <option value="1"> 1 </option>
+                <option value="2"> 2 </option>
+                <option value="3"> 3 </option>
+                <option value="4"> 4 </option>
+                <option value="5"> 5 </option>
+                <option value="6"> 6 </option>
+                <option value="7"> 7 </option>
+            </select>
+            
+            <br></br>
+            
+            <hr>
+            
+            <br></br>
+            
+            <label for="Q17" id="Q17_label"> Which is your favorite?  </label>
+            <select id="Q17" name="Q17" onchange="changeToWhite('Q17')">
+                <option value="0"> Select </option>
+                <option value="1"> Reading comic books </option>
+                <option value="2"> Reading comic strips </option>
+                <option value="3"> Reading graphic novels </option>
+                <option value="4"> Reading Japanese comics (manga) </option>
+                <option value="5"> Drawing comics </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q18" id="Q18_label"> How would you rate your expertise with reading comics (of any sort) <b>currently</b>? </label>
+            <select id="Q18" name="Q18" onchange="changeToWhite('Q18')">
+                <option value="0"> Select </option>
+                <option value="1"> Below average </option>
+                <option value="2"> Slightly below average </option>
+                <option value="3"> Average </option>
+                <option value="4"> Slightly above average </option>
+                <option value="5"> Above average </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q19" id="Q19_label"> How would you rate your expertise with reading (comics of any sort) <b>while growing up</b>? </label>
+            <select id="Q19" name="Q19" onchange="changeToWhite('Q19')">
+                <option value="0"> Select </option>
+                <option value="1"> Below average </option>
+                <option value="2"> Slightly below average </option>
+                <option value="3"> Average </option>
+                <option value="4"> Slightly above average </option>
+                <option value="5"> Above average </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q20" id="Q20_label"> How would you rate your drawing ability <b>currently</b>? </label>
+            <select id="Q20" name="Q20" onchange="changeToWhite('Q20')">
+                <option value="0"> Select </option>
+                <option value="1"> Below average </option>
+                <option value="2"> Slightly below average </option>
+                <option value="3"> Average </option>
+                <option value="4"> Slightly above average </option>
+                <option value="5"> Above average </option>
+            </select>
+            
+            <br></br>
+            
+            <label for="Q21" id="Q21_label"> How would you rate your drawing ability <b>while growing up</b>? </label>
+            <select id="Q21" name="Q21" onchange="changeToWhite('Q21')">
+                <option value="0"> Select </option>
+                <option value="1"> Below average </option>
+                <option value="2"> Slightly below average </option>
+                <option value="3"> Average </option>
+                <option value="4"> Slightly above average </option>
+                <option value="5"> Above average </option>
+            </select>
+            
+            <br></br>
+            
+            <hr>
+            
+            <br></br>
+            
+            <label for="age_reading_comics_input">How old were you when you began reading comics? </label>
+            <select id="age_reading_comics_input" name="age_reading_comics_input" onchange="changeToWhite('age_reading_comics_input')">
+                <option value="0"> Select </option>
+            </select>
+
+
+            <br></br>
+            
+            <label for="age_drawing_comics_input">How old were you when you began drawing comics? </label>
+            <select id="age_drawing_comics_input" name="age_drawing_comics_input" onchange="changeToWhite('age_drawing_comics_input')">
+                <option value="0"> Select </option>
+            </select>
+            
+            <br></br>
+            
+        
+        </div> <!-- end of settings -->
+
+    </div> <!-- end of VLFI_Questionnaire -->
+    
+    
+    
+    <div id="submit_form_container" class="submit_form_container">
+        <div id="submitFormButtonContainer">
+            <button id="submitFormButton" onclick="submitVFLI(event)">
+                Submit
             </button>
         </div>
+        
+    </div>
     
     
     
+    <div id="end_section_container" class="end_section_container">
+        
+        <h1>Thank you for taking part in this study! </h1>
+        
+        <h2>Click "End Study" below to return to Prolific, which will record your participation. </h2>
+        
+        <div id="nextStoryButtonContainer">
+            <button id="nextStoryButton" onclick="nextStory(event)">
+                End Study
+            </button>
+        </div>
+        
+    </div>
     
-    <!-- Extra script to keep track of the stories and end button(s) -->
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/7.22.1/firebase-analytics.js">
+        </script>
+    
     <script>
-        
-        /* This section of script below allows for multiple stories to be annotated in a row! At the moment, the stories are annotation one at a time */
-        
-        // GLOBAL VARIABLES (or this page!)
-        //const totalStories = 4; // this should match the number of story folders
-        
-        /* Wait for HTML to load and then setup the canvas */
-        //document.addEventListener("DOMContentLoaded", storyNumIncrease());
-        
-        /* Increments storyNum counter, and puts the right elements on the page */
-        //function storyNumIncrease() {
-            
-            // get storyNum from local storage
-            //var storyNum = localStorage.getItem("storyNumKey");
-            //var storyNumAsInt = parseInt(storyNum, 10); // change to int
-            
-            //storyCounter(storyNumAsInt, totalStories); // put the correct paragraph on the page
-            
-            //storyNumAsInt += 1; // increment
-            
-            // check if the storyNum is greater than the number of stories designated for this task
-            //if (storyNumAsInt == (totalStories+1)) {
-                //var nextStoryButton = document.getElementById("nextStoryButton");
-                //nextStoryButton.style.display = "none";
-                
-                //document.getElementById("storyCounter").innerHTML = "Thank you for using the CAT!";
-                
-                //document.getElementById("closeBrowserMessage").innerHTML = "You may now close the broswer or exit the browser tab.";
-                
-            //} else {
-                //localStorage.setItem("storyNumKey", storyNumAsInt); // set into local storage
-            //}
-
-            //console.log("storyNum: " + storyNumAsInt); //test
-        //}
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyAuZQ2Nbyi1UupCppz-QgkEEZKvshWBnJw",
+            authDomain: "annotationround2.firebaseapp.com",
+            projectId: "annotationround2",
+            storageBucket: "annotationround2.appspot.com",
+            messagingSenderId: "1016715410498",
+            appId: "1:1016715410498:web:cd10794ba6145b825c01db"
+        };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+    const db = firebase.firestore(); // Reference to the database, interact with the database through this constant
+    //db.settings({timestampsInSnapshots: true}); // Avoid warnings and errors in the console - not needed in this version of firebase
     
-    
-        /* puts a statement saying how many stories are left to annotate */
-        // this runs at the end of the storyNumIncrease function
-        //function storyCounter(storyNum, totalStories) {
-            
-            //var storiesRemaining = (totalStories-storyNum);
-            //console.log("storyNum: " + storyNum); // test
-            //console.log("totalStories: " + totalStories); // test
-            
-            // update the story counter heading
-            //if (storyNum == 1) {
-                //document.getElementById("storyCounter").innerHTML = "You have completed " + storyNum + " story - there are " + storiesRemaining + " remaining stories!";
-                //return;
-            //}
-            //if (storiesRemaining == 1) {
-                //document.getElementById("storyCounter").innerHTML = "You have completed " + storyNum + " stories - there is " + storiesRemaining + " remaining story!";
-                //return;
-            //}
-           // document.getElementById("storyCounter").innerHTML = "You have completed " + storyNum + " stories - there are " + storiesRemaining + " remaining stories!";
-            
-        //}
-
-        
-        
         </script>
     
     
     <!-- Javascript file -->
     <script type="text/javascript" src="comicsAnnotation.js"></script>
+    <script type="text/javascript" src="endPage.js"></script>
     
 </body>
 

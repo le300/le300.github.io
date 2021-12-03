@@ -1,0 +1,74 @@
+
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <link rel="stylesheet" href="page1.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+    <div id="header" class="header">
+        <img src="images/QMLogo.jpeg" width="210" class="QMlogo">
+        <img src="images/MAT_logo_cropped.png" width="225" class="MATlogo">
+        </div>
+    
+    <hr>
+
+    <div id="title" class="title">
+        <h4> Instructions </h4>
+    </div>
+    
+    <div class="discourse">
+        <p> Comics are made of sequences of images. The images in comics often show the setting of where the action is taking place, or where the characters are situated - however, sometimes the background is not shown (it seems to "drop out"), or is not very detailed and not much is drawn to show the setting.  </p>
+        <p> You are to indicate on a <b>5-point spectrum</b> whether the background of each panel has <b>no information about the setting </b> and is blank (1), or contains <b>a lot of information </b> as a full drawing (5), or is <b>somewhere in between</b> to provide some information on location and setting. </p>
+        <p> You are provided the comic pages and a slider per each panel in the comic to assign each panel a score - note that each slider section on the right matches to a numbered panel on the comic image on the left, as shown in the image below. </p>
+        
+        <div id="CAT_examples_container">
+        <!--<img src="images/CAT_mainpage.jpeg" width="500" float="left" padding-right="75"> -->
+        <img src="images/CAT_mainpage_arrows.jpeg" width="625" float="right">
+        </div>
+        <br></br>
+        
+        <p>Move each slider left and right to assign the associated panel a score between 1 and 5, as shown below.</p>
+        <img src="images/CAT_Example.gif" >
+        
+        <br></br>
+        
+        <p>Annotation examples can be downloaded <a id="examples_sheet_download" onclick="downloaded_example_page()" href="2_Forms/Examples_Background.pdf" download target="_blank">here</a>. Please read these examples, and keep them on hand while doing the task. </p>
+        
+        <br></br>
+        <p> <b>Important points: </b> </p>
+        <ul id="instruction_notes">
+            <li> DO NOT refresh the page, or use the forward and backwards browser buttons. Your results will not be collected!
+            <li> Disregard the characters, text, speech bubbles, and sound effects when judging background information.  </li>
+            <li> Also disregard any objects that characters are holding or interacting with as well - these are not part of the setting or location. </li>
+            <li> Judge each panel separately. </li>
+            <li> Think about whether you would know the location of that section from the image in that section alone without considering the previous or next sections.</li>
+        </ul>
+        
+        
+        <p>Once you've confirmed that you've read the example sheet, you may now try the task with a short practice comic strip. Continue to this task by pressing the button below. </p>
+        
+        <label for="example_form_checkbox"> I confirm that I've downloaded and read the example sheet: </label>
+        <input type="checkbox" id="example_form_checkbox" name="example_form_checkbox">
+        
+        </div>
+
+    
+    <div id="continueButton_container" class="continueButton_container">
+        <button id="practiceButton" class="continueButton_disabled" onclick="">Go To Practice Task</button>
+    </div>
+    
+    
+    <!-- Javascript file -->
+    <script type="text/javascript" src="page1.js"></script>
+    <script type="text/javascript" src="instructions.js"></script>
+    
+<body>
+
+</html>

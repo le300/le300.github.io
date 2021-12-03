@@ -1,0 +1,74 @@
+
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <link rel="stylesheet" href="page1.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+    <div id="header" class="header">
+        <img src="images/QMLogo.jpeg" width="210" class="QMlogo">
+        <img src="images/MAT_logo_cropped.png" width="225" class="MATlogo">
+        </div>
+    
+    <hr>
+
+    <div id="title" class="title">
+        <h4> Consent Form </h4>
+    </div>
+    
+    
+    <div class="discourse_consentForm">
+        <p class="thick"> Please read each statment below, and indicate that you understand and agree by checking each checkbox. </p>
+        <p> Checking a checkbox is equivalent to your signature. </p>
+    </div>
+    
+    <div id="consentFormContainer" class="consentFormContainer">
+        <table id="consentForm">
+            <tr>
+                <td> I confirm that I have read the Participant Information Sheet dated 26.10.2021 Version 1.0 for the above study; or it has been read to me. I have had the opportunity to consider the information, ask questions and have had these answered satisfactorily.  </td>
+                <td> <input type="checkbox" id="consentFormPart1" name="consentForm" value="consentFormPart1" class="consentCheckbox"> </td>
+                </tr>
+            <tr>
+                <td> I understand that my participation is voluntary and that I am free to stop taking part in the study at any time without giving any reason and without my rights being affected.  </td>
+                <td> <input type="checkbox" id="consentFormPart2" name="consentForm" value="consentFormPart2" class="consentCheckbox"> </td>
+                </tr>
+            <tr>
+                <td> I understand that my data will be accessed by the investigator Lauren Edlin and supervisor Prof. Joshua Reiss. </td>
+                <td> <input type="checkbox" id="consentFormPart3" name="consentForm" value="consentFormPart3" class="consentCheckbox"> </td>
+                </tr>
+            <tr>
+                <td>  I understand that my data will be securely stored in an encrypted hard drive on a Queen Mary MacBook and in accordance with the data protection guidelines of the Queen Mary University of London for up to 5 year (in accordance with Queen Mary University of London’s retention schedule) in fully anonymised form.  </td>
+                <td> <input type="checkbox" id="consentFormPart4" name="consentForm" value="consentFormPart4" class="consentCheckbox"> </td>
+                </tr>
+            <tr>
+                <td> I understand that I can access the information I have provided and request destruction of that information at any time prior to anonymisation. I understand that following anonymisation I will not be able to request withdrawal of the information I have provided.  </td>
+                <td> <input type="checkbox" id="consentFormPart5" name="consentForm" value="consentFormPart5" class="consentCheckbox"> </td>
+            </tr>
+            <tr>
+                <td>  I agree to take part in the above study. </td>
+                <td> <input type="checkbox" id="consentFormPart6" name="consentForm" value="consentFormPart6" class="consentCheckbox"> </td>
+            </tr>
+            
+            </table>
+        </div>
+    
+
+    <div id="continueButton_container" class="continueButton_container">
+        <button id="continueButton_consentPage" class="continueButton_disabled" onclick="consentCheck()">Continue</button>
+    </div>
+    
+    
+    <!-- Javascript file -->
+    <script type="text/javascript" src="page1.js"></script>
+    <script type="text/javascript" src="consent_page.js"></script>
+
+<body>
+
+</html>

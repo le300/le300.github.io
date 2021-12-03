@@ -2,208 +2,53 @@
 <!DOCTYPE html>
 
 <html>
+
 <head>
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="page1.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
+
 
 <body>
     
-    <div id="titleContainer">
-       <h1> Comics Annotation Tool (CAT) </h1>
-       <h2> Prototype Version 2.0 </h2>
-        </div>
-    
-    <div id="textContainer" style="width: 100%;">
-        
-      <!--  <div style="float:left; width: 50%">
-             <img src="gif2.gif" alt="The CAT in use">
-            </div> -->
-        
-        <div class="textCont">
-         <p> This is a web-based annotation tool for marking up comics.
-         
-         <br> </br><!-- <a href="CAT_Instructions.pdf" target="_blank">Click here</a> to download the CAT instruction manual for more detailed instructions on how to use the CAT. --> <a href="Annotation_Scheme_And_Examples.pdf" target="_blank">Click here</a> to download the annotation scheme, which contains instructions for how to annotate and example annotations. </p>
-            
-       <!--     <p> Once you've read through the annotation examples, click the Start button at the bottom of this page to begin annotating comic pages. Thank you for your help in this research! </p> -->
-            </div>
-        
+    <div id="header" class="header">
+        <img src="images/QMLogo.jpeg" width="210" class="QMlogo">
+        <img src="images/MAT_logo_cropped.png" width="225" class="MATlogo">
         </div>
 
-<!--
-    <div id="instructionsContainer">
-        <div class="divBackgroundStyle">
-            <h3> How to Use the CAT: </h3>
-        </div>
-        
-        <div style="width: 100%;">
-            <div style="float:left; width: 50%">
-                <img src="Clip1.gif" alt="Panel/Section ID task">
-                
-            </div>
-            
-            <div style="float:right; width: 50%">
-                <p> Press <b>Start Annotation</b> to begin.</p>
-                <p> You will be given a number of comic pages, which are displayed one at a time on the left of the page.  </p>
-                <p> For each page, outline the distinct image sections by dragging and dropping rectangles directly on the image. Press the "Start Task" to begin outlining sections.  </p>
-            </div>
-        </div>
-        <div style="clear:both"></div>
-        
-        <br>
-        
-        <div style="width: 100%;">
-            <div style="float:left; width: 50%">
-                
-                <p> If you make a mistake or want to redo any rectangles, use the <b>Clear Last Rectangle</b> and <b>Clear All Rectangles</b> buttons. </p>
-                <p> Once the sections are all outlined to satisfaction, click the "End Task" button. </p>
-                    
-                    </div>
-            
-            <div style="float:right; width: 50%">
-                <img src="Clip2.gif" alt="Panel/Section ID task Redo">
-                    
-            </div>
-        </div>
-        <div style="clear:both"></div>
-        
-        <br>
-        
-        <div style="width: 100%;">
-            <div style="float:left; width: 50%">
-                <img src="Clip3.gif" alt="Semantic Form Generation">
-                
-            </div>
-            
-            <div style="float:right; width: 50%">
-                <p> After ending the task, a series of forms are generated on the right side of the page. Each form corresponds with each outlined section, and the number of each section matches to the number on the top left of the rectangle outlines. </p>
-                
-                <p> Pressing the "Indicate Characters" button allows for clicking in the specified image section. Place a blue dot on each <b>key character. </b>
-                
-                <p> Finally, fill out each of the sections on the generated forms. </p>
-                    </div>
-        </div>
-        <div style="clear:both"></div>
-        
-        
-        <br>
-        
-     <p> Once the entire page is annotated, click  the <b>Next Page</b> button. You can use the <b>Previous Page</b> button at any time - the inputs will be saved and you can check any labels and descriptions.  Click the <b>Reset</b> button anytime to restart the tasks on that page. </p>
-        
-        
+    <hr>
 
-            <div class="divBackgroundStyle">
-                <h3> Tips on Filling in the Forms: </h3>
-            </div>
-        
-        
-        <br>
-        
-        <img src="Example10.jpg" alt="Char Example">
-  
-        <br>
-  
-        <img src="Example11.jpg" alt="Char 2 Example">
-            
-        <br>
-            
-        <img src="Example12.jpg" alt="Background Example">
-  
-  
+    <div id="title" class="title">
+        <h4> Comics Annotation Study </h4>
+        </div>
     
+    <div id="info" class="discourse">
+        <p> <b>Thank you for your interest in this study!</b> </p>
+        <p> This study is part of a research project investigating the visual structure of comics.  </p>
+        <!-- <p> In this study, you are asked to read a 5 page sci-fi fantasy comic and indicate on a 5-point scale whether the background of each panel has no information about the setting (blank), or contains a lot of information (full drawing). </p> -->
+        <br> </br>
+        <p> <b>Before you begin, take note: </b> </p>
+        <ul>
+            <li> DO NOT refresh the pages, or go forwards or backwards using the browser buttons! Your responses will not be recorded.</li>
+            <li> This study works best on a Chrome brower. </li>
+            <li> This study works best with the browser made as large as possible.</li>
+        </ul>
+        <br> </br>
+        <p> Please ensure your browser is at least 1300 x 700 pixels to continue.  </p>
+        <p id="browserSizeDisplay"> Your browser size: </p>
+        </div>
     
-    </div>
- 
- -->
-
-  <!--  <div style="clear:both"></div>
-    
-        <br>
- 
-    <div class="divBackgroundStyle">
-        <h3>  </h3>
-        </div> -->
- 
-
-  <!--  <div id="videoInstructionsContainer">
-        <video width="960" height="540" controls>
-            <source src="CATInstructions.mp4" type="video/mp4" >
-                Your browser does not support the video tag - soz :(
-            </video>
-        </div> -->
-    
-    <div class="divBackgroundStyle" >
-        <h3> </h3>
+    <div id="continueButton_container" class="continueButton_container">
+        <button id="continueButton" class="continueButton_disabled" onclick="">Continue</button>
         </div>
 
 
-<!--
-    startButtonContainer - older versions had the start button, or a participant number input and buttons to start individual stories.
- 
- The newer version below comments out the old parts, and now contains:
- 
- -->
+    <!-- Javascript files -->
+    <script type="text/javascript" src="URL_storage.js"></script>
+    <script type="text/javascript" src="window_size.js"></script>
+    <script type="text/javascript" src="page1.js"></script>
 
-
-    <div id="startContainer" class="startContainer">
-      
-      <!-- Start button - replaced by individual story buttons for now
-        <a href="comicsAnnotation.html" ><button id="startButton" class="center" > Start </button></a>
-        -->
-      
-      <!--  <form name="participantNumForm">
-          <label for="participantNum" class="labelFont"> Participant Number: </label>
-          <input type="text" id="participantNum" for="participantNum">
-              </form> -->
-      
-        <br></br>
-        
-        <form name="annotationChoice" id="annotationChoice" class="annotationChoiceLayout">
-            Participant Number: <select name="participantNumberMenu" id="participantNumberMenu">
-                <option value="" selected="selected"> Select Participant Number </option>
-                </select>
-            <br></br>
-            Story Number: <select name="storyNumberMenu" id="storyNumberMenu">
-                <option value="" selected="selected"> Select Story Number </option>
-                </select>
-            <br></br>
-            Annotation Type: <select name="annotationTypeMenu" id="annotationTypeMenu">
-                <option value="" selected="selected"> Select Annotation </option>
-                </select>
-            </form>
-        
-        
-        <br></br>
-        
-        <button id="startButton" onclick="startAnnotation()" > Start </button>
-        
-  <!--
-           <button id="startButton" onclick="startAnnotation(1)" > Start Story 1 </button>
-      
-        <br></br>
-      
-           <button id="startButton" onclick="startAnnotation(2)" > Start Story 2 </button>
-        
-        <br></br>
-        
-          <button id="startButton" onclick="startAnnotation(3)" > Start Story 3 </button>
-        
-        <br></br>
-        
-           <button id="startButton" onclick="startAnnotation(4)" > Start Story 4 </button>
-            
-        <br></br>
-        
-            <button id="startButton" onclick="startAnnotation(13)" > Start Story 13 </button>
-   -->
-        
-        </div>
-    
-    
-    <!-- Javascript file -->
-    <script type="text/javascript" src="index.js"></script>
-    
-    
 </body>
-    
 
 </html>

@@ -9,11 +9,15 @@
 var participantNum = localStorage.getItem("participantNumKey");
 var storyNum = localStorage.getItem("storyNumKey");
 var annotationType = localStorage.getItem("annotationTypeKey");
+var URL = localStorage.getItem("URL");
+var consent_check = localStorage.getItem("consent_check_key"); 
 
 // check that these variables made it over from the index:
-//console.log("participant number: " + participantNum);
-//console.log("story number: " + storyNum);
-//console.log("annotation type: " + annotationType);
+console.log("participant number: " + participantNum);
+console.log("story number: " + storyNum);
+console.log("annotation type: " + annotationType);
+console.log("URL: " + URL);
+console.log("consent check: " + consent_check);
 
 //var dataName = "story" + storyNum + "Participant" + participantNum; // init variable to assign a name of the data in firebase
 
@@ -24,7 +28,7 @@ var annotationType = localStorage.getItem("annotationTypeKey");
 //    Story number : Number of pages
 //    not a great way to do it, but it's what it is! ----------------
 var storyPageLengths = {
-    1 : 6,
+    1 : 5,
     2 : 5,
     3 : 5,
     4 : 5,
@@ -55,7 +59,8 @@ var storyPageLengths = {
     29 : 5,
     30 : 5,
     31 : 5,
-    32 : 1
+    32 : 1,
+    33 : 6
 };
 
 
@@ -65,6 +70,7 @@ var pageSegmentationTaskSwitch = false;
 var characterSegmentationTaskSwitch = false;
 var textSectionsTaskSwitch = false;
 var characterFeaturesTaskSwitch = false;
+var backgroundLocationTaskSwitch = false;
 
 
 var annotationTaskCompleted = ""; // init string variable to identify which task was just completed for the 'final data' section in pagesData before its submitted to firebase
@@ -175,6 +181,31 @@ if (annotationType == "Page Segmentation") {
     document.getElementById("startAnnotationButton").style.display = "inline-block";
 } // end page segmentation task setup
 
+if (annotationType == "Background and Location") {
+    backgroundLocationTaskSwitch = true; // turn on the background_location task
+    
+    // retrieve the corrent document from firebase and assign to pagesData
+    
+    // Get the appropriate page segmentation annotated pages from Firebase
+    db.collection("Background_Experiment1").get().then((snapshot) => {
+                                                    console.log(snapshot.docs); // get an overview of all the documents in the database
+                                                    snapshot.docs.forEach(doc => {
+                                                                          //console.log(doc.data());
+                                                                          //console.log("data id: ", doc.id)
+                                                                          retrieveCorrectPagesData(doc);
+                                                                          document.getElementById("startAnnotationButton").style.display = "inline-block";
+                                                                          })
+                                                    })
+    
+    //console.log("before: " + annotationTaskCompleted);
+    annotationTaskCompleted = "Background and Location"; // assign correct annotation task
+    console.log("annotation task completed: " + annotationTaskCompleted);
+    if (pagesData == []) {
+        console.log("pagesData not assigned"); // send alert message if pagesData has not been assigned
+    }
+    
+} // end background and location task setup
+
 
 if (annotationType == "Character Segmentation") {
     characterSegmentationTaskSwitch = true; // turn on character task switch
@@ -182,7 +213,7 @@ if (annotationType == "Character Segmentation") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("CharacterAnnotation").get().then((snapshot) => {
+    db.collection("Background_Experiment1").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                 //console.log(doc.data());
@@ -194,7 +225,7 @@ if (annotationType == "Character Segmentation") {
     
     //console.log("before: " + annotationTaskCompleted);
     annotationTaskCompleted = "Character Segmentation"; // assign correct annotation task
-    console.log("after: " + annotationTaskCompleted);
+    console.log("annotation task completed: " + annotationTaskCompleted);
     if (pagesData == []) {
         console.log("pagesData not assigned"); // send alert message if pagesData has not been assigned
     }
@@ -208,7 +239,7 @@ if (annotationType == "Character Features") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("CharacterAnnotation").get().then((snapshot) => {
+    db.collection("Background_Experiment1").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                   //console.log(doc.data());
@@ -220,7 +251,7 @@ if (annotationType == "Character Features") {
     
     //console.log("before: " + annotationTaskCompleted);
     annotationTaskCompleted = "Character Features"; // assign correct annotation task
-    console.log("after: " + annotationTaskCompleted);
+    console.log("annotation task completed: " + annotationTaskCompleted);
     if (pagesData == []) {
         console.log("pagesData not assigned"); // send alert message if pagesData has not been assigned
     }
@@ -234,7 +265,7 @@ if (annotationType == "Text Sections") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("CharacterAnnotation").get().then((snapshot) => {
+    db.collection("Background_Experiment1").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                   //console.log(doc.data());
@@ -253,18 +284,15 @@ if (annotationType == "Text Sections") {
 function retrieveCorrectPagesData(doc) {
     //console.log(doc.data()); // show the data from each document in the database
     docItem = doc.data(); // assign a name to the data
-    
     //console.log(docItem); // debugging checks
     //console.log(typeof docItem);
     //console.log(docItem.jsonData);
     
     mainData = docItem.jsonData; // mainData is type string
-    
     //console.log(mainData); // check the mainData in the console log
     //console.log(typeof mainData);
     
     // check whether the story num, participant num, and last annotation task (if applicable) are in the mainData:
-    
     var storyNumLabel = String('"storyID":"' + storyNum + '"');
     //console.log(storyNumLabel);
     var checkStoryNum = mainData.includes(storyNumLabel);
@@ -274,6 +302,15 @@ function retrieveCorrectPagesData(doc) {
     //console.log(participantNumLabel);
     var checkParticipantNum = mainData.includes(participantNumLabel);
     //console.log("participantNum check: " + checkParticipantNum);
+    
+    // if the annotation task is Background and Location task, then check that the lastAnnotationCompleted is for Page Segmentation
+    if (annotationType == "Background and Location") {
+        
+        var annotationLastTaskCompletedLabel = String('annotationLastCompleted":"' + "Page Segmentation" + '"');
+        //console.log(annotationLastTaskCompletedLabel);
+        var checkAnnotationLastCompleted = mainData.includes(annotationLastTaskCompletedLabel);
+        //console.log("last annotation task check: " + checkAnnotationLastCompleted);
+    }
     
     // if the annotation task is Character Segmentation, then check that the annotationLastCompleted is for Page Segmentation
     if (annotationType == "Character Segmentation") {
@@ -341,7 +378,15 @@ function init() {
     console.log("comic page image sizes readjusted");
     addCanvasEvents(); // Add event listeners for rectangle drawing tool to the canvas
     
-    if (characterFeaturesTaskSwitch == true) {
+    // if this is a polygon segmentation task run, put on the keypress event listener
+    if (false) {
+        document.addEventListener("keydown", function(e) {
+                                  drawPolygonsOnCanvas.deleteKey(e);
+                                  }, false);
+    }
+    
+    // replace the below with characterFeaturesTaskSwitch == true for char features task
+    if (false) {
         canvas_charBodyImage = document.createElement('canvas'); // assign canvas to global variable
         context_charBodyImage = canvas_charBodyImage.getContext("2d"); // add context to the canvas element
         canvas_charBodyImage.width = 125; // set width
@@ -388,19 +433,20 @@ function preload_story(listOfStoryFileStrings) {
     for (var i=0; i < listOfStoryFileStrings.length; i++) {
         comicPages[i] = new Image();
         comicPages[i].src = listOfStoryFileStrings[i];
-        console.log("story images preloaded");
+        console.log("story images preloaded.");
     }
 } // end of preload_story(listOfStoryFileStrings)
 
 
 /* Preload char body map image */
 function preload_other() {
-    charBodyMapImage = new Image();
-    charBodyMapImage.src = "bodyMapImages/charBodyMap_resize.jpeg";
-    console.log("char body map image preloaded");
-    charOrientationImage = new Image();
-    charOrientationImage.src = "bodyMapImages/Kenon.jpeg";
-    console.log("char orientation image preloaded");
+    console.log("no other images to preload.");
+    //charBodyMapImage = new Image();
+    //charBodyMapImage.src = "bodyMapImages/charBodyMap_resize.jpeg";
+    //console.log("char body map image preloaded");
+    //charOrientationImage = new Image();
+    //charOrientationImage.src = "bodyMapImages/Kenon.jpeg";
+    //console.log("char orientation image preloaded");
 } // end of preload_other(listOfImageFileStrings)
 
 
@@ -421,13 +467,9 @@ function getMousePos(canvas, evt) {
     };
 }
 
-
 /* Wait for HTML to load and then setup the canvas */
 // Second function called, called after the images are preloaded
 document.addEventListener("DOMContentLoaded", init);
-
-
-
 
 
 
@@ -485,6 +527,9 @@ function putFirstComicPageOnCanvas() {
         pagesData.push({}); // push new dict
         pagesData[pageNum].panels = []; // add new list for empty panels
     }
+    if (backgroundLocationTaskSwitch == true) {
+        setupPageForAnnotation();
+    }
     
     if (characterSegmentationTaskSwitch == true) {
         setupPageForAnnotation();
@@ -513,7 +558,6 @@ function setupPageForAnnotation() {
     //console.log(pagesData); // check pagesData is correct
     
     drawPanelInfoOnCanvas(); // Put stored panel rects on canvas
-    
     
     // display the semantic forms:
     document.getElementById("panelNumSection").style.display = "block"; // display the panelNumSection
@@ -618,7 +662,6 @@ function nextPage(event) {
     document.getElementById("panelIdSection").style.display = "block";
     // But hide all buttons but Start Task button (until Start Button pressed)
     
-    
     // For Character Segmentation task,
     // display the semantic forms
     if (characterSegmentationTaskSwitch == true) {
@@ -649,12 +692,28 @@ function nextPage(event) {
         showContentForms(panelRecNum-1); // show content forms
     }
     
+    // For Background/Location task,
+    // display the semantic forms
+    if (backgroundLocationTaskSwitch == true) {
+        panelButtonsVisible = false;
+        document.getElementById("panelIdSection").style.display = "none";
+        document.getElementById("panelNumSection").style.display = "block"; // display the panelNumSection
+        panelRecNum = pagesData[pageNum].panels.length + 1;
+        drawPanelInfoOnCanvas();
+        panelCounter(panelRecNum-1); // turn off the panel counter function
+        showContentForms(panelRecNum-1); // show content forms
+        
+    } // end of if backgroundLocationTaskSwitch == true
+    
     // If this is a revisit to a page, populate with right info - elements from the stored semantic container
+    // This only works for new segmentation tasks, and not tasks that have already been segmented!!!
+
     if ((pageNum+1) <= pagesData.length) {
         drawPanelInfoOnCanvas();
         drawCharacterInfoOnCanvas();
         drawTextSectionInfoOnCanvas();
         
+        //console.log("Redraw section here.");
         // if there are panels, redraw the char instruction panel
         // and get rid of panel instruction form
         if (pagesData[pageNum].panels.length>0){
@@ -666,10 +725,11 @@ function nextPage(event) {
         }
         //console.log(pagesData[pageNum]);
         //console.log(pagesData[pageNum].storedSemanticFormContainer.cloneNode(true));
+        
         // replace semantic form container with the stored one
-        var parent = document.getElementById("semanticFormContainer").parentNode;
-        parent.replaceChild(pagesData[pageNum].storedSemanticFormContainer.cloneNode(true),
-                            document.getElementById("semanticFormContainer"));
+        // This has been causing an error, and I don't think it's being used anymore, so it's commented out...
+        //var parent = document.getElementById("semanticFormContainer").parentNode;
+        //parent.replaceChild(pagesData[pageNum].storedSemanticFormContainer.cloneNode(true), document.getElementById("semanticFormContainer"));
         
         // if the charFeaturesTaskSwitch is on, put the canvas and mouseclick eventlisteners on the semantic forms
         if (characterFeaturesTaskSwitch == true) {
@@ -692,11 +752,8 @@ function nextPage(event) {
                     console.log(pagesData[pageNum].panels[p].characters[c]);
                     console.log(getEmotionInput.id);
                 }
-            }
-            
-            
+            } // end of for loop
             var canvases = document.getElementsByTagName('canvas'); // get all canvases
-    
             var numCanvases = canvases.length;
             //console.log("num canvases: " + numCanvases);
     
@@ -732,33 +789,28 @@ function nextPage(event) {
                     context_of_charOrientation.fillStyle = '#7E06DA';
                     context_of_charOrientation.fill();
                     context_of_charOrientation.restore();
-                    
-                    //var num_of_canvas = canvases[i].id.replace("canvas_charOrientation", "");
-                    //var panel_nemm = parseInt(num_of_canvas.split(".")[1]-1);
-                    //var char_nemm = parseInt(canvasNum.split(".")[2]);
-                    
+        
                     drawOrientationImage(canvases[i].id);
-//                    console.log(pagesData[pageNum].panels[panel_nemm]);
-//
-//                    vars_charOrientation[canvases[i].id] = {
-//                        isDown : false,
-//                        r : pagesData[pageNum].panels[panel_nemm].characters[char_nemm].orientationAngle["radians"]
-//                    }
+
+               }
                     
                     // add event listeners
                     canvases[i].addEventListener('mousedown', function(e) {rotateImage.handleMouseDown(e)});
                     canvases[i].addEventListener('mousemove', function(e) {rotateImage.handleMouseMove(e)});
                     canvases[i].addEventListener('mouseup', function(e) {rotateImage.handleMouseUp(e)});
                     canvases[i].addEventListener('mouseout', function(e) {rotateImage.handleMouseOut(e)});
-                }
             }
-        }
-        
+        } // end of if characterFeaturesTaskSwitch == true
     } else {
         // else if new page push new dict and add empty panels
-        pagesData.push({});
-        pagesData[pageNum].panels = [];
+        // put check if it is a task that doesn't need new panels
+        //console.log(pagesData(pageNum));
+        if (backgroundLocationTaskSwitch == false) {
+            pagesData.push({});
+            pagesData[pageNum].panels = [];
+        }
     }
+    
 } // end of nextPage(event)
 
 
@@ -797,7 +849,12 @@ function putPreviousPageOnCanvas(event) {
         buttonChange = document.getElementById("buttonNextPage");
         buttonChange.innerHTML = "Next Page";
         buttonChange.setAttribute("onclick", "nextPage(event)");
-    } 
+    }
+    
+    // Before moving to the previous page, for backgroundLocationTask store the values on this current page!
+    if (backgroundLocationTaskSwitch == true) {
+        validateInputs();
+    }
     
     pageNum -= 1; // Decrement pageNum index
     charIdON = false;  // turn off all (panel, char and text ID) event handlers
@@ -810,7 +867,6 @@ function putPreviousPageOnCanvas(event) {
     pageNumTitle = pageNum + 1;
     document.getElementById("startAnnotationButton").innerHTML = "Page " + pageNumTitle + " of " + comicPages.length;
     
-   
     drawPanelInfoOnCanvas(); // Put stored panel rects on canvas
     drawCharacterInfoOnCanvas(); // Put stored char info on canvas
     drawTextSectionInfoOnCanvas(); // Put stored text section info on canvas
@@ -832,6 +888,21 @@ function putPreviousPageOnCanvas(event) {
     var parent = document.getElementById("semanticFormContainer").parentNode;
     parent.replaceChild(pagesData[pageNum].storedSemanticFormContainer.cloneNode(true),
                         document.getElementById("semanticFormContainer"));
+    
+    // If backgroundLocation task, store the values on the current page
+    if (backgroundLocationTaskSwitch == true) {
+        panelButtonsVisible = false;
+        for (var i=0; i<pagesData[pageNum].panels.length; i++) {
+            var panel = pagesData[pageNum].panels[i];
+            var panel_background = panel["background"];
+            var slider_item = document.getElementById("slider" + pageNum + "." + (i+1));
+            var detail_value = slider_item.value;
+            panel_background["detail"] = detail_value;
+            //console.log(pagesData[pageNum+1]);
+            // also reattach the event handler
+            applyValueChangeToSlider(pageNum, i+1);
+        }
+    } // end if backgroundLocationTaskSwitch is true
     
     if (characterFeaturesTaskSwitch == true) {
         
@@ -893,56 +964,6 @@ function putPreviousPageOnCanvas(event) {
             }
         }
     }
-    
-//    // add indicate char event handlers
-//    canvas.addEventListener("mousemove", function(e) {
-//                            drawRectangleOnCanvas_charID.handleMouseMove(e);
-//                            }, false);
-//
-//    //event listener for when the canvas is first clicked
-//    // this should get the top part of the rectangle
-//    canvas.addEventListener("mousedown", function(e) {
-//                            drawRectangleOnCanvas_charID.handleMouseDown(e);
-//                            }, false);
-//
-//    // event listener for when the mouse is released from the canvas
-//    // this should generate the new char semantic form
-//    canvas.addEventListener("mouseup", function(e) {
-//                            drawRectangleOnCanvas_charID.handleMouseUp(e);
-//                            }, false);
-//
-//    // event listener for mouseOut
-//    canvas.addEventListener("mouseout", function(e) {
-//                            drawRectangleOnCanvas_charID.handleMouseOut(e);
-//                            }, false);
-//
-//    console.log("putPreviousPageOnCanvas(event): Char ID event handers added"); // test
-//
-//
-//    // add indicate text section event handlers
-//    canvas.addEventListener("mousemove", function(e) {
-//                            drawRectangleOnCanvas_textID.handleMouseMove(e);
-//                            }, false);
-//
-//    //event listener for when the canvas is first clicked
-//    // this should get the top part of the rectangle
-//    canvas.addEventListener("mousedown", function(e) {
-//                            drawRectangleOnCanvas_textID.handleMouseDown(e);
-//                            }, false);
-//
-//    // event listener for when the mouse is released from the canvas
-//    // this should generate the new char semantic form
-//    canvas.addEventListener("mouseup", function(e) {
-//                            drawRectangleOnCanvas_textID.handleMouseUp(e);
-//                            }, false);
-//
-//    // event listener for mouseOut
-//    canvas.addEventListener("mouseout", function(e) {
-//                            drawRectangleOnCanvas_textID.handleMouseOut(e);
-//                            }, false);
-//
-//    console.log("putPreviousPageOnCanvas(event): Text ID event handers added"); // test
-    
 } // end of putPreviousPageOnCanvas(event)
 
 
@@ -1001,7 +1022,6 @@ function validateInputs() {
     //if (localStorage.getItem("jsonPreloaded")) {
         //return "";
     //}
-    
     var errorMessage = "";
     
     // If on the Page Segmentation Task, then there is no need to validate inputs
@@ -1058,8 +1078,6 @@ function validateInputs() {
                     
                     //console.log("after validate input");
                     //console.log(panel.characters[j]);
-                    
-                    
                     
                     // Char Body Map image
                     var charBodyMapImageSections = panel.characters[j].areasShown;
@@ -1180,46 +1198,6 @@ function validateInputs() {
                         radioInput5Label.style.color = "red";
                     }
                     //console.log(panel.characters[j]);
-                    
-                    
-
-//                    var characterDescriptionInput = document.getElementById("charDescriptionInput" + i + "." + j).value;
-//                    if (characterDescriptionInput == "" || characterDescriptionInput == charDescriptionInstruction) {
-//                        errorMessage += "Missing Character Description for Section " + (i + 1) + " Character Number " + (j + 1) + "\n"; // send message
-//                        document.getElementById("charDescriptionInput" + i + "." + j).style.backgroundColor = "LightPink"; // highlight input
-//
-//                    } else {
-//                        // valid description
-//                        pagesData[pageNum].panels[i].characters[j].Description = characterDescriptionInput; // put the data into pagesData
-//
-//                        // add the char label and description to the list of characters in the story (if it is not already on the list)
-//                        // get the char label: description
-//                        var charLabel = document.getElementById("charFormInput" + i + "." + j).value;
-//                        var charLabelAndDescription = charLabel + ": " + characterDescriptionInput;
-//
-//                        // check that the char label and description is in the charList
-//                        if (charList.includes(charLabelAndDescription)) {
-//                            // if it is on the list, move on
-//                            //console.log("Char already on list"); //test
-//                        } else {
-//                            // if it isn't in the charList, put it on there...
-//                            charList.push(charLabelAndDescription);
-//                            // and put it on the html character list
-//                        }
-//                        //console.log("charList: " + charList);
-//                    }
-                    
-//                    var characterActionInput = document.getElementById("charActionInput" + i + "." + j).value;
-//                    //console.log("characterActionInput: " + characterActionInput); //test
-//                    if (characterActionInput == "" || characterActionInput == charActionInstruction) {
-//                        errorMessage += "Missing Character Action for Section " + (i + 1) + " Character Number " + (j + 1) + "\n"; // send message
-//                        document.getElementById("charActionInput" + i + "." + j).style.backgroundColor = "LightPink"; // highlight input
-//                    } else {
-//                        //console.log("characterActionInput: " + characterActionInput); //test
-//                        pagesData[pageNum].panels[i].characters[j].Action = characterActionInput;
-//                        //console.log("Data in the pageData: " + pagesData[pageNum].panels[i].characters[j].Action); //test
-//                    }
-                    
                 } // for j char index loop
             } // for i panel index loop
         
@@ -1266,60 +1244,80 @@ function validateInputs() {
             }
         }
     } // end of text section annotation task validate input check
-    
-    var dontGo = false;
-    if (dontGo) {
-    
-        // Background Sections Checks:
-        var backgroundLocationLabelVariableInput = document.getElementById("backgroundLocationLabelInput" + (i + 1)).value;
-        if (backgroundLocationLabelVariableInput == "" || backgroundLocationLabelVariableInput == backgroundLabelInstruction) {
-            errorMessage += "Missing Background Location Label for Panel " + (i + 1) + "\n" // send message
-            document.getElementById("backgroundLocationLabelInput" + (i+1)).style.backgroundColor = "LightPink"; // highlight input
-        } else {
-            pagesData[pageNum].panels[i].background.label = backgroundLocationLabelVariableInput;
-        }
-        
-        var backgroundLocationDescriptionInput = document.getElementById("backgroundLocationInput" + (i + 1)).value;
-        if (backgroundLocationDescriptionInput == "" || backgroundLocationDescriptionInput == backgroundLocationInstruction) {
-            errorMessage += "Missing Background Location Description for Panel " + (i + 1) + "\n"; // send message
-            document.getElementById("backgroundLocationInput" + (i+1)).style.backgroundColor = "LightPink"; // highlight input
-        } else {
-            pagesData[pageNum].panels[i].background.location = backgroundLocationDescriptionInput;
+
+    if (backgroundLocationTaskSwitch == true) {
+        for (var i=0; i<pagesData[pageNum].panels.length; i++) {
+            var panel = pagesData[pageNum].panels[i];
+            //console.log(panel);
+            var panel_background = panel["background"];
             
-            // add the background description label and description to the list of locations in the story (if it is not already on the list)
-            // get the location label: description
-            var locationLabelAndDescription = backgroundLocationLabelVariableInput + ": " + backgroundLocationDescriptionInput;
-            //console.log(locationLabelAndDescription); //test
+            var slider_output_bubble = document.getElementById("slider_output" + pageNum + "." + (i+1)).value;
+            //console.log(slider_output_bubble); // debugggg
             
-            // check that the location label and description is in the locationList
-            if (locList.includes(locationLabelAndDescription)) {
-                // if it is on the list, move on
-                // console.log("Location already on list"); //test
-            } else {
-                // if it isn't in the charList, put it on there...
-                locList.push(locationLabelAndDescription);
-                // and put it on the html location list
+            if (slider_output_bubble == "background information amount") {
+                errorMessage = errorMessage + "Missing a value for Section " + (i+1) + "\n"; // send message
             }
-            //console.log("locList length: " + locList.length); //test
+            else {
+                var slider_item = document.getElementById("slider" + pageNum + "." + (i+1));
+                var detail_value = slider_item.value;
+                
+                panel_background["detail"] = detail_value;
+            }
         }
+        console.log(pagesData);
+            
+            //pagesData[pageNum].panel
         
-        var backgroundEmptyButtonChecked = document.getElementById("blankBackgroundButton" + (i + 1)).checked;
-        var backgroundDetailedButtonChecked = document.getElementById("detailedBackgroundButton" + (i + 1)).checked;
-        var backgroundTextButtonChecked = document.getElementById("textBackgroundButton" + (i + 1)).checked;
-        if (!(backgroundEmptyButtonChecked || backgroundDetailedButtonChecked || backgroundTextButtonChecked)) {
-            errorMessage += "Missing Empty/Detailed/Text Only Background Choice for Panel " + (i + 1) + "\n"; // send message
-            document.getElementById("blankBackgroundButtonLabel" + (i+1)).style.backgroundColor = "LightPink"; // highlight input
-            document.getElementById("detailedBackgroundButtonLabel" + (i+1)).style.backgroundColor = "LightPink"; // highlight input
-            document.getElementById("textBackgroundButtonLabel" + (i+1)).style.backgroundColor = "LightPink"; // highlight input
-        } else {
-            pagesData[pageNum].panels[i].background.detail = backgroundDetailedButtonChecked;
-            pagesData[pageNum].panels[i].background.textOnly = backgroundTextButtonChecked;
-            pagesData[pageNum].panels[i].background.empty = backgroundEmptyButtonChecked;
-            //console.log("Check textOnly var: " + pagesData[pageNum].panels[i].background.textOnly); // test
-            //console.log("Check Detail var: " + pagesData[pageNum].panels[i].background.detail); // test
-        }
+        // Background Sections Checks:
+//        var backgroundLocationLabelVariableInput = document.getElementById("backgroundLocationLabelInput" + (i + 1)).value;
+//        if (backgroundLocationLabelVariableInput == "" || backgroundLocationLabelVariableInput == backgroundLabelInstruction) {
+//            errorMessage += "Missing Background Location Label for Panel " + (i + 1) + "\n" // send message
+//            document.getElementById("backgroundLocationLabelInput" + (i+1)).style.backgroundColor = "LightPink"; // highlight input
+//        } else {
+//            pagesData[pageNum].panels[i].background.label = backgroundLocationLabelVariableInput;
+//        }
+//
+//        var backgroundLocationDescriptionInput = document.getElementById("backgroundLocationInput" + (i + 1)).value;
+//        if (backgroundLocationDescriptionInput == "" || backgroundLocationDescriptionInput == backgroundLocationInstruction) {
+//            errorMessage += "Missing Background Location Description for Panel " + (i + 1) + "\n"; // send message
+//            document.getElementById("backgroundLocationInput" + (i+1)).style.backgroundColor = "LightPink"; // highlight input
+//        } else {
+//            pagesData[pageNum].panels[i].background.location = backgroundLocationDescriptionInput;
+//
+//            // add the background description label and description to the list of locations in the story (if it is not already on the list)
+//            // get the location label: description
+//            var locationLabelAndDescription = backgroundLocationLabelVariableInput + ": " + backgroundLocationDescriptionInput;
+//            //console.log(locationLabelAndDescription); //test
+//
+//            // check that the location label and description is in the locationList
+//            if (locList.includes(locationLabelAndDescription)) {
+//                // if it is on the list, move on
+//                // console.log("Location already on list"); //test
+//            } else {
+//                // if it isn't in the charList, put it on there...
+//                locList.push(locationLabelAndDescription);
+//                // and put it on the html location list
+//            }
+//            //console.log("locList length: " + locList.length); //test
+//        }
+//
+//        var backgroundEmptyButtonChecked = document.getElementById("blankBackgroundButton" + (i + 1)).checked;
+//        var backgroundDetailedButtonChecked = document.getElementById("detailedBackgroundButton" + (i + 1)).checked;
+//        var backgroundTextButtonChecked = document.getElementById("textBackgroundButton" + (i + 1)).checked;
+//        if (!(backgroundEmptyButtonChecked || backgroundDetailedButtonChecked || backgroundTextButtonChecked)) {
+//            errorMessage += "Missing Empty/Detailed/Text Only Background Choice for Panel " + (i + 1) + "\n"; // send message
+//            document.getElementById("blankBackgroundButtonLabel" + (i+1)).style.backgroundColor = "LightPink"; // highlight input
+//            document.getElementById("detailedBackgroundButtonLabel" + (i+1)).style.backgroundColor = "LightPink"; // highlight input
+//            document.getElementById("textBackgroundButtonLabel" + (i+1)).style.backgroundColor = "LightPink"; // highlight input
+//        } else {
+//            pagesData[pageNum].panels[i].background.detail = backgroundDetailedButtonChecked;
+//            pagesData[pageNum].panels[i].background.textOnly = backgroundTextButtonChecked;
+//            pagesData[pageNum].panels[i].background.empty = backgroundEmptyButtonChecked;
+//            //console.log("Check textOnly var: " + pagesData[pageNum].panels[i].background.textOnly); // test
+//            //console.log("Check Detail var: " + pagesData[pageNum].panels[i].background.detail); // test
+//        }
         
-    }
+    } // end of backgroundLocationTaskSwitch == true validate input check
     
     
     if (pagesData[pageNum].panels.length==0) {
@@ -1351,8 +1349,14 @@ function validateInputs() {
 
 /* PAGE SEGMENTATION - DRAWING PANEL/SECTION RECTS on a COMIC IMAGE */
 
-/* Drawing Rectangles on Comic Image for panels
+/* Drawing Bounding Box Rectangles on Comic Image for panels
  code reference: https://stackoverflow.com/questions/48144924/draw-multiple-rectangle-on-canvas
+ */
+
+/* Drawing multi-point polygons on a comic image for panels
+ code reference:
+ http://jsfiddle.net/77vg88mc/34/
+ https://stackoverflow.com/questions/29441389/how-to-draw-polygon-on-canvas-with-mouse-clicks-pure-js
  */
 
 // Get correct X and Y Coords
@@ -1364,6 +1368,37 @@ function reOffset() {
     recOffsetX = BB.left;
     recOffsetY = BB.top;
 }
+
+// function that draws polygon while drawing
+function drawPolygonWhileDrawing(coordsList) {
+    
+    canvas = document.getElementById("canvas");
+    context = canvas.getContext("2d");
+    
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    //console.log("Draw function pageNum: " + pageNum); //test
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(comicPages[pageNum],canvas.width/2 - comicPages[pageNum].width/2, canvas.height/2-comicPages[pageNum].height/2,  comicPages[pageNum].width, comicPages[pageNum].height); // Draw image on canvas
+    context.lineWidth = 3;
+    context.strokeStyle = "#FF0000";
+    // if this is not the first polygon panel created, draw all other polygons
+    if (pagesData[pageNum].panels.length != 0) {
+        drawPolygonsOnCanvas.drawAllPolygons(); // draw all polygons stored so far
+    }
+    context.beginPath();
+    context.moveTo(coordsList[0].x, coordsList[0].y);
+    for(index=1; index<coordsList.length;index++) {
+        context.lineTo(coordsList[index].x, coordsList[index].y);
+    }
+    context.closePath();
+    context.stroke();
+    
+} // end of function drawPolygonWhileDrawing()
+
+
+var individualPolygonCoordinates = []; // store polygon coords
+
 
 // Add mouse events to canvas - used in the init function
 function addCanvasEvents() {
@@ -1377,28 +1412,150 @@ function addCanvasEvents() {
     window.onresize = function(e) {
         reOffset();
     }
-    
-    drawCount = 1;
 
-    canvas.addEventListener("mousemove", function(e) {
-                           drawRectangleOnCanvas.handleMouseMove(e);
-                           }, false);
+    var boundingBoxSegmentation = true;
+    
+    // Bounding Box Event Listeners:
+    if (boundingBoxSegmentation) {
+        canvas.addEventListener("mousemove", function(e) {
+                               drawRectangleOnCanvas.handleMouseMove(e);
+                               }, false);
+        canvas.addEventListener("mousedown", function(e) {
+                                drawRectangleOnCanvas.handleMouseDown(e);
+                                }, false);
+        canvas.addEventListener("mouseup", function(e) {
+                                drawRectangleOnCanvas.handleMouseUp(e);
+                                }, false);
+        canvas.addEventListener("mouseout", function(e) {
+                                drawRectangleOnCanvas.handleMouseOut(e);
+                                }, false);
+        console.log("addCanvasEvents: Bounding Box Panel ID event handers added");
+    } // end of boundingBoxSegmentation event handlers
+
+    var polygonSegmentation = false;
+    
+    // Polygon Event Listenters:
+    if (polygonSegmentation) {
     canvas.addEventListener("mousedown", function(e) {
-                            drawRectangleOnCanvas.handleMouseDown(e);
+                            drawPolygonsOnCanvas.handleMouseDown(e);
                             }, false);
-    canvas.addEventListener("mouseup", function(e) {
-                            drawRectangleOnCanvas.handleMouseUp(e);
+    canvas.addEventListener("dblclick", function(e) {
+                            drawPolygonsOnCanvas.handleMouseDoubleClick();
                             }, false);
-    canvas.addEventListener("mouseout", function(e) {
-                            drawRectangleOnCanvas.handleMouseOut(e);
-                            }, false);
+//    document.addEventListener("keydown", function(e) {
+//                            drawPolygonsOnCanvas.deleteKey(e);
+//                            }, false);
+    console.log("addCanvasEvents: Polygon Panel ID event handers added");
+    }// end of polygonSegmentation event handlers
     
-    console.log("addCanvasEvents: Panel ID event handers added"); // test
-    
-}
+} // end of function addCanvasEvents()
 
 
-// Draw the stored rectangles onto the canvas element
+var drawPolygonsOnCanvas = {
+    
+    handleMouseDown: function(e) {
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext("2d");
+        // tell the browser we're handling this event
+        e.preventDefault();
+        e.stopPropagation();
+        // var mousePos = getMousePos(canvas, e);
+        // console.log(mousePos.x + ", " + mousePos.y); //test
+        coordX = parseInt(e.clientX - recOffsetX);
+        coordY = parseInt(e.clientY - recOffsetY);
+        individualPolygonCoordinates.push({x:coordX,y:coordY});
+        //console.log(individualPolygonCoordinates); // check
+        drawPolygonWhileDrawing(individualPolygonCoordinates);
+    },
+    
+    handleMouseDoubleClick: function(e) {
+        console.log("double click!"); // test
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext("2d");
+        // tell the browser we're handling this event
+        //e.preventDefault();
+        //e.stopPropagation();
+        
+        // create a new panel data object
+        newPanel = {
+            polygonCoords: individualPolygonCoordinates,
+            color: "#FF0000",
+            id : pagesData[pageNum].panels.length + 1,
+            characters:[],
+            textSections: [],
+            background: {location : "",
+                         detail : 0,
+                         textOnly: 0
+                        }
+        }
+        
+        pagesData[pageNum].panels.push(newPanel); // Store created panels in the overall data structure
+        individualPolygonCoordinates = []; // reset the current polygon coords
+        //console.log(individualPolygonCoordinates); // check
+        drawPolygonsOnCanvas.drawAllPolygons(); // draw all polygons stored so far
+    },
+    
+    deleteKey: function(e) {
+        // tell the browser we're handling this event
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("a key pressed.");
+        const key = e.key;
+        if (key === "Backspace" || e.keyCode === 46) {
+            console.log("Delete key pressed.");
+        }
+    },
+    
+    drawPolygon: function(coordsList) {
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext("2d");
+        
+        context.lineWidth = 3;
+        context.strokeStyle = "#FF0000";
+        
+        context.beginPath();
+        context.moveTo(coordsList[0].x, coordsList[0].y);
+        for(index=1; index<coordsList.length;index++) {
+            context.lineTo(coordsList[index].x, coordsList[index].y);
+        }
+        context.closePath();
+        context.stroke();
+    },
+    
+    drawAllPolygons: function() {
+        //console.log("drawAllPolygons"); // debugggs
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext("2d");
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        //console.log("Draw function pageNum: " + pageNum); //test
+        context.fillStyle = "white";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(comicPages[pageNum],canvas.width/2 - comicPages[pageNum].width/2, canvas.height/2-comicPages[pageNum].height/2,  comicPages[pageNum].width, comicPages[pageNum].height); // Draw image on canvas
+        context.lineWidth = 3;
+        context.strokeStyle = "#FF0000";
+        for (var i=0; i<pagesData[pageNum].panels.length; i++) {
+            var panel = pagesData[pageNum].panels[i]; // Get all stored panel rects
+            var polyCoords = panel.polygonCoords;
+            var firstXCoord = polyCoords[0].x;
+            var firstYCoord = polyCoords[0].y;
+            drawPolygonsOnCanvas.drawPolygon(polyCoords);
+            context.beginPath(); // draw circle
+            context.arc(firstXCoord-5, firstYCoord-5, 15, 0, Math.PI * 2, true);
+            context.closePath();
+            context.fillStyle = panel.color;
+            context.fill();
+            context.beginPath(); // draw number in circle
+            context.fillStyle = "white";
+            context.font = "15px Arial Black";
+            context.fillText(panel.id, firstXCoord-10, firstYCoord); // center into the circle
+        }
+    }
+} // end of drawPolygonsOnCanvas object
+
+
+
+// Draw Bounding Boxes:
+// Object that contains event listeners to draw rectangles onto the canvas element
 var drawRectangleOnCanvas = {
 
     handleMouseDown: function(e) {
@@ -1438,9 +1595,7 @@ var drawRectangleOnCanvas = {
         isRecDown = false;
 
         pagesData[pageNum].panels.push(newPanel); // Store created panels in the overall data structure
-
         drawRectangleOnCanvas.drawAll(); // Draw all panel rects when mouse dragging stops
-        
         // For every rect, put a number in the top left corner on the circle
         panelNum = 1;
         for (var i=0; i<pagesData[pageNum].panels.length; i++) {
@@ -1477,7 +1632,6 @@ var drawRectangleOnCanvas = {
             context.closePath();
             context.fillStyle = r.color;
             context.fill();
-            
         }
     },
 
@@ -1667,7 +1821,7 @@ function showContentForms(x) {
         newHeading.innerHTML = "Section " + j;
         clone.insertBefore(newHeading, clone.childNodes[0]);
         
-        // If the Character Segmentation task is selected, show the indiacte character buttons on the forms
+        // If the Character Segmentation task is selected, show the indicate character buttons on the forms
         
         if (characterSegmentationTaskSwitch == true) {
         
@@ -1690,7 +1844,7 @@ function showContentForms(x) {
             else {
                 indicateCharButton.style.display = "none";
             }
-        }
+        } // end of if characterSegmentationTaskSwitch == true
         
         // If the Character Features task is selected, show the annotation tasks to be filled out per form
         
@@ -1698,7 +1852,6 @@ function showContentForms(x) {
             
             // Show the character segmentation bounding boxes on the comic page
             drawCharacterInfoOnCanvas();
-            
             // Show the character semantic forms with the annotation tasks:
             // get the number of characters in that segmentation
             var numCharsPerPanel = pagesData[pageNum].panels[j-1].characters.length; // note that the panel num j is incremented down one, to index the char array accurately
@@ -1706,14 +1859,13 @@ function showContentForms(x) {
             
             // for each outlined character
             for (let k=0; k < numCharsPerPanel; k++) {
-                
                 // create a new char form
                 var charFeaturesForm = createCharFeaturesForm(k, j);
                 // put the char feautres form in the correct semantic form
                 clone.appendChild(charFeaturesForm);
                 //console.log("completely new charFeaturesForms created"); // debug
             }
-        }
+        } // end of characterFeaturesTaskSwitch == true
         
         
         // If the Text Section task is selected, show the text sections tasks on the forms
@@ -1741,126 +1893,269 @@ function showContentForms(x) {
             else {
                 indicateTextButton.style.display = "none";
             }
-        }
+        } // end of textSectionsTaskSwitch == true
         
-        if (false) {
+        // If the Background and Location task is selected, show the correct annotation tasks on the forms
         
+        if (backgroundLocationTaskSwitch == true) {
             // Background: Label, Description, and Empty/Detailed
             var newBackgroundHeading = document.createElement("h4"); // Background heading
             newBackgroundHeading.id = "newBackgroundHeading" + j;
             newBackgroundHeading.innerHTML = "Background";
-            clone.insertBefore(newBackgroundHeading, indicateTextButton.nextSibling);
-            newBackgroundHeading.style.display = "none";  // keep hidden until the text ID task is done
+            newBackgroundHeading.style.visibility = "hidden"; // don't show the heading
+            clone.insertBefore(newBackgroundHeading, newHeading.nextSibling);
+            
+            // Create an interactive slider
+            // adapted from https://www.dottedsquirrel.com/range-slider-javascript/
+            // and https://stackoverflow.com/questions/33699852/show-tick-positions-in-custom-range-input
+            
+            var slider_container = document.createElement('div'); // create slider container
+            slider_container.id = "slider_container" + pageNum + "." + j;
+            slider_container.setAttribute('class', "range");
+            var slider_value = document.createElement('div'); // create slider value
+            slider_value.id = "slider_value" + pageNum + "." + j;
+            slider_value.setAttribute('class', "slider_value");
+            var slider_value_span = document.createElement('span');
+            slider_value_span.setAttribute('class', "slider_value_span"); 
+            slider_value_span.id = "slider_value_span" + pageNum + "." + j;
+            slider_value_span.innerHTML = 5;
+            
+            slider_value.appendChild(slider_value_span);
+            
+            var slider_field_container = document.createElement('div');
+            slider_field_container.id = "slider_field" + pageNum + "." + j;
+            slider_field_container.setAttribute('class', "field");
+            var slider_value_left = document.createElement('div');
+            slider_value_left.id = "slider_value_left" + pageNum + "." + j;
+            slider_value_left.setAttribute('class', "value_left");
+            slider_value_left.innerHTML = "No Background Information";
+            var slider = document.createElement('input');
+            slider.id = "slider" + pageNum + "." + j;
+            slider.setAttribute('type', "range");
+            slider.setAttribute('min', "1");
+            slider.setAttribute('max', "5");
+            slider.setAttribute('value', "3");
+            slider.setAttribute('step', "any"); // any accepts a value regardless of how many decimal points
+            slider.setAttribute('list', "range_labels" + pageNum + "." + j);
+            var slider_output = document.createElement('output');
+            slider_output.id = "slider_output" + pageNum + "." + j;
+            slider_output.setAttribute('class', "bubble");
+            slider_output.innerHTML = "background information amount";
+            var slider_value_right = document.createElement('div');
+            slider_value_right.id = "slider_value_right" + pageNum + "." + j;
+            slider_value_right.setAttribute('class', "value_right");
+            slider_value_right.innerHTML = "Full Background Information";
+            
+            var slider_ticks_container = document.createElement('div');
+            slider_ticks_container.id = "slider_ticks_container" + pageNum + "." + j;
+            slider_ticks_container.setAttribute('class', "sliderticks");
+            //var label_0 = document.createElement('p');
+            //label_0.innerHTML = "0";
+            var label_1 = document.createElement('p');
+            label_1.innerHTML = "1";
+            label_1.setAttribute('class', "endTicks");
+            var label_2 = document.createElement('p');
+            label_2.innerHTML = "2";
+            label_2.setAttribute('class', "mainTicks");
+            var label_3 = document.createElement('p');
+            label_3.innerHTML = "3";
+            label_3.setAttribute('class', "mainTicks");
+            var label_4 = document.createElement('p');
+            label_4.innerHTML = "4";
+            label_4.setAttribute('class', "mainTicks"); 
+            var label_5 = document.createElement('p');
+            label_5.innerHTML = "5";
+            label_5.setAttribute('class', "endTicks");
+//            var label_6 = document.createElement('p');
+//            label_6.innerHTML = "6";
+//            var label_7 = document.createElement('p');
+//            label_7.innerHTML = "7";
+//            var label_8 = document.createElement('p');
+//            label_8.innerHTML = "8";
+//            var label_9 = document.createElement('p');
+//            label_9.innerHTML = "9";
+//            var label_10 = document.createElement('p');
+//            label_10.innerHTML = "10";
+//            slider_ticks_container.appendChild(label_0);
+            slider_ticks_container.appendChild(label_1);
+            slider_ticks_container.appendChild(label_2);
+            slider_ticks_container.appendChild(label_3);
+            slider_ticks_container.appendChild(label_4);
+            slider_ticks_container.appendChild(label_5);
+//            slider_ticks_container.appendChild(label_6);
+//            slider_ticks_container.appendChild(label_7);
+//            slider_ticks_container.appendChild(label_8);
+//            slider_ticks_container.appendChild(label_9);
+//            slider_ticks_container.appendChild(label_10);
+            
+            
+            slider_field_container.appendChild(slider_value_left);
+            slider_field_container.appendChild(slider);
+            slider_field_container.appendChild(slider_output);
+            slider_field_container.appendChild(slider_value_right);
+            
+            slider_container.appendChild(slider_value);
+            slider_container.appendChild(slider_field_container);
+            slider_container.appendChild(slider_ticks_container);
+            
+            clone.insertBefore(slider_container, newBackgroundHeading.nextSibling);
+            
+            // Check if there is data already for detail on that page, if so that page has already been visited - put that data into the form sections
+            //console.log(pagesData[pageNum]);
+            var panels_selected = pagesData[pageNum].panels;
+            var panel_selected = panels_selected[j-1];
+            var panel_detail_value = panel_selected["background"]["detail"];
+            //console.log(panel_detail_value);
+            if (panel_detail_value != "") {
+                slider.value = panel_detail_value;
+                slider_output.innerHTML = parseFloat(panel_detail_value).toFixed(2);;
+            }
+            else {
+                slider_output.innerHTML = "background information amount";
+            }
+                
+            
+            //console.log(pagesData);
+            
+            //charFeaturesFormInput.setAttribute('onInput', "placeCharLabelOnCanvas()"); // add event listener to put label on the canvas
+            
             
             // Create background description form
-            var backgroundForm = document.createElement("form"); // Form element
-            backgroundForm.setAttribute('method',"post");
-            backgroundForm.setAttribute('action',"true");
-            backgroundForm.setAttribute('id',"backgroundForm" + j);
-            backgroundForm.style.display = "none"; // keep hidden until the text ID task is done
+            //var backgroundForm = document.createElement("form"); // Form element
+            //backgroundForm.setAttribute('method',"post");
+            //backgroundForm.setAttribute('action',"true");
+            //backgroundForm.setAttribute('id',"backgroundForm" + j);
+            //backgroundForm.style.display = "none"; // keep hidden until the text ID task is done
             
-            var backgroundLocationLabelInput = document.createElement("input"); //input element for location variable
-            backgroundLocationLabelInput.setAttribute('type',"text");
-            backgroundLocationLabelInput.setAttribute('name', "backgroundLocationLabelInput");
-            backgroundLocationLabelInput.setAttribute('class', "charDescriptionInput");
-            backgroundLocationLabelInput.setAttribute('id', "backgroundLocationLabelInput" + j);
-            backgroundLocationLabelInput.value = backgroundLabelInstruction;
-            backgroundLocationLabelInput.setAttribute('onInput', "changeInputToWhite()"); // add event listener
-            backgroundLocationLabelInput.style.display = "none"; // keep hidden until the text ID task is done
+            //var backgroundLocationLabelInput = document.createElement("input"); //input element for location variable
+            //backgroundLocationLabelInput.setAttribute('type',"text");
+            //backgroundLocationLabelInput.setAttribute('name', "backgroundLocationLabelInput");
+            //backgroundLocationLabelInput.setAttribute('class', "charDescriptionInput");
+            //backgroundLocationLabelInput.setAttribute('id', "backgroundLocationLabelInput" + j);
+            //backgroundLocationLabelInput.value = backgroundLabelInstruction;
+            //backgroundLocationLabelInput.setAttribute('onInput', "changeInputToWhite()"); // add event listener
+            //backgroundLocationLabelInput.style.display = "none"; // keep hidden until the text ID task is done
             
-            var backgroundLocationLabelLabel = document.createElement("label"); // label for location variable input
-            backgroundLocationLabelLabel.setAttribute("for", "backgroundLocationLabel" + j);
-            backgroundLocationLabelLabel.innerHTML = "Location Label:  ";
-            backgroundLocationLabelLabel.setAttribute('id', "backgroundLocationLabelLabel" + j);
-            backgroundLocationLabelLabel.style.display = "none"; // keep hidden until the text ID task is done
+            //var backgroundLocationLabelLabel = document.createElement("label"); // label for location variable input
+            //backgroundLocationLabelLabel.setAttribute("for", "backgroundLocationLabel" + j);
+            //backgroundLocationLabelLabel.innerHTML = "Location Label:  ";
+            //backgroundLocationLabelLabel.setAttribute('id', "backgroundLocationLabelLabel" + j);
+            //backgroundLocationLabelLabel.style.display = "none"; // keep hidden until the text ID task is done
             
-            var backgroundLocationInput = document.createElement("input"); //input element for location
-            backgroundLocationInput.setAttribute('type',"text");
-            backgroundLocationInput.setAttribute('name',"backgroundLocationInput");
-            backgroundLocationInput.setAttribute("class", "locationDescriptionInput");
-            backgroundLocationInput.setAttribute('id',"backgroundLocationInput" + j);
-            backgroundLocationInput.value = backgroundLocationInstruction;
-            backgroundLocationInput.setAttribute('onInput', "changeInputToWhite()"); // add event listener
-            backgroundLocationInput.style.display = "none"; // keep hidden until the text ID task is done
+            //var backgroundLocationInput = document.createElement("input"); //input element for location
+            //backgroundLocationInput.setAttribute('type',"text");
+            //backgroundLocationInput.setAttribute('name',"backgroundLocationInput");
+            //backgroundLocationInput.setAttribute("class", "locationDescriptionInput");
+            //backgroundLocationInput.setAttribute('id',"backgroundLocationInput" + j);
+            //backgroundLocationInput.value = backgroundLocationInstruction;
+            //backgroundLocationInput.setAttribute('onInput', "changeInputToWhite()"); // add event listener
+            //backgroundLocationInput.style.display = "none"; // keep hidden until the text ID task is done
             
-            var backgroundLocationInputLabel = document.createElement("label"); // label for location description input
-            backgroundLocationInputLabel.setAttribute("for", "backgroundLocationInput" + j);
-            backgroundLocationInputLabel.innerHTML = "Location Description:  ";
-            backgroundLocationInputLabel.setAttribute('id', "backgroundLocationInputLabel" + j);
-            backgroundLocationInputLabel.style.display = "none"; // keep hidden until the text ID task is done
+            //var backgroundLocationInputLabel = document.createElement("label"); // label for location description input
+            //backgroundLocationInputLabel.setAttribute("for", "backgroundLocationInput" + j);
+            //backgroundLocationInputLabel.innerHTML = "Location Description:  ";
+            //backgroundLocationInputLabel.setAttribute('id', "backgroundLocationInputLabel" + j);
+            //backgroundLocationInputLabel.style.display = "none"; // keep hidden until the text ID task is done
             
-            var blankBackgroundButton = document.createElement("input"); // blank background radio button
-            blankBackgroundButton.setAttribute("type", "radio");
-            blankBackgroundButton.setAttribute("name", "backgroundDetail");
-            blankBackgroundButton.setAttribute("value", "blankBackground");
-            blankBackgroundButton.setAttribute('id', "blankBackgroundButton" + j);
-            blankBackgroundButton.style.display = "none"; // keep hidden until the text ID task is done
-            blankBackgroundButton.setAttribute("onclick", "changeBackgroundLabelToWhite()"); // add event handler
+            //var blankBackgroundButton = document.createElement("input"); // blank background radio button
+            //blankBackgroundButton.setAttribute("type", "radio");
+            //blankBackgroundButton.setAttribute("name", "backgroundDetail");
+            //blankBackgroundButton.setAttribute("value", "blankBackground");
+            //blankBackgroundButton.setAttribute('id', "blankBackgroundButton" + j);
+            //blankBackgroundButton.style.display = "none"; // keep hidden until the text ID task is done
+            //blankBackgroundButton.setAttribute("onclick", "changeBackgroundLabelToWhite()"); // add event handler
             
-            var blankBackgroundButtonLabel = document.createElement("label");
-            blankBackgroundButtonLabel.setAttribute("for", "blankBackground");
-            blankBackgroundButtonLabel.innerHTML = "Empty";
-            blankBackgroundButtonLabel.setAttribute('id', "blankBackgroundButtonLabel" + j);
-            blankBackgroundButtonLabel.style.display = "none"; //keep hidden until the text ID task is done
+            //var blankBackgroundButtonLabel = document.createElement("label");
+            //blankBackgroundButtonLabel.setAttribute("for", "blankBackground");
+            //blankBackgroundButtonLabel.innerHTML = "Empty";
+            //blankBackgroundButtonLabel.setAttribute('id', "blankBackgroundButtonLabel" + j);
+            //blankBackgroundButtonLabel.style.display = "none"; //keep hidden until the text ID task is done
             
-            var detailedBackgroundButton = document.createElement("input"); // fully drawn background radio button
-            detailedBackgroundButton.setAttribute("type", "radio");
-            detailedBackgroundButton.setAttribute("name", "backgroundDetail");
-            detailedBackgroundButton.setAttribute("value", "detailedBackground");
-            detailedBackgroundButton.setAttribute('id', "detailedBackgroundButton" + j);
-            detailedBackgroundButton.style.display = "none"; // keep hidden until the text ID task is done
-            detailedBackgroundButton.setAttribute("onclick", "changeBackgroundLabelToWhite()"); // add event handler
+            //var detailedBackgroundButton = document.createElement("input"); // fully drawn background radio button
+            //detailedBackgroundButton.setAttribute("type", "radio");
+            //detailedBackgroundButton.setAttribute("name", "backgroundDetail");
+            //detailedBackgroundButton.setAttribute("value", "detailedBackground");
+            //detailedBackgroundButton.setAttribute('id', "detailedBackgroundButton" + j);
+            //detailedBackgroundButton.style.display = "none"; // keep hidden until the text ID task is done
+            //detailedBackgroundButton.setAttribute("onclick", "changeBackgroundLabelToWhite()"); // add event handler
             
-            var detailedBackgroundButtonLabel = document.createElement("label");
-            detailedBackgroundButtonLabel.setAttribute("for", "fullyDrawnBackground");
-            detailedBackgroundButtonLabel.innerHTML = "Detailed";
-            detailedBackgroundButtonLabel.setAttribute('id', "detailedBackgroundButtonLabel" + j);
-            detailedBackgroundButtonLabel.style.display = "none"; // keep hidden until the text ID task is done
+            //var detailedBackgroundButtonLabel = document.createElement("label");
+            //detailedBackgroundButtonLabel.setAttribute("for", "fullyDrawnBackground");
+            //detailedBackgroundButtonLabel.innerHTML = "Detailed";
+            //detailedBackgroundButtonLabel.setAttribute('id', "detailedBackgroundButtonLabel" + j);
+            //detailedBackgroundButtonLabel.style.display = "none"; // keep hidden until the text ID task is done
             
-            var textBackgroundButton = document.createElement("input"); // text only background radio button
-            textBackgroundButton.setAttribute("type", "radio");
-            textBackgroundButton.setAttribute("name", "backgroundDetail");
-            textBackgroundButton.setAttribute("value", "textBackground");
-            textBackgroundButton.setAttribute('id', "textBackgroundButton" + j);
+            //var textBackgroundButton = document.createElement("input"); // text only background radio button
+            //textBackgroundButton.setAttribute("type", "radio");
+            //textBackgroundButton.setAttribute("name", "backgroundDetail");
+            //textBackgroundButton.setAttribute("value", "textBackground");
+            //textBackgroundButton.setAttribute('id', "textBackgroundButton" + j);
             //console.log(textBackgroundButton);
             //textBackgroundButton.setAttribute.style.display = "none"; // keep hidden until the text ID task is done
-            textBackgroundButton.setAttribute("onclick", "changeBackgroundLabelToWhite()"); // add event handler
+            //textBackgroundButton.setAttribute("onclick", "changeBackgroundLabelToWhite()"); // add event handler
             
-            var textBackgroundButtonLabel = document.createElement("label");
-            textBackgroundButtonLabel.setAttribute("for", "backgroundText");
-            textBackgroundButtonLabel.innerHTML = "Text Only";
-            textBackgroundButtonLabel.setAttribute('id', "textBackgroundButtonLabel" + j);
+            //var textBackgroundButtonLabel = document.createElement("label");
+            //textBackgroundButtonLabel.setAttribute("for", "backgroundText");
+            //textBackgroundButtonLabel.innerHTML = "Text Only";
+            //textBackgroundButtonLabel.setAttribute('id', "textBackgroundButtonLabel" + j);
             //textBackgroundButtonLabel.style.display = "none"; // keep hidden until the text ID task is done
             
             
             // Append the inputs to the form element
-            backgroundForm.appendChild(backgroundLocationLabelLabel);
-            backgroundForm.appendChild(backgroundLocationLabelInput);
-            var breakElementX = document.createElement("br");
-            backgroundForm.appendChild(breakElementX); // Add a break element between inputs
-            backgroundForm.appendChild(backgroundLocationInputLabel);
-            backgroundForm.appendChild(backgroundLocationInput);
-            var breakElementY = document.createElement("br");
-            backgroundForm.appendChild(breakElementY); // Add a break element between inputs
-            backgroundForm.appendChild(blankBackgroundButton);
-            backgroundForm.appendChild(blankBackgroundButtonLabel);
-            backgroundForm.appendChild(detailedBackgroundButton);
-            backgroundForm.appendChild(detailedBackgroundButtonLabel);
-            backgroundForm.appendChild(textBackgroundButton);
-            backgroundForm.appendChild(textBackgroundButtonLabel);
+            //backgroundForm.appendChild(backgroundLocationLabelLabel);
+            //backgroundForm.appendChild(backgroundLocationLabelInput);
+            //var breakElementX = document.createElement("br");
+            //backgroundForm.appendChild(breakElementX); // Add a break element between inputs
+            //backgroundForm.appendChild(backgroundLocationInputLabel);
+            //backgroundForm.appendChild(backgroundLocationInput);
+            //var breakElementY = document.createElement("br");
+            //backgroundForm.appendChild(breakElementY); // Add a break element between inputs
+            //backgroundForm.appendChild(blankBackgroundButton);
+            //backgroundForm.appendChild(blankBackgroundButtonLabel);
+            //backgroundForm.appendChild(detailedBackgroundButton);
+            //backgroundForm.appendChild(detailedBackgroundButtonLabel);
+            //backgroundForm.appendChild(textBackgroundButton);
+            //backgroundForm.appendChild(textBackgroundButtonLabel);
             
             // Append the form element to the panel form
-            clone.insertBefore(backgroundForm, newBackgroundHeading.nextSibling);
+            //clone.insertBefore(backgroundForm, newBackgroundHeading.nextSibling);
         
-        }
+        } // end of backgroundLocationTaskSwitch == true
         
         // Append the cloned semantic form to correct section
         document.getElementById("semanticFormContainer").appendChild(clone);
         //console.log(clone.id); //test
         
+        applyValueChangeToSlider(pageNum, j); // add the eventHandlers to the sliders after they have been put on the page
     }
-}
+} // end of showContentForms(x) function
 
+
+function applyValueChangeToSlider(pageNumber, x) {
+    // x is the index of the span and slider
+    var slider_span = document.getElementById("slider_value_span" + pageNumber + "." + x);
+    var actual_slider = document.getElementById("slider" + pageNumber + "." + x);
+    var output_bubble = document.getElementById("slider_output" + pageNumber + "." + x);
+    //console.log(slider_span); // Debugginz
+    //console.log(actual_slider);
+    var min = actual_slider.min;
+    var max = actual_slider.max;
+    //console.log(min, max);
+    var newVal;
+    
+    actual_slider.oninput = (() =>{
+                           let value = actual_slider.value;
+                           slider_span.textContent = parseFloat(value).toFixed(2);
+                           //slider_span.style.left = (value/2) + "%";
+                           //console.log(value); // Debugginz
+                           newVal = Number(((value - min) * 100) / (max - min));
+                           output_bubble.innerHTML = parseFloat(value).toFixed(2);
+                           //slider_span.style.left = newVal = "%";
+                           //output_bubble.style.left = newVal = "%";
+                           });
+} // end of function applyValueChangeToSlider(x)
+
+    
 
 
 /* Create Previous Page, Reset, and Next Page Navigation buttons */
@@ -2003,9 +2298,34 @@ function resetPage(event) {
         showContentForms(panelRecNum-1); // show content forms
     } // end of if characterFeaturesTaskSwitch
     
+    if (backgroundLocationTaskSwitch == true) {
+        // put scroll back on the semantic form task
+        if (scrollON == false) {
+            scrollON = true;
+            document.getElementById("semanticFormContainer").setAttribute("class","semanticFormContainerScroll");
+        }
+        drawPanelInfoOnCanvas();
+        removeSemanticForms();
+        document.getElementById("panelNumSection").style.display = "block"; // display the panelNumSection
+        panelRecNum = pagesData[pageNum].panels.length + 1;
+        panelCounter(panelRecNum-1); // turn off the panel counter function
+        
+        // clear the data in pagesData
+        for (var i=0; i<pagesData[pageNum].panels.length; i++) {
+            var panel_here = pagesData[pageNum].panels[i];
+            var panel_here_background = panel_here["background"];
+            panel_here_background["detail"] = "";
+        }
+        showContentForms(panelRecNum-1); // show content forms
+//        for (var i=0; i<pagesData[pageNum].panels.length; i++) {
+//            var range_bubble = document.getElementById("slider_output" + pageNum + "." + i+1);
+//            range_bubble.value = "3";
+//        }
+    } // end of if backgroundLocationTaskSwitch
+    
     //console.log(pagesData);
     console.log("Page Reset");
-}
+} // end of resetPage(event)
 
 
 
@@ -2038,13 +2358,16 @@ function submitSemanticForms(event) {
     // GET THAT DATA!
     // Post to console
     console.log(pagesData); // test
-   
-    
     // Save the data to the firebase database
     sendDataToFireBase(event);
 
-    // Lastly, go to the last webpage
-    //window.location.href = "endPage.html";
+//    if (storyNum == 32) {
+//        window.location.href = "check.html";
+//    }
+//    else {
+//        // Lastly, go to the last webpage
+//        window.location.href = "endPage.html";
+//    }
 } // end of submitSemanticForms(event)
 
 
@@ -2056,7 +2379,8 @@ function sendDataToFireBase(event) {
     var finalData = {'pagesData' : pagesData,
         'storyID': storyNum,
         'participantNum': participantNum,
-        'annotationLastCompleted': annotationTaskCompleted
+        'annotationLastCompleted': annotationTaskCompleted,
+        'URL' : URL
     };
     var jsonString = JSON.stringify(finalData);
     console.log(jsonString); //test
@@ -2067,10 +2391,16 @@ function sendDataToFireBase(event) {
     //                          jsonString: jsonString
     //                          });
     
-    db.collection("CharacterAnnotation").add({time: Date().toLocaleString(),
+    db.collection("Background_Experiment1").add({time: Date().toLocaleString(),
                               jsonData: jsonString}
                               ).then(function(snapshot) {
-                                window.location.href = "endPage.html";
+                                if (storyNum == 32) {
+                                     window.location.href = "check.html";
+                                }
+                                else {
+                                     // Lastly, go to the last webpage
+                                     window.location.href = "endPage.html";
+                                }
                                 console.log("string added");
                                 });
     
@@ -4484,6 +4814,7 @@ function drawPanelInfoOnCanvas() {
     for (var i=0; i<pagesData[pageNum].panels.length; i++) {
         var r = pagesData[pageNum].panels[i];
         context.strokeStyle = r.color;
+        context.lineWidth = 4; // set lineWidth so the panels are visible
         context.globalAlpha = 1; // set transparency value
         context.strokeRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
         
@@ -4633,8 +4964,9 @@ function drawTextSectionInfoOnCanvas() {
 /* Starts the annotation task with the Next Story */
 function nextStory(event) {
     //console.log("It worked!"); //test
-    location.href = 'index.html'; // go back to the main annotation page
+    location.href = 'https://app.prolific.co/submissions/complete?cc=1B0A2219'; // go back to prolific
 }
+
 
 
 

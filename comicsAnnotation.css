@@ -553,10 +553,132 @@ label {
 
 
 
+/* Background Sliders */
+
+.range {
+    padding-top: 10px;
+}
+
+.slider_value {
+    text-align: center;
+    position: relative;
+    background: whitesmoke;
+    padding: 10px 15px;
+    position: absolute;
+    border-radius: 5px;
+    transform: translateX(-50%);
+    visibility: hidden; /* hide this extra span */
+}
+
+.slider_value_span {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size: 12px;
+}
+
+.bubble {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size: 12px;
+    margin-bottom: 50px;
+    background: #ddd;
+    padding: 4px 12px;
+    position: absolute;
+    border-radius: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.bubble::after {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size: 12px;
+    margin-bottom: 50px;
+    content: "";
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #ddd;
+    top: -1px;
+    left: 50%;
+}
 
 
+.field {
+    text-align: center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
 
+.range .field .value{
+    position: absolute;
+    font-size: 18px;
+    font-weight: 600;
+    color: black;
+}
 
+.range .field input{
+    -webkit-appearance: none;
+    height: 5px;
+    background: #ddd;
+    border-radius: 5px;
+    outline: none;
+    border: none;
+    width: 75%;
+}
+.range .field input::-webkit-slider-thumb{
+    -webkit-appearance: none;
+    height: 20px;
+    width: 20px;
+    background: #664AFF;
+    border-radius: 50%;
+    border: 1px solid #664AFF;
+    cursor: pointer;
+}
+
+.value_left {
+    /* visibility: hidden; */
+    left: -30px; /* -22 */
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size: 14px;
+    padding-top: 10px;
+}
+
+.value_right {
+    /* visibility: hidden; */
+    right: -50px; /* -43 */
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size: 14px;
+    padding-top: 10px;
+}
+
+.sliderticks {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 48px;
+    /* padding-left: 200px; */
+    padding: 0 70px;
+    width: 47%;
+}
+
+.mainTicks {
+    position: relative;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    width: 2px;
+    background: #D3D3D3;
+    height: 10px;
+    line-height: 40px;
+    margin: 0 0 20px 0;
+}
+
+.endTicks {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size: 20px;
+    line-height: 0px;
+}
 
 
 

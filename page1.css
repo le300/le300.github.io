@@ -1,0 +1,140 @@
+
+/* CSS for Page 1 */ 
+
+body {
+    /* background-color: #F8F8FF; */
+}
+
+.header {
+    height: 70px;
+    position: relative;
+}
+
+.MATlogo {
+    float: right;
+    padding: 10px;
+    padding-left: 50px;
+}
+
+.QMlogo {
+    float: left;
+    padding: 10px;
+    padding-right: 50px;
+}
+
+hr {
+    border: 1px solid black;
+}
+
+.title {
+    text-align: center;
+    padding: 0px;
+}
+
+h4 {
+    font-size: 2em;
+    font-weight: 500;
+    font-family: Arial, sans-serif;
+}
+
+.discourse {
+    text-align: center;
+    padding-top: 0px;
+    padding-left: 150px;
+    padding-right: 150px;
+    padding-bottom: 30px;
+}
+
+.discourse_consentForm {
+    text-align: center;
+    padding: 10px;
+   /*  background-color: #87CEFA;
+    width: 75%; */
+}
+
+p {
+    font-size: 1em;
+    font-family: Arial, sans-serif;
+}
+
+p.thick {
+    font-weight: bold;
+}
+
+
+ul {
+    margin-left: 20%;
+}
+
+li {
+    text-align: left;
+    font-size: 1em;
+    font-family: Arial, sans-serif;
+    margin-top: 10px;
+    margin-right: 20%;
+}
+
+.continueButton_container {
+    text-align: center;
+}
+
+.continueButton {
+    background-color: #008CBA;
+    text-align: center;
+    font-size: 20px;
+    font-family: monospace;
+    border: none;
+    color: white;
+    padding: 15px;
+    margin: 1px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 12px;
+}
+
+.continueButton_disabled {
+    background-color: #008CBA;
+    text-align: center;
+    font-size: 20px;
+    font-family: monospace;
+    border: none;
+    color: white;
+    padding: 15px;
+    margin: 1px;
+    text-decoration: none;
+    border-radius: 12px;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.consentFormContainer {
+    width: 98%;
+    margin: 1%;
+}
+
+#consentForm {
+    font-size: 1em;
+    font-family: Arial, sans-serif;
+    text-align: right-side;
+    margin-left: auto;
+    margin-right: auto;
+    width: 75%;
+}
+
+#consentForm td {
+    padding: 10px;
+}
+
+.instruction_notes {
+    margin-right: 100px;
+}
+
+.CAT_examples_container {
+    text-align: center; 
+}
+
+label {
+    font-size: 1em;
+    font-family: Arial, sans-serif;
+}
+
