@@ -187,7 +187,7 @@ if (annotationType == "Background and Location") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Background_Experiment1").get().then((snapshot) => {
+    db.collection("Background_Experiment3").get().then((snapshot) => {
                                                     console.log(snapshot.docs); // get an overview of all the documents in the database
                                                     snapshot.docs.forEach(doc => {
                                                                           //console.log(doc.data());
@@ -213,7 +213,7 @@ if (annotationType == "Character Segmentation") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Background_Experiment1").get().then((snapshot) => {
+    db.collection("Background_Experiment3").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                 //console.log(doc.data());
@@ -239,7 +239,7 @@ if (annotationType == "Character Features") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Background_Experiment1").get().then((snapshot) => {
+    db.collection("Background_Experiment3").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                   //console.log(doc.data());
@@ -265,7 +265,7 @@ if (annotationType == "Text Sections") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Background_Experiment1").get().then((snapshot) => {
+    db.collection("Background_Experiment3").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                   //console.log(doc.data());
@@ -1265,58 +1265,6 @@ function validateInputs() {
             }
         }
         console.log(pagesData);
-            
-            //pagesData[pageNum].panel
-        
-        // Background Sections Checks:
-//        var backgroundLocationLabelVariableInput = document.getElementById("backgroundLocationLabelInput" + (i + 1)).value;
-//        if (backgroundLocationLabelVariableInput == "" || backgroundLocationLabelVariableInput == backgroundLabelInstruction) {
-//            errorMessage += "Missing Background Location Label for Panel " + (i + 1) + "\n" // send message
-//            document.getElementById("backgroundLocationLabelInput" + (i+1)).style.backgroundColor = "LightPink"; // highlight input
-//        } else {
-//            pagesData[pageNum].panels[i].background.label = backgroundLocationLabelVariableInput;
-//        }
-//
-//        var backgroundLocationDescriptionInput = document.getElementById("backgroundLocationInput" + (i + 1)).value;
-//        if (backgroundLocationDescriptionInput == "" || backgroundLocationDescriptionInput == backgroundLocationInstruction) {
-//            errorMessage += "Missing Background Location Description for Panel " + (i + 1) + "\n"; // send message
-//            document.getElementById("backgroundLocationInput" + (i+1)).style.backgroundColor = "LightPink"; // highlight input
-//        } else {
-//            pagesData[pageNum].panels[i].background.location = backgroundLocationDescriptionInput;
-//
-//            // add the background description label and description to the list of locations in the story (if it is not already on the list)
-//            // get the location label: description
-//            var locationLabelAndDescription = backgroundLocationLabelVariableInput + ": " + backgroundLocationDescriptionInput;
-//            //console.log(locationLabelAndDescription); //test
-//
-//            // check that the location label and description is in the locationList
-//            if (locList.includes(locationLabelAndDescription)) {
-//                // if it is on the list, move on
-//                // console.log("Location already on list"); //test
-//            } else {
-//                // if it isn't in the charList, put it on there...
-//                locList.push(locationLabelAndDescription);
-//                // and put it on the html location list
-//            }
-//            //console.log("locList length: " + locList.length); //test
-//        }
-//
-//        var backgroundEmptyButtonChecked = document.getElementById("blankBackgroundButton" + (i + 1)).checked;
-//        var backgroundDetailedButtonChecked = document.getElementById("detailedBackgroundButton" + (i + 1)).checked;
-//        var backgroundTextButtonChecked = document.getElementById("textBackgroundButton" + (i + 1)).checked;
-//        if (!(backgroundEmptyButtonChecked || backgroundDetailedButtonChecked || backgroundTextButtonChecked)) {
-//            errorMessage += "Missing Empty/Detailed/Text Only Background Choice for Panel " + (i + 1) + "\n"; // send message
-//            document.getElementById("blankBackgroundButtonLabel" + (i+1)).style.backgroundColor = "LightPink"; // highlight input
-//            document.getElementById("detailedBackgroundButtonLabel" + (i+1)).style.backgroundColor = "LightPink"; // highlight input
-//            document.getElementById("textBackgroundButtonLabel" + (i+1)).style.backgroundColor = "LightPink"; // highlight input
-//        } else {
-//            pagesData[pageNum].panels[i].background.detail = backgroundDetailedButtonChecked;
-//            pagesData[pageNum].panels[i].background.textOnly = backgroundTextButtonChecked;
-//            pagesData[pageNum].panels[i].background.empty = backgroundEmptyButtonChecked;
-//            //console.log("Check textOnly var: " + pagesData[pageNum].panels[i].background.textOnly); // test
-//            //console.log("Check Detail var: " + pagesData[pageNum].panels[i].background.detail); // test
-//        }
-        
     } // end of backgroundLocationTaskSwitch == true validate input check
     
     
@@ -1935,7 +1883,7 @@ function showContentForms(x) {
             slider.setAttribute('min', "1");
             slider.setAttribute('max', "5");
             slider.setAttribute('value', "3");
-            slider.setAttribute('step', "any"); // any accepts a value regardless of how many decimal points
+            slider.setAttribute('step', "1"); // any accepts a value regardless of how many decimal points
             slider.setAttribute('list', "range_labels" + pageNum + "." + j);
             var slider_output = document.createElement('output');
             slider_output.id = "slider_output" + pageNum + "." + j;
@@ -1966,28 +1914,12 @@ function showContentForms(x) {
             var label_5 = document.createElement('p');
             label_5.innerHTML = "5";
             label_5.setAttribute('class', "endTicks");
-//            var label_6 = document.createElement('p');
-//            label_6.innerHTML = "6";
-//            var label_7 = document.createElement('p');
-//            label_7.innerHTML = "7";
-//            var label_8 = document.createElement('p');
-//            label_8.innerHTML = "8";
-//            var label_9 = document.createElement('p');
-//            label_9.innerHTML = "9";
-//            var label_10 = document.createElement('p');
-//            label_10.innerHTML = "10";
-//            slider_ticks_container.appendChild(label_0);
+
             slider_ticks_container.appendChild(label_1);
             slider_ticks_container.appendChild(label_2);
             slider_ticks_container.appendChild(label_3);
             slider_ticks_container.appendChild(label_4);
             slider_ticks_container.appendChild(label_5);
-//            slider_ticks_container.appendChild(label_6);
-//            slider_ticks_container.appendChild(label_7);
-//            slider_ticks_container.appendChild(label_8);
-//            slider_ticks_container.appendChild(label_9);
-//            slider_ticks_container.appendChild(label_10);
-            
             
             slider_field_container.appendChild(slider_value_left);
             slider_field_container.appendChild(slider);
@@ -2008,117 +1940,12 @@ function showContentForms(x) {
             //console.log(panel_detail_value);
             if (panel_detail_value != "") {
                 slider.value = panel_detail_value;
-                slider_output.innerHTML = parseFloat(panel_detail_value).toFixed(2);;
+                slider_output.innerHTML = parseFloat(panel_detail_value).toFixed(0);;
             }
             else {
                 slider_output.innerHTML = "background information amount";
             }
-                
             
-            //console.log(pagesData);
-            
-            //charFeaturesFormInput.setAttribute('onInput', "placeCharLabelOnCanvas()"); // add event listener to put label on the canvas
-            
-            
-            // Create background description form
-            //var backgroundForm = document.createElement("form"); // Form element
-            //backgroundForm.setAttribute('method',"post");
-            //backgroundForm.setAttribute('action',"true");
-            //backgroundForm.setAttribute('id',"backgroundForm" + j);
-            //backgroundForm.style.display = "none"; // keep hidden until the text ID task is done
-            
-            //var backgroundLocationLabelInput = document.createElement("input"); //input element for location variable
-            //backgroundLocationLabelInput.setAttribute('type',"text");
-            //backgroundLocationLabelInput.setAttribute('name', "backgroundLocationLabelInput");
-            //backgroundLocationLabelInput.setAttribute('class', "charDescriptionInput");
-            //backgroundLocationLabelInput.setAttribute('id', "backgroundLocationLabelInput" + j);
-            //backgroundLocationLabelInput.value = backgroundLabelInstruction;
-            //backgroundLocationLabelInput.setAttribute('onInput', "changeInputToWhite()"); // add event listener
-            //backgroundLocationLabelInput.style.display = "none"; // keep hidden until the text ID task is done
-            
-            //var backgroundLocationLabelLabel = document.createElement("label"); // label for location variable input
-            //backgroundLocationLabelLabel.setAttribute("for", "backgroundLocationLabel" + j);
-            //backgroundLocationLabelLabel.innerHTML = "Location Label:  ";
-            //backgroundLocationLabelLabel.setAttribute('id', "backgroundLocationLabelLabel" + j);
-            //backgroundLocationLabelLabel.style.display = "none"; // keep hidden until the text ID task is done
-            
-            //var backgroundLocationInput = document.createElement("input"); //input element for location
-            //backgroundLocationInput.setAttribute('type',"text");
-            //backgroundLocationInput.setAttribute('name',"backgroundLocationInput");
-            //backgroundLocationInput.setAttribute("class", "locationDescriptionInput");
-            //backgroundLocationInput.setAttribute('id',"backgroundLocationInput" + j);
-            //backgroundLocationInput.value = backgroundLocationInstruction;
-            //backgroundLocationInput.setAttribute('onInput', "changeInputToWhite()"); // add event listener
-            //backgroundLocationInput.style.display = "none"; // keep hidden until the text ID task is done
-            
-            //var backgroundLocationInputLabel = document.createElement("label"); // label for location description input
-            //backgroundLocationInputLabel.setAttribute("for", "backgroundLocationInput" + j);
-            //backgroundLocationInputLabel.innerHTML = "Location Description:  ";
-            //backgroundLocationInputLabel.setAttribute('id', "backgroundLocationInputLabel" + j);
-            //backgroundLocationInputLabel.style.display = "none"; // keep hidden until the text ID task is done
-            
-            //var blankBackgroundButton = document.createElement("input"); // blank background radio button
-            //blankBackgroundButton.setAttribute("type", "radio");
-            //blankBackgroundButton.setAttribute("name", "backgroundDetail");
-            //blankBackgroundButton.setAttribute("value", "blankBackground");
-            //blankBackgroundButton.setAttribute('id', "blankBackgroundButton" + j);
-            //blankBackgroundButton.style.display = "none"; // keep hidden until the text ID task is done
-            //blankBackgroundButton.setAttribute("onclick", "changeBackgroundLabelToWhite()"); // add event handler
-            
-            //var blankBackgroundButtonLabel = document.createElement("label");
-            //blankBackgroundButtonLabel.setAttribute("for", "blankBackground");
-            //blankBackgroundButtonLabel.innerHTML = "Empty";
-            //blankBackgroundButtonLabel.setAttribute('id', "blankBackgroundButtonLabel" + j);
-            //blankBackgroundButtonLabel.style.display = "none"; //keep hidden until the text ID task is done
-            
-            //var detailedBackgroundButton = document.createElement("input"); // fully drawn background radio button
-            //detailedBackgroundButton.setAttribute("type", "radio");
-            //detailedBackgroundButton.setAttribute("name", "backgroundDetail");
-            //detailedBackgroundButton.setAttribute("value", "detailedBackground");
-            //detailedBackgroundButton.setAttribute('id', "detailedBackgroundButton" + j);
-            //detailedBackgroundButton.style.display = "none"; // keep hidden until the text ID task is done
-            //detailedBackgroundButton.setAttribute("onclick", "changeBackgroundLabelToWhite()"); // add event handler
-            
-            //var detailedBackgroundButtonLabel = document.createElement("label");
-            //detailedBackgroundButtonLabel.setAttribute("for", "fullyDrawnBackground");
-            //detailedBackgroundButtonLabel.innerHTML = "Detailed";
-            //detailedBackgroundButtonLabel.setAttribute('id', "detailedBackgroundButtonLabel" + j);
-            //detailedBackgroundButtonLabel.style.display = "none"; // keep hidden until the text ID task is done
-            
-            //var textBackgroundButton = document.createElement("input"); // text only background radio button
-            //textBackgroundButton.setAttribute("type", "radio");
-            //textBackgroundButton.setAttribute("name", "backgroundDetail");
-            //textBackgroundButton.setAttribute("value", "textBackground");
-            //textBackgroundButton.setAttribute('id', "textBackgroundButton" + j);
-            //console.log(textBackgroundButton);
-            //textBackgroundButton.setAttribute.style.display = "none"; // keep hidden until the text ID task is done
-            //textBackgroundButton.setAttribute("onclick", "changeBackgroundLabelToWhite()"); // add event handler
-            
-            //var textBackgroundButtonLabel = document.createElement("label");
-            //textBackgroundButtonLabel.setAttribute("for", "backgroundText");
-            //textBackgroundButtonLabel.innerHTML = "Text Only";
-            //textBackgroundButtonLabel.setAttribute('id', "textBackgroundButtonLabel" + j);
-            //textBackgroundButtonLabel.style.display = "none"; // keep hidden until the text ID task is done
-            
-            
-            // Append the inputs to the form element
-            //backgroundForm.appendChild(backgroundLocationLabelLabel);
-            //backgroundForm.appendChild(backgroundLocationLabelInput);
-            //var breakElementX = document.createElement("br");
-            //backgroundForm.appendChild(breakElementX); // Add a break element between inputs
-            //backgroundForm.appendChild(backgroundLocationInputLabel);
-            //backgroundForm.appendChild(backgroundLocationInput);
-            //var breakElementY = document.createElement("br");
-            //backgroundForm.appendChild(breakElementY); // Add a break element between inputs
-            //backgroundForm.appendChild(blankBackgroundButton);
-            //backgroundForm.appendChild(blankBackgroundButtonLabel);
-            //backgroundForm.appendChild(detailedBackgroundButton);
-            //backgroundForm.appendChild(detailedBackgroundButtonLabel);
-            //backgroundForm.appendChild(textBackgroundButton);
-            //backgroundForm.appendChild(textBackgroundButtonLabel);
-            
-            // Append the form element to the panel form
-            //clone.insertBefore(backgroundForm, newBackgroundHeading.nextSibling);
         
         } // end of backgroundLocationTaskSwitch == true
         
@@ -2145,11 +1972,11 @@ function applyValueChangeToSlider(pageNumber, x) {
     
     actual_slider.oninput = (() =>{
                            let value = actual_slider.value;
-                           slider_span.textContent = parseFloat(value).toFixed(2);
+                           slider_span.textContent = parseFloat(value).toFixed(0);
                            //slider_span.style.left = (value/2) + "%";
                            //console.log(value); // Debugginz
                            newVal = Number(((value - min) * 100) / (max - min));
-                           output_bubble.innerHTML = parseFloat(value).toFixed(2);
+                           output_bubble.innerHTML = parseFloat(value).toFixed(0);
                            //slider_span.style.left = newVal = "%";
                            //output_bubble.style.left = newVal = "%";
                            });
@@ -2391,7 +2218,7 @@ function sendDataToFireBase(event) {
     //                          jsonString: jsonString
     //                          });
     
-    db.collection("Background_Experiment1").add({time: Date().toLocaleString(),
+    db.collection("Background_Experiment3").add({time: Date().toLocaleString(),
                               jsonData: jsonString}
                               ).then(function(snapshot) {
                                 if (storyNum == 32) {
@@ -4964,7 +4791,7 @@ function drawTextSectionInfoOnCanvas() {
 /* Starts the annotation task with the Next Story */
 function nextStory(event) {
     //console.log("It worked!"); //test
-    location.href = 'https://app.prolific.co/submissions/complete?cc=222C5DAA'; // go back to prolific
+    location.href = 'https://app.prolific.co/submissions/complete?cc=20675827'; // go back to prolific
 }
 
 
