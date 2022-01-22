@@ -187,7 +187,7 @@ if (annotationType == "Background and Location") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Background_Experiment3").get().then((snapshot) => {
+    db.collection("Background_Experiment4").get().then((snapshot) => {
                                                     console.log(snapshot.docs); // get an overview of all the documents in the database
                                                     snapshot.docs.forEach(doc => {
                                                                           //console.log(doc.data());
@@ -213,7 +213,7 @@ if (annotationType == "Character Segmentation") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Background_Experiment3").get().then((snapshot) => {
+    db.collection("Background_Experiment4").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                 //console.log(doc.data());
@@ -239,7 +239,7 @@ if (annotationType == "Character Features") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Background_Experiment3").get().then((snapshot) => {
+    db.collection("Background_Experiment4").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                   //console.log(doc.data());
@@ -265,7 +265,7 @@ if (annotationType == "Text Sections") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Background_Experiment3").get().then((snapshot) => {
+    db.collection("Background_Experiment4").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                   //console.log(doc.data());
@@ -2218,7 +2218,7 @@ function sendDataToFireBase(event) {
     //                          jsonString: jsonString
     //                          });
     
-    db.collection("Background_Experiment3").add({time: Date().toLocaleString(),
+    db.collection("Background_Experiment4").add({time: Date().toLocaleString(),
                               jsonData: jsonString}
                               ).then(function(snapshot) {
                                 if (storyNum == 32) {
@@ -4791,7 +4791,7 @@ function drawTextSectionInfoOnCanvas() {
 /* Starts the annotation task with the Next Story */
 function nextStory(event) {
     //console.log("It worked!"); //test
-    location.href = 'https://app.prolific.co/submissions/complete?cc=20675827'; // go back to prolific
+    location.href = 'https://app.prolific.co/submissions/complete?cc=223C02AF'; // go back to prolific
 }
 
 
