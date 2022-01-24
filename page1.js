@@ -88,7 +88,7 @@ function startFullAnnotation() {
     /* Function to start the practice annotation
      */
     // setup global variables to specify correct annotation task
-    storyNum = 2;
+    storyNum = 1;
     annotationType = "Background and Location";
     participantNum = 0;
     

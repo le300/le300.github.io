@@ -187,7 +187,7 @@ if (annotationType == "Background and Location") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Background_Experiment4").get().then((snapshot) => {
+    db.collection("Background_Experiment5").get().then((snapshot) => {
                                                     console.log(snapshot.docs); // get an overview of all the documents in the database
                                                     snapshot.docs.forEach(doc => {
                                                                           //console.log(doc.data());
@@ -213,7 +213,7 @@ if (annotationType == "Character Segmentation") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Background_Experiment4").get().then((snapshot) => {
+    db.collection("Background_Experiment5").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                 //console.log(doc.data());
@@ -239,7 +239,7 @@ if (annotationType == "Character Features") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Background_Experiment4").get().then((snapshot) => {
+    db.collection("Background_Experiment5").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                   //console.log(doc.data());
@@ -265,7 +265,7 @@ if (annotationType == "Text Sections") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Background_Experiment4").get().then((snapshot) => {
+    db.collection("Background_Experiment5").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                   //console.log(doc.data());
@@ -1879,11 +1879,13 @@ function showContentForms(x) {
             slider_value_left.innerHTML = "No Background Information";
             var slider = document.createElement('input');
             slider.id = "slider" + pageNum + "." + j;
+            
+            // slider setup:
             slider.setAttribute('type', "range");
             slider.setAttribute('min', "1");
             slider.setAttribute('max', "5");
             slider.setAttribute('value', "3");
-            slider.setAttribute('step', "1"); // any accepts a value regardless of how many decimal points
+            slider.setAttribute('step', "2"); // "any" accepts a value regardless of how many decimal points, "1" creates the likert scale, "2" is used for the binary classification
             slider.setAttribute('list', "range_labels" + pageNum + "." + j);
             var slider_output = document.createElement('output');
             slider_output.id = "slider_output" + pageNum + "." + j;
@@ -1892,7 +1894,7 @@ function showContentForms(x) {
             var slider_value_right = document.createElement('div');
             slider_value_right.id = "slider_value_right" + pageNum + "." + j;
             slider_value_right.setAttribute('class', "value_right");
-            slider_value_right.innerHTML = "Full Background Information";
+            slider_value_right.innerHTML = "Background Information"; // "Full Background Information"
             
             var slider_ticks_container = document.createElement('div');
             slider_ticks_container.id = "slider_ticks_container" + pageNum + "." + j;
@@ -1928,7 +1930,7 @@ function showContentForms(x) {
             
             slider_container.appendChild(slider_value);
             slider_container.appendChild(slider_field_container);
-            slider_container.appendChild(slider_ticks_container);
+            //slider_container.appendChild(slider_ticks_container); // do not show the ticks when implementing the binary scale
             
             clone.insertBefore(slider_container, newBackgroundHeading.nextSibling);
             
@@ -1972,13 +1974,19 @@ function applyValueChangeToSlider(pageNumber, x) {
     
     actual_slider.oninput = (() =>{
                            let value = actual_slider.value;
-                           slider_span.textContent = parseFloat(value).toFixed(0);
-                           //slider_span.style.left = (value/2) + "%";
-                           //console.log(value); // Debugginz
+                           //slider_span.textContent = parseFloat(value).toFixed(0); // "0" when likert scale, "2" when real-valued scale
                            newVal = Number(((value - min) * 100) / (max - min));
-                           output_bubble.innerHTML = parseFloat(value).toFixed(0);
-                           //slider_span.style.left = newVal = "%";
-                           //output_bubble.style.left = newVal = "%";
+                           //output_bubble.innerHTML = parseFloat(value).toFixed(0); // "0" when likert scale, "2" when real-valued scale
+                             // for binary scale:
+                             if (value == 1) {
+                                output_bubble.innerHTML = "0";
+                             }
+                             if (value == 5) {
+                                output_bubble.innerHTML = "1";
+                             }
+                             if (value == 3) {
+                             output_bubble.innerHTML = "background information amount";
+                             }
                            });
 } // end of function applyValueChangeToSlider(x)
 
@@ -2218,7 +2226,7 @@ function sendDataToFireBase(event) {
     //                          jsonString: jsonString
     //                          });
     
-    db.collection("Background_Experiment4").add({time: Date().toLocaleString(),
+    db.collection("Background_Experiment5").add({time: Date().toLocaleString(),
                               jsonData: jsonString}
                               ).then(function(snapshot) {
                                 if (storyNum == 32) {
@@ -4791,7 +4799,7 @@ function drawTextSectionInfoOnCanvas() {
 /* Starts the annotation task with the Next Story */
 function nextStory(event) {
     //console.log("It worked!"); //test
-    location.href = 'https://app.prolific.co/submissions/complete?cc=223C02AF'; // go back to prolific
+    location.href = 'https://app.prolific.co/submissions/complete?cc=4E6DE631'; // go back to prolific
 }
 
 
