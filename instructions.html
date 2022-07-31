@@ -23,45 +23,58 @@
         <h4> Instructions </h4>
     </div>
     
-    <!-- Old Bits:
-        on a <b>5-point scale</b> -->
-    
     <div class="discourse">
-        <p> Comics are made of sequences of images. The images in comics often show the setting of where the action is taking place, or where the characters are situated - however, sometimes the background is not shown (it seems to "drop out"), or is not very detailed and there are gaps in the setting.  </p>
+        <p> Comics are comprised of image sequences. The images have the potential to depict all sorts of stories, including fantasical scenarios that would be impossible in reality! Many science fiction and fairy tale stories, for instance, include things like talking teapots, zombies and aliens.  </p>
         
-        <p> You are to indicate whether the background of each panel <b>does NOT contain information</b> about the location and setting (0), or <b>does contain information</b> about the location and setting (1). To make this assessment, disregard all the text sections, characters, and any objects the characters are interacting with, and only judge the remaining visual elements.
-            </p>
-            
-        <p> You are provided the comic pages and a slider per each panel in the comic to assign each panel a score - note that each slider section on the right matches to a numbered panel on the comic image on the left, as shown in the image below. </p>
+        <!-- Comics are made of sequences of images. The images in comics often show the setting of where the action is taking place, or where the characters are situated - however, sometimes the background is not shown (it seems to "drop out"), or is not very detailed and not much is drawn to show the setting. -->
+        
+        <p> In this study, you are to carefully outline every part of each image that depicts something animate. The actual definition of animate is something alive or having life, which tends to be <b>things with sentience that can or have the potential to perform actions, communicate, and move autonomously.</b> </p>
+        
+        <p> You are provided a simple interface which shows the comic page on the left, and buttons to begin and end the outlining task per panel on the right. Each panel is outlined in red and corresponds to a light blue section on the right of the interface. See the image below. </p>
         
         <!--
-        <p> You are to indicate whether the background of each panel has <b>no information about the setting </b> and is blank, or contains <b>a lot of information </b> as a full drawing (5), or is <b>somewhere in between</b> (2-4) and provides some information on location and setting. </p>
+        <p> You are to indicate on a <b>5-point spectrum</b> whether the background of each panel has <b>no information about the setting </b> and is blank (1), or contains <b>a lot of information </b> as a full drawing (5), or is <b>somewhere in between</b> to provide some information on location and setting. </p>
         <p> You are provided the comic pages and a slider per each panel in the comic to assign each panel a score - note that each slider section on the right matches to a numbered panel on the comic image on the left, as shown in the image below. </p>
          -->
         
-        <img src="images/CAT_Mainpage_Binary_arrows.jpeg" width="625">
-
+        <div id="CAT_examples_container">
+        <!--<img src="images/CAT_mainpage.jpeg" width="500" float="left" padding-right="75"> -->
+        <img src="images/CAT_animacy_sections.jpeg" width="625" float="right">
+        </div>
         <br></br>
         
-        <p>Move each slider left and right to assign the associated panel either 0 or 1, as shown below.</p>
-        <img src="images/CAT_Background_Binary.gif" >
+        <p> Once you press "Start Outlining Animate Areas" button in a section, you will be able to outline areas directly on the comic page image in the panel that corresponds to the section. You can make lines by <b>Clicking directly</b> on the image (not clicking and dragging), and erase a line by pressing the <b>Backspace Key</b>. You can close the shape by pressing the <b>Enter Key</b> where you want to end the outline. Once you see the outline number, this means you have successfully made a completed outline! Use the buttons in each section to start and end the task per section, and also remove the last completed outline in that section. </p>
+        
+        <p> It is totally fine if the outlines overlap. </p>
+        
+        <p> Please create the outlines <b>in the order that you would see or read them</b> the best you can! </p>
+        
+        <!-- Move each slider left and right to assign the associated panel a score between 1 and 5, as shown below. -->
+        
+        <p> The GIF below provides a brief example of the annotation process. </p>
+        
+        <img src="images/CAT_animacy.gif" >
         
         <br></br>
         
-        <p >Annotation examples can be downloaded <a id="examples_sheet_download" onclick="downloaded_example_page()" href="2_Forms/Background_Binary_Examples.pdf" download target="_blank">here</a>. Please read these examples, and keep them on hand while doing the task. </p>
+        <p>Annotation examples and instructions can be downloaded <a id="examples_sheet_download" onclick="downloaded_example_page()" href="2_Forms/instructions_and_examples_animacy_outline.pdf" download target="_blank">here</a>. Please have a look and keep them on hand while doing the task! (If you do not download these examples and instructions, you cannot proceed with the study.) </p>
         
         <br></br>
         <p> <b>Important points: </b> </p>
         <ul id="instruction_notes">
-            <li> DO NOT refresh the page, or use the forward and backwards browser buttons. Your results will not be collected!
+            <li> DO NOT refresh the page, or use the forward and backwards browser buttons. Your results will not be collected if you use the browser navigation buttons!
+            <li> Instead, use the navigation button under the blue sections on the right side of the interface. Thanks :)
+                
+            <!--
             <li> Disregard the characters, text, speech bubbles, and sound effects when judging background information.  </li>
             <li> Also disregard any objects that characters are holding or interacting with as well - these are not part of the setting or location. </li>
             <li> Judge each panel separately. </li>
             <li> Think about whether you would know the location of that section from the image in that section alone without considering the previous or next sections.</li>
+             -->
         </ul>
         
         
-        <p>Once you've confirmed that you've read the example sheet, you may now try the task with a short practice comic strip. Continue to this task by pressing the button below. </p>
+        <p> Once you've confirmed that you've read the example sheet, you may now try the task with a short practice comic strip to get acquainted with the interface. Continue to this task by pressing the button below. </p>
         
         <label for="example_form_checkbox"> I confirm that I've downloaded and read the example sheet: </label>
         <input type="checkbox" id="example_form_checkbox" name="example_form_checkbox">

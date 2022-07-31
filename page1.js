@@ -70,7 +70,7 @@ function startPracticeAnnotation() {
      */
     // setup global variables to specify correct annotation task
     storyNum = 32;
-    annotationType = "Background and Location";
+    annotationType = "Character Segmentation"; // Page Segmentation
     participantNum = 0;
     
     
@@ -88,8 +88,8 @@ function startFullAnnotation() {
     /* Function to start the practice annotation
      */
     // setup global variables to specify correct annotation task
-    storyNum = 2;
-    annotationType = "Background and Location";
+    storyNum = 1;
+    annotationType = "Character Segmentation"; // Page Segmentation
     participantNum = 0;
     
     

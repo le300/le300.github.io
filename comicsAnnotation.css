@@ -190,9 +190,9 @@ h4 {
     margin: 5px;
     width: 475px;
     text-align: center;
-    padding: 10px; /* 20px when char and locs display is there */
+    padding: 20px; /* 20px when char and locs display is there, 10px when not */
     background-color: #008CBA;
-    height: 20px; /* 150px when char and locs display is there */
+    height: 150px; /* 150px when char and locs display is there, 20px when not */
     border-radius: 25px;
     border: 5px solid #008CBA;
 }
@@ -225,6 +225,16 @@ h2 {
     background-color:#b5e3ff;
 }
 
+.animacyListInstructions {
+    float: left;
+    display: hidden; 
+    width: 70%;
+    border: 3px solid #b5e3ff;
+    border-radius: 10px;
+    padding: 5px;
+    margin-left: 60px;
+}
+
 .list1 {
     float: left;
     width: 45%;
@@ -253,6 +263,7 @@ h2 {
     font-family: monospace;
     text-align: center;
     list-style-position: inside;
+    list-style-type: circle;
 }
 
 .lList {
@@ -330,6 +341,7 @@ div.hidden {
 }
 
 .charFeaturesForms {
+    text-align: center;
     display: inline-block;
     width: 360px;
     padding: 5px;
@@ -337,6 +349,17 @@ div.hidden {
     border: 3px solid #A456E0;
     border-radius: 10px;
     background-color: #f6ebff;
+}
+
+.charFeaturesForms_animacy {
+    text-align: center;
+    display: inline-block;
+    width: 40px;
+    padding: 5px;
+    margin: 3px 0;
+   /* border: 3px solid #A456E0;
+    border-radius: 10px;
+    background-color: #f6ebff; */
 }
 
 .charIDSquareContainer {
@@ -356,7 +379,20 @@ div.hidden {
     font-size: 20px;
     font-family: monospace;
     color: white;
-    
+}
+
+.charIDSquare_polySeg {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 35px;
+    width: 35px;
+    background-color: #A456E0;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 20px;
+    font-family: monospace;
+    color: white;
 }
 
 .charAreasAndOrientationHeadingsContainer {

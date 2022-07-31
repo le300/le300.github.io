@@ -3,7 +3,7 @@
 
 
 // Variables for setting up the CAT with the participant num, story num, and
-// correct annotation task --------------------------------
+// correct annotation task ----------------------------------------
 
 // Get participant num, story num, and annotation type from local storage
 var participantNum = localStorage.getItem("participantNumKey");
@@ -24,9 +24,12 @@ console.log("consent check: " + consent_check);
 //console.log(dataName);
 
 
+
+// Story Number and Number of Pages -------------------------------
+
 // Store the number of pages for each story as a dict object -
 //    Story number : Number of pages
-//    not a great way to do it, but it's what it is! ----------------
+//    not a great way to do it, but it's what it is!
 var storyPageLengths = {
     1 : 5,
     2 : 5,
@@ -64,6 +67,7 @@ var storyPageLengths = {
 };
 
 
+// Task Switches -----------------------------------------------
 
 // Switches for stages of annotation to determine which parts of the CAT should be shown
 var pageSegmentationTaskSwitch = false;
@@ -71,13 +75,14 @@ var characterSegmentationTaskSwitch = false;
 var textSectionsTaskSwitch = false;
 var characterFeaturesTaskSwitch = false;
 var backgroundLocationTaskSwitch = false;
+var animacySegmentationTaskSwitch = false;
 
 
 var annotationTaskCompleted = ""; // init string variable to identify which task was just completed for the 'final data' section in pagesData before its submitted to firebase
 
 
 
-// Variables for the mechanics of the CAT ------------------------
+// Variables for the mechanics of the CAT ----------------------------
 
 // Declare canvas configuration variables
 var canvas, context;
@@ -103,8 +108,9 @@ var newPanel;  // new panel that's just been drawn for a panel position
 
 var panelNum = 1; // ID of current panel being drawn
 
-// Boolean whether user can draw panel ID rects on the canvas
+// Boolean whether user can draw panel ID rects or polygons on the canvas
 var drawRectsON = false;
+var drawPolysON = false;
 
 // Boolean to state whether the panel id task div is hidden or visible
 var panelButtonsVisible = false;
@@ -123,6 +129,8 @@ var newChar; // new char rectangle that's just been drawn
 var newCharIndex; // variable to track the id number of the char rectangle that has been drawn
 
 var charList = []; // keep a list of the char labels and descriptions to put into the top section of the page
+
+var char_set = new Set(); // set to hold char labels
 
 var chars; // keep a list of the char labels and descriptions on the webpage
 
@@ -153,9 +161,15 @@ var charCanvasAreasList = [] // init empty list to hold list of clickable areas 
 // Declare charOrientation canvas elements
 var canvas_charOrientation, context_charOrientation;
 
+// Type of drawing tool switches for Panel Segmentation tasks - turn on within the panel annotation task switch implementation
+var boundingBoxSegmentation = false;
+var polygonSegmentation = false;
+
+// type of drawing tool for Character Segmentation task
+var boundingBoxSegmentation_Char  = false;
+var polygonSegmentation_Char = false;
+
 //var errorFound = false; // init a switch to track if an error is found in the validateInput function - this is used to track things in the drawCharacters function
-
-
 
 // Preset value for char and description inputs
 const charLabelInstruction = "One variable (e.g. x1)";
@@ -171,12 +185,17 @@ const indicateCharInstructions = "";
 
 
 
+
 /* ANNOTATION TASK DESIGNATION - before INITIALIZATION */
 
+// Task Switch Implementation
 // turn on the correct switch to start the annotation task
 
 if (annotationType == "Page Segmentation") {
     pageSegmentationTaskSwitch = true; // turn on page segmentation task switch
+    // pick a segmentation method (hard-coded):
+    boundingBoxSegmentation = false;
+    polygonSegmentation = true;
     annotationTaskCompleted = "Page Segmentation"; // assign correct annotation task
     document.getElementById("startAnnotationButton").style.display = "inline-block";
 } // end page segmentation task setup
@@ -187,7 +206,7 @@ if (annotationType == "Background and Location") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Background_Experiment6").get().then((snapshot) => {
+    db.collection("Char_Experiment_1").get().then((snapshot) => {
                                                     console.log(snapshot.docs); // get an overview of all the documents in the database
                                                     snapshot.docs.forEach(doc => {
                                                                           //console.log(doc.data());
@@ -209,11 +228,23 @@ if (annotationType == "Background and Location") {
 
 if (annotationType == "Character Segmentation") {
     characterSegmentationTaskSwitch = true; // turn on character task switch
+    //console.log("check task switch: ") // debuggin check!
+    //console.log("characterSegmentationTaskSwitch: " + characterSegmentationTaskSwitch)
+    
+    // pick segmentation methods (hard-coded):
+    
+    //boundingBoxSegmentation = true;
+    //boundingBoxSegmentation_Char = true;
+    polygonSegmentation = true;
+    polygonSegmentation_Char = true; // turn on polygon segmentation char switch
+    
+    // indicate whether the this is the animacy char segmentation task (hard-coded):
+    animacySegmentationTaskSwitch = true;
     
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Background_Experiment6").get().then((snapshot) => {
+    db.collection("Char_Experiment_1").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                 //console.log(doc.data());
@@ -239,7 +270,7 @@ if (annotationType == "Character Features") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Background_Experiment6").get().then((snapshot) => {
+    db.collection("Char_Experiment_1").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                   //console.log(doc.data());
@@ -265,7 +296,7 @@ if (annotationType == "Text Sections") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Background_Experiment6").get().then((snapshot) => {
+    db.collection("Char_Experiment_1").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                   //console.log(doc.data());
@@ -329,7 +360,6 @@ function retrieveCorrectPagesData(doc) {
         var checkAnnotationLastCompleted = mainData.includes(annotationLastTaskCompletedLabel);
     }
     
-    
     // if the annotation task is Text Sections, then check that the annotationLastCompleted is for Page Segmentation
     if (annotationType == "Text Sections") {
         
@@ -354,7 +384,8 @@ function retrieveCorrectPagesData(doc) {
 
 
 
-/* CANVAS and COMIC PAGES SETUP */
+
+/* CANVAS and COMIC PAGES SETUP */ // ----------------------------------------
 /* code references
  initializing the canvas: https://codeburst.io/creating-and-drawing-on-an-html5-canvas-using-javascript-93da75f001c1
  mouse position on canvas:
@@ -376,15 +407,9 @@ function init() {
                            //  }, false);
     adjustImageSizes(); // Adjust images to fit on canvas
     console.log("comic page image sizes readjusted");
-    addCanvasEvents(); // Add event listeners for rectangle drawing tool to the canvas
-    
-    // if this is a polygon segmentation task run, put on the keypress event listener
-    if (false) {
-        document.addEventListener("keydown", function(e) {
-                                  drawPolygonsOnCanvas.deleteKey(e);
-                                  }, false);
+    if (pageSegmentationTaskSwitch) {
+        addCanvasEvents(); // Add event listeners for rectangle drawing tool to the canvas if this is a page segmenation task
     }
-    
     // replace the below with characterFeaturesTaskSwitch == true for char features task
     if (false) {
         canvas_charBodyImage = document.createElement('canvas'); // assign canvas to global variable
@@ -410,7 +435,6 @@ function adjustImageSizes() {
 } // end function adjustImageSizes()
 
 
-
 /* Setup the argument for the preload variable
     This will allow for comic stories of varous page lengths to be preloaded */
 function setupPreloadArgument(storyNum) {
@@ -423,10 +447,6 @@ function setupPreloadArgument(storyNum) {
     return preloadArguments
 } // end of setupPreloadArgument(storyNum)
 
-//var test = setupPreloadArgument(storyNum);
-//console.log(test)
-
-
 
 /* Preload the comic page images and set their sizes */
 function preload_story(listOfStoryFileStrings) {
@@ -438,9 +458,11 @@ function preload_story(listOfStoryFileStrings) {
 } // end of preload_story(listOfStoryFileStrings)
 
 
-/* Preload char body map image */
+/* Preload other images, namely the char body map image */
 function preload_other() {
     console.log("no other images to preload.");
+    
+    // Char body map image load commented out for now
     //charBodyMapImage = new Image();
     //charBodyMapImage.src = "bodyMapImages/charBodyMap_resize.jpeg";
     //console.log("char body map image preloaded");
@@ -450,12 +472,10 @@ function preload_other() {
 } // end of preload_other(listOfImageFileStrings)
 
 
-
 /* Preload comic pages - and preload other required images */
 var preloadArgument = setupPreloadArgument(storyNum); // create the list of strings with the correct story and number of pages
 preload_story(preloadArgument); // preload all comic pages
 preload_other(); // preload char body map image and char orientation image
-
 
 
 /* Function that Gets Mouse Position - for debugging purposes */
@@ -467,6 +487,9 @@ function getMousePos(canvas, evt) {
     };
 }
 
+
+/* MAIN INITIALIZATION */ // -------------------------------------------
+
 /* Wait for HTML to load and then setup the canvas */
 // Second function called, called after the images are preloaded
 document.addEventListener("DOMContentLoaded", init);
@@ -475,7 +498,7 @@ document.addEventListener("DOMContentLoaded", init);
 
 
 
-/* COMIC PAGE PLACEMENT on CANVAS - AFTER  INITIALIZATION */
+/* COMIC PAGE PLACEMENT on CANVAS - AFTER  INITIALIZATION */ // ------------------
 
 /* Put a comic page on canvas according to the sequence in comicPages and pageNum */
 function putComicPageOnCanvas() {
@@ -554,9 +577,6 @@ function setupPageForAnnotation() {
     //startAnnotationButton.style.backgroundColor = "#006080";
     startAnnotationButton.setAttribute("onclick", "true");         // Turn off the button's onlick capabilties
     
-    // pagesData should be correctly assigned, so...
-    //console.log(pagesData); // check pagesData is correct
-    
     drawPanelInfoOnCanvas(); // Put stored panel rects on canvas
     
     // display the semantic forms:
@@ -569,7 +589,6 @@ function setupPageForAnnotation() {
     // get the number of segmentations outlined on page one from pagesData
     //numRectsPage1 = pagesData[1]["panels"];
     //console.log(numRectsPage1.length); // debug check that this is the correct number of segmentations
-    
     // show the semantic forms for each segmentation
     //showContentForms(panel); //
     
@@ -585,14 +604,16 @@ function setupPageForAnnotation() {
 
 /* When Next Page button is pressed */
 function nextPage(event) {
-    
-    // if user has forgotton to click end task when drawing panel rects, turn off the rects panel drawing and generate forms
-    if (drawRectsON){
+    // if user has forgotton to click end task when drawing panel rects, turn off the rects panel drawing and generate forms...
+    if (drawRectsON) {
         recordRectsOFF(event);
     }
-    
+    // ...same with polygons!
+    if (drawPolysON) {
+        recordRectsOFF(event);
+    }
     // Store the current page information, panels and form
-    pagesData[pageNum].storedSemanticFormContainer = document.getElementById("semanticFormContainer").cloneNode(true);
+    //pagesData[pageNum].storedSemanticFormContainer = document.getElementById("semanticFormContainer").cloneNode(true);
     
     // On the current page before you move on:
     // Validate forms: Iterate through all character labels (which have been stored) and inputs to make sure that none are missing (also puts char and location information in the respective textareas)
@@ -620,20 +641,61 @@ function nextPage(event) {
     // For Page Segementation Task, show the panel ID buttons
         // Setup panel ID button situation
     if (pageSegmentationTaskSwitch == true) {
+        panelButtonsVisible = true;
+        document.getElementById("panelIdSection").style.display = "block"; // put buttons back
+        individualPolygonCoordinates = []; // clear any leftover polygon indices
+        
         if (lastThreePanelIDButtonsVisible) {
             lastThreePanelIDButtonsVisible = true;
             document.getElementById("clearLastRectButton").style.display = "inline-block";
             document.getElementById("clearButton").style.display = "inline-block";
             document.getElementById("endButton").style.display = "inline-block";
         }
-    } else {
+    } // end of if (pageSegmentationTaskSwitch == true)
+    else {
         if (lastThreePanelIDButtonsVisible) {
             lastThreePanelIDButtonsVisible = false;
             document.getElementById("clearLastRectButton").style.display = "none";
             document.getElementById("clearButton").style.display = "none";
             document.getElementById("endButton").style.display = "none";
         }
-    }
+    } // end of else
+    
+    // For Character Segmentation Task, check if there are any Indicate Character buttons still on and turn them off if they are!
+    if (characterSegmentationTaskSwitch) {
+        
+        //console.log("NextPage - characterSegmentationTaskSwitch true");
+        
+        if (polygonSegmentation_Char) {
+            individualPolygonCoordinates_CharID = []; // then clear any leftover polygon coords
+        } // end of if (polygonSegmentation_Char)
+        
+        var indicateCharButtonNodeList = document.querySelectorAll(`[id*="indicateCharButton"]`);
+        //console.log(indicateCharButtonNodeList);
+        //console.log(indicateCharButtonNodeList.length);
+        for (var button=1; button<indicateCharButtonNodeList.length+1; button++) {
+            //console.log(button);
+            // check that each indicateCharButton has black text, and if one already has purple text, then exit the function.
+            var currentIndicateCharButton = document.getElementById("indicateCharButton" + button);
+            var colorCurrentIndicateCharButton = currentIndicateCharButton.style.color;
+            
+            if (colorCurrentIndicateCharButton == "purple") {
+                //console.log("NextPage - purple found");
+                charIdON = false; // turn off Char ID task
+                // turn off the button - change it to black and end the task
+                //console.log(currentIndicateCharButton);
+                currentIndicateCharButton.setAttribute("onclick", "startIndividualCharID(event)");
+                // change the indicate char Id button color back to show the activity is not on
+                currentIndicateCharButton.style.color = "black";
+            } // end of if (colorCurrentIndicateCharButton == "purple")
+            
+        } // end of for (var button=1; button<indicateCharButtonNodeList.length+1; button++)
+    } // end of if (characterSegmentationTaskSwitch)
+    
+    
+    // Store the current page information, panels and form
+    pagesData[pageNum].storedSemanticFormContainer = document.getElementById("semanticFormContainer").cloneNode(true);
+    
     
     // Put the scroll on the semantic forms section
     if (scrollON) {
@@ -641,18 +703,14 @@ function nextPage(event) {
         document.getElementById("semanticFormContainer").setAttribute("class","true");
     }
     
-    //console.log("number of comic pages: " + comicPages.length); // debugging
-    //console.log(pagesData[pageNum].panels);
-    
     // Go to next page
     pageNum += 1;
     charIdON = false;  // turn off all (panel ID, char ID, text ID) event handlers
     drawRectsON = false;
+    drawPolysON = false;
     textIdON = false;
     removeSemanticForms(); // Clear the panel submission forms
     putComicPageOnCanvas(); // Put next page on canvas
-    
-    //console.log(pagesData[pageNum].panels);
     
     // Change the page number indicator at the top of the web page
     pageNumTitle = pageNum + 1;
@@ -702,26 +760,28 @@ function nextPage(event) {
         drawPanelInfoOnCanvas();
         panelCounter(panelRecNum-1); // turn off the panel counter function
         showContentForms(panelRecNum-1); // show content forms
-        
     } // end of if backgroundLocationTaskSwitch == true
     
     // If this is a revisit to a page, populate with right info - elements from the stored semantic container
-    // This only works for new segmentation tasks, and not tasks that have already been segmented!!!
 
     if ((pageNum+1) <= pagesData.length) {
         drawPanelInfoOnCanvas();
         drawCharacterInfoOnCanvas();
         drawTextSectionInfoOnCanvas();
         
+        if (pageSegmentationTaskSwitch) {
+            panelButtonsVisible = true;
+            document.getElementById("panelIdSection").style.display = "block"; // put buttons back
+            individualPolygonCoordinates = []; // clear any leftover polygon indices
+        }
+        
         //console.log("Redraw section here.");
         // if there are panels, redraw the char instruction panel
         // and get rid of panel instruction form
         if (pagesData[pageNum].panels.length>0){
-            
             panelButtonsVisible = false;
             document.getElementById("panelIdSection").style.display = "none";
             panelCounter(pagesData[pageNum].panels.length);
-            
         }
         //console.log(pagesData[pageNum]);
         //console.log(pagesData[pageNum].storedSemanticFormContainer.cloneNode(true));
@@ -730,6 +790,18 @@ function nextPage(event) {
         // This has been causing an error, and I don't think it's being used anymore, so it's commented out...
         //var parent = document.getElementById("semanticFormContainer").parentNode;
         //parent.replaceChild(pagesData[pageNum].storedSemanticFormContainer.cloneNode(true), document.getElementById("semanticFormContainer"));
+        
+        if (characterSegmentationTaskSwitch == true) {
+            // Add the information to the semantic forms that has already been annotated
+            for (var i=0; i<pagesData[pageNum].panels.length; i++) {
+                for (var j=0; j<pagesData[pageNum].panels[i].characters.length; j++) {
+                    //console.log(i);
+                    //storedCharIndex = j+1;
+                    createCharForm(i, j);
+                }
+            }
+        } // end of if (characterSegmentationTaskSwitch == true)
+        
         
         // if the charFeaturesTaskSwitch is on, put the canvas and mouseclick eventlisteners on the semantic forms
         if (characterFeaturesTaskSwitch == true) {
@@ -793,7 +865,6 @@ function nextPage(event) {
                     drawOrientationImage(canvases[i].id);
 
                }
-                    
                     // add event listeners
                     canvases[i].addEventListener('mousedown', function(e) {rotateImage.handleMouseDown(e)});
                     canvases[i].addEventListener('mousemove', function(e) {rotateImage.handleMouseMove(e)});
@@ -801,7 +872,8 @@ function nextPage(event) {
                     canvases[i].addEventListener('mouseout', function(e) {rotateImage.handleMouseOut(e)});
             }
         } // end of if characterFeaturesTaskSwitch == true
-    } else {
+    } // end of if ((pageNum+1) <= pagesData.length)
+    else {
         // else if new page push new dict and add empty panels
         // put check if it is a task that doesn't need new panels
         //console.log(pagesData(pageNum));
@@ -809,8 +881,7 @@ function nextPage(event) {
             pagesData.push({});
             pagesData[pageNum].panels = [];
         }
-    }
-    
+    } // end of else
 } // end of nextPage(event)
 
 
@@ -818,12 +889,15 @@ function nextPage(event) {
 /* Put the previous page on the canvas according to the current pageNum */
 function putPreviousPageOnCanvas(event) {
     // First check if this is the first page in the comicPages sequence, and if so just return the function
-    
     if (pageNum == 0) {
         return;
     }
     // If user stopped in middle of drawing panel rects, then turn off the drawing panel rects event
-    if (drawRectsON){
+    if (drawRectsON) {
+        recordRectsOFF(event);
+    }
+    // ... same with polygons
+    if (drawPolysON) {
         recordRectsOFF(event);
     }
     
@@ -856,9 +930,15 @@ function putPreviousPageOnCanvas(event) {
         validateInputs();
     }
     
+    // Also store the values for the characterSegmentationTask!
+    if (characterSegmentationTaskSwitch == true) {
+        validateInputs();
+    }
+    
     pageNum -= 1; // Decrement pageNum index
     charIdON = false;  // turn off all (panel, char and text ID) event handlers
     drawRectsON = false;
+    drawPolysON = false;
     textIdON = false;
     //console.log("Previous Page pageNum = " + pageNum); // test
     removeSemanticForms(); // Clear the semantic submission forms
@@ -867,7 +947,7 @@ function putPreviousPageOnCanvas(event) {
     pageNumTitle = pageNum + 1;
     document.getElementById("startAnnotationButton").innerHTML = "Page " + pageNumTitle + " of " + comicPages.length;
     
-    drawPanelInfoOnCanvas(); // Put stored panel rects on canvas
+    drawPanelInfoOnCanvas(); // Put stored panel rects or polygon segments on canvas
     drawCharacterInfoOnCanvas(); // Put stored char info on canvas
     drawTextSectionInfoOnCanvas(); // Put stored text section info on canvas
     
@@ -879,7 +959,6 @@ function putPreviousPageOnCanvas(event) {
     //console.log(pagesData[pageNum].storedSemanticFormContainer.cloneNode(true));
     
     if (pagesData[pageNum].panels.length>0){
-        
         panelButtonsVisible = false;
         document.getElementById("panelIdSection").style.display = "none";
         panelCounter(pagesData[pageNum].panels.length);
@@ -903,6 +982,15 @@ function putPreviousPageOnCanvas(event) {
             applyValueChangeToSlider(pageNum, i+1);
         }
     } // end if backgroundLocationTaskSwitch is true
+    
+    if (characterSegmentationTaskSwitch) {
+        
+        //console.log("PreviousPage - characterSegmentationTaskSwitch true");
+        
+        if (polygonSegmentation_Char) {
+            individualPolygonCoordinates_CharID = []; // clear any leftover polygon coords
+        } // end of if (polygonSegmentation_Char)
+    } // end of if (characterSegmentationTaskSwitch)
     
     if (characterFeaturesTaskSwitch == true) {
         
@@ -962,8 +1050,8 @@ function putPreviousPageOnCanvas(event) {
                 canvases[i].addEventListener('mouseup', function(e) {rotateImage.handleMouseUp(e)});
                 canvases[i].addEventListener('mouseout', function(e) {rotateImage.handleMouseOut(e)});
             }
-        }
-    }
+        } // end of for (var i=0; i<numCanvases; i++)
+    } // end of if (characterFeaturesTaskSwitch == true)
 } // end of putPreviousPageOnCanvas(event)
 
 
@@ -1012,8 +1100,6 @@ function displayCharsAndLocsSoFar() {
 
 
 
-
-
 /* Check all inputs when moving to the next page - check for missed inputs and give the appropriate message, and update the charList and locList */
 function validateInputs() {
     //  Returns boolean and a warning string
@@ -1026,20 +1112,60 @@ function validateInputs() {
     
     // If on the Page Segmentation Task, then there is no need to validate inputs
     if (pageSegmentationTaskSwitch == true) {
-        return errorMessage = "" // return the function
-    }
+        // well, for polygons, if there are leftover indices, add it to the end of pagesData
+        // create a new panel data object
+        if (polygonSegmentation) {
+            if (individualPolygonCoordinates.length !=0) {
+                newPanel = {
+                    polygonCoords: individualPolygonCoordinates,
+                    color: "#FF0000",
+                        id : pagesData[pageNum].panels.length + 1,
+                    characters:[],
+                    textSections: [],
+                    background: {}
+                }
+                pagesData[pageNum].panels.push(newPanel); // Store created panels in the overall data structure
+                individualPolygonCoordinates  = []; // empty the current polygon indices
+            } // end of if (individualPolygonCoordinates.length !=0)
+        } // end of if (polygonSegmentation)
+        return errorMessage = "" // then return the function
+    } // end of if (pageSegmentationTaskSwitch == true)
+    
+    if (characterSegmentationTaskSwitch == true) {
+        
+        if (animacySegmentationTaskSwitch) {
+
+        } // end of if (animacySegmentationTaskSwitch)
+        
+        else {
+            // m = panel number
+            // n = char index number
+            for (var m=0; m<pagesData[pageNum].panels.length; m++) {
+                var panel = pagesData[pageNum].panels[m];
+                for (var n=0; n<panel.characters.length; n++) {
+                    // make the char reference input from text inputs on the charForms the character label in pagesData
+                    panel.characters[n].label = document.getElementById("charRefInput" + m + "." + n).value;
+                    var character = panel.characters[n];
+                    if (character.label == "" || character.label == charLabelInstruction) {
+                        errorMessage += "Missing Character Label for Section " + (m + 1) + " Character Number " + (n + 1) + "\n"; // send message
+                        document.getElementById("charRefInput" + m + "." + n).style.backgroundColor = "LightPink"; // highlight input
+                    }
+                    
+                } // end of for (var n=0; n<panel.characters.length; n++)
+            } // end of for (var m=0; m<pagesData[pageNum].panels.length; m++)
+            
+        } // end of else
+        
+    } // end of if (characterSegmentationTaskSwitch == true)
     
     if (characterFeaturesTaskSwitch == true) {
-    
         // i = panel number
         // j = char index number
-        
             for (var i=0; i<pagesData[pageNum].panels.length; i++) {
                 var panel = pagesData[pageNum].panels[i];
                 //console.log(panel); //test
                 for (var j=0; j<panel.characters.length; j++) {
                     // whatever is in the input box for the label, make that the character label
-                    //console.log("i = " + i + " j = " + j);
                     
                     // Char Checks:
                     
@@ -1265,6 +1391,7 @@ function validateInputs() {
             }
         }
         console.log(pagesData);
+        
     } // end of backgroundLocationTaskSwitch == true validate input check
     
     
@@ -1295,7 +1422,7 @@ function validateInputs() {
 
 
 
-/* PAGE SEGMENTATION - DRAWING PANEL/SECTION RECTS on a COMIC IMAGE */
+/* PAGE SEGMENTATION - DRAWING PANEL/SECTION RECTS on a COMIC IMAGE */ // -----------
 
 /* Drawing Bounding Box Rectangles on Comic Image for panels
  code reference: https://stackoverflow.com/questions/48144924/draw-multiple-rectangle-on-canvas
@@ -1317,7 +1444,64 @@ function reOffset() {
     recOffsetY = BB.top;
 }
 
-// function that draws polygon while drawing
+// Add mouse events to canvas - used in the init function
+function addCanvasEvents() {
+    canvas = document.getElementById("canvas");
+    
+    reOffset();
+    
+    window.onscroll = function(e) {
+        reOffset();
+    }
+    window.onresize = function(e) {
+        reOffset();
+    }
+    
+    // Bounding Box Event Listeners:
+    if (boundingBoxSegmentation == true) {
+        canvas.addEventListener("mousemove", function(e) {
+                               drawRectangleOnCanvas.handleMouseMove(e);
+                               }, false);
+        canvas.addEventListener("mousedown", function(e) {
+                                drawRectangleOnCanvas.handleMouseDown(e);
+                                }, false);
+        canvas.addEventListener("mouseup", function(e) {
+                                drawRectangleOnCanvas.handleMouseUp(e);
+                                }, false);
+        canvas.addEventListener("mouseout", function(e) {
+                                drawRectangleOnCanvas.handleMouseOut(e);
+                                }, false);
+        console.log("addCanvasEvents: Bounding Box Panel ID canvas event handers added");
+    } // end of boundingBoxSegmentation event handlers
+    // Polygon Event Listenters:
+    if (polygonSegmentation == true) {
+        canvas.addEventListener("mousedown", function(e) {
+                            drawPolygonsOnCanvas.handleMouseDown(e);
+                            }, false);
+        canvas.addEventListener("dblclick", function(e) {                                              drawPolygonsOnCanvas.handleMouseDoubleClick();
+                            }, false);
+        document.addEventListener("keydown", deleteKeyHandler, false);
+        console.log("addCanvasEvents: Polygon Panel ID canvas and keypress event handers added");
+    } // end of polygonSegmentation event handlers
+} // end of function addCanvasEvents()
+
+
+// create a separate keypress handler to be turned on for polygon segmentation
+var deleteKeyHandler = function(e) {
+    //console.log("a key pressed."); // deboog
+    const key = e.key;
+    if (key === "Backspace" || e.keyCode === 46) {
+        //console.log("Delete key pressed."); // deboog
+        // remove the last stored coord tuple in the polygon currently being drawn
+        individualPolygonCoordinates.pop();
+        //console.log(individualPolygonCoordinates); // check
+        if (individualPolygonCoordinates.length != 0) {
+            drawPolygonWhileDrawing(individualPolygonCoordinates);
+        }
+    }
+} // end of var deleteKeyHandler = function(e)
+
+// function that draws the current polygon and all previously drawn polygons while drawing
 function drawPolygonWhileDrawing(coordsList) {
     
     canvas = document.getElementById("canvas");
@@ -1334,74 +1518,31 @@ function drawPolygonWhileDrawing(coordsList) {
     if (pagesData[pageNum].panels.length != 0) {
         drawPolygonsOnCanvas.drawAllPolygons(); // draw all polygons stored so far
     }
-    context.beginPath();
+    
+    context.beginPath(); // draw small circle on the first coords/click
+    context.arc(coordsList[0].x, coordsList[0].y, 10, 0, Math.PI * 2, true);
+    context.closePath();
+    context.fillStyle = "#FF0000";
+    context.fill();
+    
+    context.beginPath(); // draw the polygon line by line
     context.moveTo(coordsList[0].x, coordsList[0].y);
     for(index=1; index<coordsList.length;index++) {
         context.lineTo(coordsList[index].x, coordsList[index].y);
     }
-    context.closePath();
+    //context.closePath(); // Don't close path while drawing, only close the path after the double click
     context.stroke();
-    
 } // end of function drawPolygonWhileDrawing()
-
 
 var individualPolygonCoordinates = []; // store polygon coords
 
-
-// Add mouse events to canvas - used in the init function
-function addCanvasEvents() {
-    canvas = document.getElementById("canvas");
-    
-    reOffset();
-    
-    window.onscroll = function(e) {
-        reOffset();
-    }
-    window.onresize = function(e) {
-        reOffset();
-    }
-
-    var boundingBoxSegmentation = true;
-    
-    // Bounding Box Event Listeners:
-    if (boundingBoxSegmentation) {
-        canvas.addEventListener("mousemove", function(e) {
-                               drawRectangleOnCanvas.handleMouseMove(e);
-                               }, false);
-        canvas.addEventListener("mousedown", function(e) {
-                                drawRectangleOnCanvas.handleMouseDown(e);
-                                }, false);
-        canvas.addEventListener("mouseup", function(e) {
-                                drawRectangleOnCanvas.handleMouseUp(e);
-                                }, false);
-        canvas.addEventListener("mouseout", function(e) {
-                                drawRectangleOnCanvas.handleMouseOut(e);
-                                }, false);
-        console.log("addCanvasEvents: Bounding Box Panel ID event handers added");
-    } // end of boundingBoxSegmentation event handlers
-
-    var polygonSegmentation = false;
-    
-    // Polygon Event Listenters:
-    if (polygonSegmentation) {
-    canvas.addEventListener("mousedown", function(e) {
-                            drawPolygonsOnCanvas.handleMouseDown(e);
-                            }, false);
-    canvas.addEventListener("dblclick", function(e) {
-                            drawPolygonsOnCanvas.handleMouseDoubleClick();
-                            }, false);
-//    document.addEventListener("keydown", function(e) {
-//                            drawPolygonsOnCanvas.deleteKey(e);
-//                            }, false);
-    console.log("addCanvasEvents: Polygon Panel ID event handers added");
-    }// end of polygonSegmentation event handlers
-    
-} // end of function addCanvasEvents()
-
-
+// Draw Polygons - Object with event handlers for drawing polygons on canvas
 var drawPolygonsOnCanvas = {
     
     handleMouseDown: function(e) {
+        if (!drawPolysON) {
+            return;
+        }
         canvas = document.getElementById("canvas");
         context = canvas.getContext("2d");
         // tell the browser we're handling this event
@@ -1417,7 +1558,10 @@ var drawPolygonsOnCanvas = {
     },
     
     handleMouseDoubleClick: function(e) {
-        console.log("double click!"); // test
+        if (!drawPolysON) {
+            return;
+        }
+        //console.log("double click!"); // test
         canvas = document.getElementById("canvas");
         context = canvas.getContext("2d");
         // tell the browser we're handling this event
@@ -1431,27 +1575,13 @@ var drawPolygonsOnCanvas = {
             id : pagesData[pageNum].panels.length + 1,
             characters:[],
             textSections: [],
-            background: {location : "",
-                         detail : 0,
-                         textOnly: 0
-                        }
+            background: {}
         }
         
         pagesData[pageNum].panels.push(newPanel); // Store created panels in the overall data structure
         individualPolygonCoordinates = []; // reset the current polygon coords
         //console.log(individualPolygonCoordinates); // check
         drawPolygonsOnCanvas.drawAllPolygons(); // draw all polygons stored so far
-    },
-    
-    deleteKey: function(e) {
-        // tell the browser we're handling this event
-        e.preventDefault();
-        e.stopPropagation();
-        console.log("a key pressed.");
-        const key = e.key;
-        if (key === "Backspace" || e.keyCode === 46) {
-            console.log("Delete key pressed.");
-        }
     },
     
     drawPolygon: function(coordsList) {
@@ -1461,7 +1591,7 @@ var drawPolygonsOnCanvas = {
         context.lineWidth = 3;
         context.strokeStyle = "#FF0000";
         
-        context.beginPath();
+        context.beginPath();  // create polygon by drawing lines between each point
         context.moveTo(coordsList[0].x, coordsList[0].y);
         for(index=1; index<coordsList.length;index++) {
             context.lineTo(coordsList[index].x, coordsList[index].y);
@@ -1487,7 +1617,7 @@ var drawPolygonsOnCanvas = {
             var firstXCoord = polyCoords[0].x;
             var firstYCoord = polyCoords[0].y;
             drawPolygonsOnCanvas.drawPolygon(polyCoords);
-            context.beginPath(); // draw circle
+            context.beginPath(); // draw circle to indicate panel seg num
             context.arc(firstXCoord-5, firstYCoord-5, 15, 0, Math.PI * 2, true);
             context.closePath();
             context.fillStyle = panel.color;
@@ -1499,7 +1629,6 @@ var drawPolygonsOnCanvas = {
         }
     }
 } // end of drawPolygonsOnCanvas object
-
 
 
 // Draw Bounding Boxes:
@@ -1643,6 +1772,8 @@ var drawRectangleOnCanvas = {
 function recordRectsON(event) {
     //event = button click
     drawRectsON = true;
+    drawPolysON = true;
+    console.log("Did you get here?");
     // console.log("After Start Button, pageNum is " + pageNum); //test
     
     // change button text to red to indicate that the task event handlers are live
@@ -1655,13 +1786,14 @@ function recordRectsON(event) {
         document.getElementById("clearButton").style.display = "inline-block";
         document.getElementById("endButton").style.display = "inline-block";
     }
-}
+} // end of recordRectsON(event)
 
 
-/* Turn OFF the recordClickOnComicImage function to stop drawing panel rects on canvas, and show the Semantic Forms - one per panel */
+/* Turn OFF to stop drawing panel rects on canvas, and show the Semantic Forms - one per panel */
 function recordRectsOFF(event) {
     //event = button click
     drawRectsON = false; // Disable drawing panel rects on canvas
+    drawPolysON = false; //... and also disable drawing polygons
     if (panelButtonsVisible == true) {
         panelButtonsVisible = false;
         document.getElementById("panelIdSection").style.display = "none";
@@ -1676,11 +1808,16 @@ function recordRectsOFF(event) {
         panelRecNum = pagesData[pageNum].panels.length + 1;
         panelCounter(panelRecNum-1); // turn off the panel counter function
         //showContentForms(panelRecNum-1); // do not show content forms
-    }
+        if (polygonSegmentation == true)  {
+            document.removeEventListener("keydown", deleteKeyHandler, true);
+            console.log("recordRectsOFF(event): Polygon keydown event handers removed");
+        }
+    }  // end of if (pageSegmentationTaskSwitch == true)
     // Only create buttons at the bottom page when this function runs for the first page
     if (document.getElementById("startAnnotationButton").innerHTML == "Page 1 of " + comicPages.length && !navigationButtonsCreated) {
         // if the story only has one page, setup the submit annotation buttons here
         if (comicPages.length == 1) {
+            console.log("submit annotation change here in recordRectsOFF(event)");
             createNavigationButtons();
             navigationButtonsCreated = true;
             buttonChange = document.getElementById("buttonNextPage");
@@ -1701,7 +1838,7 @@ function recordRectsOFF(event) {
     }
     //pageNum += 1;
     //console.log("After End Button, pageNum is " + pageNum); //test
-}
+} // end of recordRectsOFF(event)
 
 
 /* Clear all the drawn panel rectangles, restart the panel rect drawing task */
@@ -1711,7 +1848,10 @@ function recordRectsCLEAR(event) {
     putComicPageOnCanvas(); // Redraw image on canvas
     // Clear the collected panel/sections info
     pagesData[pageNum].panels = [];
-}
+    if (polygonSegmentation) {
+        individualPolygonCoordinates = []; // clear any stored polygon coords
+    }
+} // end of function recordRectsCLEAR(event)
 
 
 /*  Clear just the last drawn rectangle while keeping the others */
@@ -1720,9 +1860,16 @@ function clearLastDrawnRectangle(event) {
     // clear out the last entry in panels array
     pagesData[pageNum].panels.pop();
     // Redraw the page with the stored panels
-    drawRectangleOnCanvas.drawAll();
-    drawPanelInfoOnCanvas();
-}
+    if (boundingBoxSegmentation) {
+        drawRectangleOnCanvas.drawAll(); // draw all stored bounding boxes
+        drawPanelInfoOnCanvas();
+    }
+    if (polygonSegmentation) {
+        console.log("clearLastDrawnRectangle(event) pressed");
+        individualPolygonCoordinates = []; // clear any stored polygon coords
+        drawPolygonsOnCanvas.drawAllPolygons(); // draw all stored polygons
+    }
+} // end of function clearLastDrawnRectangle(event)
 
 
 
@@ -1744,12 +1891,16 @@ function panelCounter(x) {
     }
     document.getElementById("panelCount").innerHTML = "There are " + x + " sections on this page.";
     
+    if (animacySegmentationTaskSwitch) {
+        document.getElementById("animacyInstructions").style.display = "block"; 
+    } // end of if (animacySegmentationTaskSwitch)
+    
     // Put the scroll on the semantic forms section
     if (!scrollON) {
         scrollON = true;
         document.getElementById("semanticFormContainer").setAttribute("class","semanticFormContainerScroll");
     }
-}
+} // end of panelCounter(x)
 
 
 /* GENERATE SEMANTIC FORM - Create and Show (parts of) the form sections that need to be filled in - the number of forms that apper should be the number of panels indicated by the user */
@@ -1764,6 +1915,7 @@ function showContentForms(x) {
         var clone = panelForm.cloneNode(true);
         clone.setAttribute("class","semanticFormDisplay"); // Set css class for display
         clone.id = "panelForm" + j; // Change the id for the cloned form
+        //console.log("showContentForms - here: " + clone.id);
         // Create a heading to give the panel number for the new form
         var newHeading = document.createElement("h3");
         newHeading.innerHTML = "Section " + j;
@@ -1776,13 +1928,24 @@ function showContentForms(x) {
             // Characters: Heading and buttons container
             var newCharHeading = document.createElement("h4"); // Characters heading
             newCharHeading.id = "newCharHeading" + j;
-            newCharHeading.innerHTML = "Characters";
+            if (animacySegmentationTaskSwitch) {
+                newCharHeading.innerHTML = "";
+            }
+            else {
+                newCharHeading.innerHTML = "Characters";
+            }
             clone.insertBefore(newCharHeading, newHeading.nextSibling);
             
             var indicateCharButton = document.createElement("BUTTON"); // start char ID task button
             indicateCharButton.id = "indicateCharButton" + j;
-            indicateCharButton.innerHTML = "Indicate Characters";
+            if (animacySegmentationTaskSwitch) {
+                indicateCharButton.innerHTML = "Start Outlining Animate Areas";
+            }
+            else {
+                indicateCharButton.innerHTML = "Indicate Characters";
+            }
             indicateCharButton.setAttribute("onclick","startIndividualCharID(event)");
+            indicateCharButton.style.color = "black";
             clone.insertBefore(indicateCharButton, newCharHeading.nextSibling);
             // For the Indicate Characters button, only show it and make it available in the first section - this helps navigate the annotator to start char annotation for the first section
             //console.log("indicateCharButton id: " + indicateCharButton.id) //test
@@ -1879,13 +2042,11 @@ function showContentForms(x) {
             slider_value_left.innerHTML = "No Background Information";
             var slider = document.createElement('input');
             slider.id = "slider" + pageNum + "." + j;
-            
-            // slider setup:
             slider.setAttribute('type', "range");
             slider.setAttribute('min', "1");
             slider.setAttribute('max', "5");
             slider.setAttribute('value', "3");
-            slider.setAttribute('step', "2"); // "any" accepts a value regardless of how many decimal points, "1" creates the likert scale, "2" is used for the binary classification
+            slider.setAttribute('step', "any"); // any accepts a value regardless of how many decimal points
             slider.setAttribute('list', "range_labels" + pageNum + "." + j);
             var slider_output = document.createElement('output');
             slider_output.id = "slider_output" + pageNum + "." + j;
@@ -1894,7 +2055,7 @@ function showContentForms(x) {
             var slider_value_right = document.createElement('div');
             slider_value_right.id = "slider_value_right" + pageNum + "." + j;
             slider_value_right.setAttribute('class', "value_right");
-            slider_value_right.innerHTML = "Background Information"; // "Full Background Information"
+            slider_value_right.innerHTML = "Full Background Information";
             
             var slider_ticks_container = document.createElement('div');
             slider_ticks_container.id = "slider_ticks_container" + pageNum + "." + j;
@@ -1916,12 +2077,28 @@ function showContentForms(x) {
             var label_5 = document.createElement('p');
             label_5.innerHTML = "5";
             label_5.setAttribute('class', "endTicks");
-
+           //var label_6 = document.createElement('p');
+           //label_6.innerHTML = "6";
+           //var label_7 = document.createElement('p');
+           //label_7.innerHTML = "7";
+           //var label_8 = document.createElement('p');
+           //label_8.innerHTML = "8";
+           //var label_9 = document.createElement('p');
+           //label_9.innerHTML = "9";
+           //var label_10 = document.createElement('p');
+           //label_10.innerHTML = "10";
+           //slider_ticks_container.appendChild(label_0);
             slider_ticks_container.appendChild(label_1);
             slider_ticks_container.appendChild(label_2);
             slider_ticks_container.appendChild(label_3);
             slider_ticks_container.appendChild(label_4);
             slider_ticks_container.appendChild(label_5);
+            //slider_ticks_container.appendChild(label_6);
+            //slider_ticks_container.appendChild(label_7);
+            //slider_ticks_container.appendChild(label_8);
+            //slider_ticks_container.appendChild(label_9);
+            //slider_ticks_container.appendChild(label_10);
+            
             
             slider_field_container.appendChild(slider_value_left);
             slider_field_container.appendChild(slider);
@@ -1930,7 +2107,7 @@ function showContentForms(x) {
             
             slider_container.appendChild(slider_value);
             slider_container.appendChild(slider_field_container);
-            //slider_container.appendChild(slider_ticks_container); // do not show the ticks when implementing the binary scale
+            slider_container.appendChild(slider_ticks_container);
             
             clone.insertBefore(slider_container, newBackgroundHeading.nextSibling);
             
@@ -1942,12 +2119,11 @@ function showContentForms(x) {
             //console.log(panel_detail_value);
             if (panel_detail_value != "") {
                 slider.value = panel_detail_value;
-                slider_output.innerHTML = parseFloat(panel_detail_value).toFixed(0);;
+                slider_output.innerHTML = parseFloat(panel_detail_value).toFixed(2);;
             }
             else {
                 slider_output.innerHTML = "background information amount";
             }
-            
         
         } // end of backgroundLocationTaskSwitch == true
         
@@ -1962,32 +2138,28 @@ function showContentForms(x) {
 
 function applyValueChangeToSlider(pageNumber, x) {
     // x is the index of the span and slider
-    var slider_span = document.getElementById("slider_value_span" + pageNumber + "." + x);
-    var actual_slider = document.getElementById("slider" + pageNumber + "." + x);
-    var output_bubble = document.getElementById("slider_output" + pageNumber + "." + x);
-    //console.log(slider_span); // Debugginz
-    //console.log(actual_slider);
-    var min = actual_slider.min;
-    var max = actual_slider.max;
-    //console.log(min, max);
-    var newVal;
+    if (backgroundLocationTaskSwitch == true) {
+        var slider_span = document.getElementById("slider_value_span" + pageNumber + "." + x);
+        var actual_slider = document.getElementById("slider" + pageNumber + "." + x);
+        var output_bubble = document.getElementById("slider_output" + pageNumber + "." + x);
+        //console.log(slider_span); // Debugginz
+        //console.log(actual_slider);
+        var min = actual_slider.min;
+        var max = actual_slider.max;
+        //console.log(min, max);
+        var newVal;
     
-    actual_slider.oninput = (() =>{
+        actual_slider.oninput = (() =>{
                            let value = actual_slider.value;
-                           //slider_span.textContent = parseFloat(value).toFixed(0); // "0" when likert scale, "2" when real-valued scale
+                           slider_span.textContent = parseFloat(value).toFixed(2);
+                           //slider_span.style.left = (value/2) + "%";
+                           //console.log(value); // Debugginz
                            newVal = Number(((value - min) * 100) / (max - min));
-                           //output_bubble.innerHTML = parseFloat(value).toFixed(0); // "0" when likert scale, "2" when real-valued scale
-                             // for binary scale:
-                             if (value == 1) {
-                                output_bubble.innerHTML = "0";
-                             }
-                             if (value == 5) {
-                                output_bubble.innerHTML = "1";
-                             }
-                             if (value == 3) {
-                             output_bubble.innerHTML = "background information amount";
-                             }
+                           output_bubble.innerHTML = parseFloat(value).toFixed(2);
+                           //slider_span.style.left = newVal = "%";
+                           //output_bubble.style.left = newVal = "%";
                            });
+    } // end of if(backgroundLocationTaskSwitch == true)
 } // end of function applyValueChangeToSlider(x)
 
     
@@ -2049,6 +2221,7 @@ function resetPage(event) {
     
     charIdON = false;  // turn off all (panel ID, char ID, text ID) canvas ID tasks
     drawRectsON = false;
+    drawPolysON = false;
     textIdON = false;
     
     // Take the scroll off the semantic forms section
@@ -2065,12 +2238,11 @@ function resetPage(event) {
     //panelButtonsVisible = true;
     //document.getElementById("panelIdSection").style.display = "block";
     
-    
     if (pageSegmentationTaskSwitch == true) {
         // Empty data stored, refresh page
         pagesData[pageNum] = {};
         pagesData[pageNum].panels = [];
-        //console.log(pagesData); //test
+        individualPolygonCoordinates = []; // empty any leftover polygon coords
         removeSemanticForms();
         pagesData[pageNum].storedSemanticFormContainer = document.getElementById("semanticFormContainer").cloneNode(true);
         
@@ -2081,12 +2253,18 @@ function resetPage(event) {
             document.getElementById("clearButton").style.display = "none";
             document.getElementById("endButton").style.display = "none";
         }
-    }
+        // Show panel ID task buttons if not visible
+        if (panelButtonsVisible == false) {
+            panelButtonsVisible = true;
+            document.getElementById("panelIdSection").style.display = "block";
+        }
+        // Turn the start button text to white in case it's red
+        document.getElementById("startButton").style.color = "white";
+    } // end of if (pageSegmentationTaskSwitch == true)
     
     // get the number of page segmentation sections on the page
     var numPageSegmentationsOnPage = pagesData[pageNum].panels.length;
     console.log("number of page segmentations: " + numPageSegmentationsOnPage);
-    
     
     // if the Character Segmentation task is on, allow for removing character bounding boxes and character semantic forms
     if (characterSegmentationTaskSwitch == true) {
@@ -2101,7 +2279,11 @@ function resetPage(event) {
         panelCounter(panelRecNum-1); // turn off the panel counter function
         showContentForms(panelRecNum-1); // show content forms
         drawPanelInfoOnCanvas(); // make sure the page sections are on the comic page
-    }
+        
+        if (polygonSegmentation_Char) {
+            individualPolygonCoordinates_CharID = []; // clear any leftover indices
+        } // end of if (polygonSegmentation_Char)
+    } // end of if (characterSegmentationTaskSwitch == true)
     
     if (textSectionsTaskSwitch == true) {
         // empty stored text section data
@@ -2165,6 +2347,8 @@ function resetPage(event) {
 
 
 
+/* Send Data to FIREBASE */ // -----------------------------------
+
 /* Function to submit semantic forms */
 function submitSemanticForms(event) {
     //event = click
@@ -2176,6 +2360,10 @@ function submitSemanticForms(event) {
     }
     // if user has forgotton to click end task when drawing panel rects, turn off the rects panel drawing and generate forms
     if (drawRectsON){
+        recordRectsOFF(event);
+    }
+    // ... same with the polygons
+    if (drawPolysON) {
         recordRectsOFF(event);
     }
     // Store the current page information, panels and form
@@ -2206,7 +2394,6 @@ function submitSemanticForms(event) {
 } // end of submitSemanticForms(event)
 
 
-
 // Submit annotated data to firebase database
 function sendDataToFireBase(event) {
     //convert pagesData to a JSON file
@@ -2226,7 +2413,7 @@ function sendDataToFireBase(event) {
     //                          jsonString: jsonString
     //                          });
     
-    db.collection("Background_Experiment6").add({time: Date().toLocaleString(),
+    db.collection("Char_Experiment_1").add({time: Date().toLocaleString(),
                               jsonData: jsonString}
                               ).then(function(snapshot) {
                                 if (storyNum == 32) {
@@ -2253,10 +2440,6 @@ function sendDataToFireBase(event) {
 
 
 
-
-
-
-
 /* ANNOTATION and DATA SUBMISSION within SEMANTIC FORMS - Interaction and data inputs
         for CHAR and TEXT Annotation Tasks */
 
@@ -2264,11 +2447,32 @@ function sendDataToFireBase(event) {
 function startIndividualCharID(event) {
     //event = click
     
+    // check if any of the indicateChar Buttons are purple, and if so give an alert and exit this function
+    var indicateCharButtonNodeList = document.querySelectorAll(`[id*="indicateCharButton"]`);
+    //console.log(indicateCharButtonNodeList);
+    //console.log(indicateCharButtonNodeList.length);
+    for (var button=1; button<indicateCharButtonNodeList.length+1; button++) {
+        //console.log(button);
+        // check that each indicateCharButton has black text, and if one already has purple text, then exit the function.
+        var currentIndicateCharButton = document.getElementById("indicateCharButton" + button);
+        var colorCurrentIndicateCharButton = currentIndicateCharButton.style.color;
+        
+        if (colorCurrentIndicateCharButton == "purple") {
+            //console.log("purple");
+            alert("There is already a Start Outlining Animate Areas button turned on in another section. Click the End Task button in the section where the button has purple text before moving to another section. Thanks!");
+            return;
+        }
+    } // end of for (var button=1; button<indicateCharButtonNodeList.length+1; button++)
+    
     var buttonID = event.target.getAttribute('id');
-    //console.log("button name: ", buttonID); //test
+    //console.log("startIndividualCharID - button name: ", buttonID); //test
     currentPanel = event.target.parentNode; // Get semantic form where button was pressed
     var currentPanelNumber = parseInt(currentPanel.getAttribute("id").replace("panelForm", ""), 10)-1;
-    //console.log("currentPanel: " + currentPanelNumber); // test
+    //console.log("startIndividualCharID - currentPanel: " + currentPanel);
+    //console.log("startIndividualCharID - currentPanelNumber: " + currentPanelNumber); // test
+    
+    // turn off the button's functionality to prevent double-clicking
+    document.getElementById(buttonID).setAttribute("onclick", true);
     
     // Check that the button ID matches the panel number
     // get the number of the button id
@@ -2276,26 +2480,31 @@ function startIndividualCharID(event) {
     // if that equals the current panel number, then activate the char ID task. If not, just don't do a darn thing
     if (iDNum == currentPanelNumber+1) {
         //set current panel according to the button pressed
-        charIdON = true;
+        //charIdON = true;
+        //console.log("startIndividualCharID: char button ID num: " + iDNum);
         newCharIndex = 0; // set the char index to 0
-        activateCharIDTask(event); // Turn on ability to click on the canvas
+        activateCharIDTask(currentPanel, currentPanelNumber); // Turn on ability to click on the canvas
     }
-    
-    // turn off the button's functionality to prevent double-clicking
-    document.getElementById(buttonID).setAttribute("onclick", true);
     
     // change the button color to indicate the activity is turned on
     document.getElementById(buttonID).style.color = "purple";
     
     // Add remove last char form button - just once!
     var removeLastCharFormButtonID = "removeLastCharFormButton" + currentPanelNumber;
+    //console.log("startIndividualCharIDTask removeLastCharFormButtonID: " + removeLastCharFormButtonID);
     //boolean expression gives true if element already there, false otherwise
     var removeLastCharFormButtonCreated = !!document.getElementById(removeLastCharFormButtonID);
     // Create button when indicateCharButton clicked - only do this once per button
     //Only give instruction if not already created
     if (!removeLastCharFormButtonCreated) {
         var removeLastCharFormButton = document.createElement("BUTTON");
-        removeLastCharFormButton.innerHTML = "Remove Last Character";
+        if (animacySegmentationTaskSwitch) {
+            removeLastCharFormButton.innerHTML = "Remove Last Outline";
+            removeLastCharFormButton.style.display = "block";
+        }
+        else {
+            removeLastCharFormButton.innerHTML = "Remove Last Character";
+        }
         removeLastCharFormButton.setAttribute("id", removeLastCharFormButtonID);
         removeLastCharFormButton.setAttribute("onclick", "removeLastCharFormButton(event)");
         currentPanel.insertBefore(removeLastCharFormButton, currentPanel.childNodes[3]);
@@ -2313,6 +2522,8 @@ function startIndividualCharID(event) {
         endCharIDTaskButton.setAttribute("id", endCharIDTaskButtonID);
         endCharIDTaskButton.setAttribute("onclick", "endCharIDTask(event)");
         //console.log("endCharIDTaskButton id when created: " + endCharIDTaskButton.id); //test
+        //console.log("currentPanel: " + currentPanel.id); // test
+        endCharIDTaskButton.style.display = "block";
         currentPanel.insertBefore(endCharIDTaskButton, currentPanel.childNodes[4]);
     }
 } // end of startIndividualCharID(event)
@@ -2375,13 +2586,12 @@ function startTextIDTask(event) {
 
 /* Start Char ID Task - Function to enable dragging rectangles on the canvas */
 // Puts the correct event listeners to the canvas
-function activateCharIDTask(event) {
+function activateCharIDTask(currentPanel, currentPanelNumber) {
+    
+    charIdON = true;
     // Add new event listener to mousedown event
     canvas = document.getElementById("canvas");
     context = canvas.getContext("2d");
-    
-    //console.log(pagesData[pageNum].panels[0]) //test
-    //console.log(pagesData[pageNum].panels[1]) //test
     
     // get the correct x and y coords for the Char ID task
     reOffset_charID();
@@ -2393,45 +2603,52 @@ function activateCharIDTask(event) {
         reOffset_charID();
     }
     
+    //var currentPanel = event.target.parentNode; // Get the panel where the button was clicked
+    //var currentPanelNumber = parseInt(currentPanel.getAttribute("id").replace("panelForm", ""), 10)-1; // Get
     
-    // Add new event listeners to the canvas that allow for identifying characters
-    // in rectangles
+    var currentPanel = currentPanel;
+    var currentPanelNumer = currentPanelNumber;
+    //console.log("activateCharIDTask - currentPanel: " + currentPanel);
+    console.log("activateCharIDTask - currentPanelNumber: " + currentPanelNumber);
     
-    // event listener for moving the mouse
-    // this should show the rectangle being formed on canvas
-    //var numCharactersOnPage = 0;
-    
-    //for (var p=0; p<pagesData[pageNum].panels.length; p++){
-    //    numCharactersOnPage+=pagesData[pageNum].panels[p].characters.length;
-    //}
-    var currentPanel = event.target.parentNode; // Get the panel where the button was clicked
-    var currentPanelNumber = parseInt(currentPanel.getAttribute("id").replace("panelForm", ""), 10)-1; // Get
     var numCharactersInPanel = pagesData[pageNum].panels[currentPanelNumber].characters.length;
-    if (numCharactersInPanel==0){  // only create if no characters exist for the page, otherwise creates too many handlers
-        
+    
+    // Add new event listeners to the canvas that allow for identifying characters:
+    
+    // only create if no characters exist for the page, otherwise creates too many handlers
+    
+    //console.log("activateCharIDTask(event) charIdON: " + charIdON);
+
+    if (boundingBoxSegmentation_Char) {
         canvas.addEventListener("mousemove", function(e) {
-                                drawRectangleOnCanvas_charID.handleMouseMove(e);
-                                }, false);
-        
+                            drawRectangleOnCanvas_charID.handleMouseMove(e);
+                            }, false);
         //event listener for when the canvas is first clicked
         // this should get the top part of the rectangle
         canvas.addEventListener("mousedown", function(e) {
-                                drawRectangleOnCanvas_charID.handleMouseDown(e);
-                                }, false);
-        
+                            drawRectangleOnCanvas_charID.handleMouseDown(e);
+                            }, false);
         // event listener for when the mouse is released from the canvas
         // this should generate the new char semantic form
         canvas.addEventListener("mouseup", function(e) {
-                                drawRectangleOnCanvas_charID.handleMouseUp(e);
-                                }, false);
-        
+                            drawRectangleOnCanvas_charID.handleMouseUp(e);
+                            }, false);
         // event listener for mouseOut
         canvas.addEventListener("mouseout", function(e) {
-                                drawRectangleOnCanvas_charID.handleMouseOut(e);
-                                }, false);
-        
+                            drawRectangleOnCanvas_charID.handleMouseOut(e);
+                            }, false);
         console.log("activateCharIDTask(event): Char ID event handers added"); // test
-    }
+    } // end of if (boundingBoxSegmentation_Char)
+    if (polygonSegmentation_Char) {
+        canvas.addEventListener("mousedown", function(e) {
+                                drawPolygonsOnCanvas_CharID.handleMouseDown(e);
+                                }, false);
+        //canvas.addEventListener("dblclick", function(e) {                                              drawPolygonsOnCanvas_CharID.keypress(e);
+                                //}, false);
+        document.addEventListener("keydown", deleteKeyHandler_CharID, false);
+        console.log("activateCharIDTask(event): Polygon Char ID canvas and keypress event handers added");
+    } // end of if (polygonSegmentation_Char)
+
 } // end of activateCharIDTask(event)
 
 
@@ -2464,28 +2681,23 @@ function activateTextIDTask(event) {
         canvas.addEventListener("mousemove", function(e) {
                                 drawRectangleOnCanvas_textID.handleMouseMove(e);
                                 }, false);
-        
         //event listener for when the canvas is first clicked
         // this should get the top part of the rectangle
         canvas.addEventListener("mousedown", function(e) {
                                 drawRectangleOnCanvas_textID.handleMouseDown(e);
                                 }, false);
-        
         // event listener for when the mouse is released from the canvas
         // this should generate the new char semantic form
         canvas.addEventListener("mouseup", function(e) {
                                 drawRectangleOnCanvas_textID.handleMouseUp(e);
                                 }, false);
-        
         // event listener for mouseOut
         canvas.addEventListener("mouseout", function(e) {
                                 drawRectangleOnCanvas_textID.handleMouseOut(e);
                                 }, false);
-        
         console.log("activateTextIDTask(event): Text ID event handers added"); // test
     }
 } // end of activateTextIDTask(event)
-
 
 
 /* Deletes non-digit characters and leaves only the digits in the string */
@@ -2495,7 +2707,7 @@ function getIDNum(str) {
 }
 
 
-// Get correct X and Y Coords for the Char ID Task
+// Get correct X and Y Coords for the Char ID Task - Bounding Boxes
 // these are labelled separately from the x and y coords in the panel rectangle
 // ID task
 var recOffsetX_charID, recOffsetY_charID;
@@ -2520,9 +2732,7 @@ function reOffset_textID() {
     recOffsetY_textID = BB_textID.top;
 }
 
-
-
-// CHAR RECTS
+// CHAR RECTS - Bounding Box
 // Draw the stored rectangles onto the canvas element
 var drawRectangleOnCanvas_charID = {
     
@@ -2567,17 +2777,6 @@ var drawRectangleOnCanvas_charID = {
         
         pagesData[pageNum].panels[currentPanelNumber].characters.push(newChar); // Store created char rects in the overall data structure
         
-        //console.log("drawRectangleOnCanvas_charID.handleMouseUp(event) called");
-        //console.log(e.target);
-        //console.log(e.target.parentNode);
-        //console.log(e.target.parentNode.parentNode);
-//        for (var p=0; p<pagesData[pageNum].panels.length; p++) {
-//            console.log("Panel: " + p);
-//            for (var i=0; i<pagesData[pageNum].panels[p].characters.length; i++) {
-//                console.log(pagesData[pageNum].panels[p].characters[i]); //test
-//            }
-//        }
-        
         drawRectangleOnCanvas_charID.drawAll_charID(); // Draw all char rects for that panel when mouse dragging stops
         drawCharacterInfoOnCanvas(); // Draw all char rects that have been drawn for all chars in all panels
         drawPanelInfoOnCanvas(); //Draw all the char rects in all panels on canvas
@@ -2585,7 +2784,7 @@ var drawRectangleOnCanvas_charID = {
         drawTextSectionInfoOnCanvas(); //Draw all the text rects in all panels on canvas
         
         // generate the semantic form associated with that char ID rect
-        createCharForm();
+        createCharForm("nope", "nope");
 
     },
     
@@ -2661,15 +2860,15 @@ var drawRectangleOnCanvas_charID = {
 
         // Create new char element and new storage for associated data
         newChar = {
-        left: Math.min(startX_charID, mouseX_charID),
-        right: Math.max(startX_charID, mouseX_charID),
-        top: Math.min(startY_charID, mouseY_charID),
-        bottom: Math.max(startY_charID, mouseY_charID),
-        color_charID: "#C942FF",
-        id : pagesData[pageNum].panels[currentPanelNumber].characters.length + 1,
-        label: "",
-        Description: "",
-        Action: ""
+            left: Math.min(startX_charID, mouseX_charID),
+            right: Math.max(startX_charID, mouseX_charID),
+            top: Math.min(startY_charID, mouseY_charID),
+            bottom: Math.max(startY_charID, mouseY_charID),
+            color_charID: "#C942FF",
+            id : pagesData[pageNum].panels[currentPanelNumber].characters.length + 1,
+            label: "",
+            Description: "",
+            Action: ""
         }
         //console.log("currentPanel: " + currentPanelNumber); // test
         drawRectangleOnCanvas_charID.drawAll_charID();
@@ -2678,7 +2877,208 @@ var drawRectangleOnCanvas_charID = {
         context.globalAlpha = 1;
         context.strokeRect(startX_charID, startY_charID, mouseX_charID - startX_charID, mouseY_charID - startY_charID);
     }
-}
+} // end of var drawRectangleOnCanvas_charID
+
+
+
+// CHAR POLYGON Drawing Functions:
+
+// create a separate keypress handler to be turned on for polygon segmentation
+var deleteKeyHandler_CharID = function(e) {
+    const key = e.key;
+    console.log("a key pressed: " + key); // deboog
+    if (key === "Backspace" || e.keyCode === 46) {
+        //console.log("Delete key pressed."); // deboog
+        // remove the last stored coord tuple in the polygon currently being drawn
+        individualPolygonCoordinates_CharID.pop();
+        //console.log(individualPolygonCoordinates); // check
+        if (individualPolygonCoordinates_CharID.length != 0) {
+            drawPolygonWhileDrawing_CharID(individualPolygonCoordinates_CharID);
+        }
+    } // end of if (key === "Backspace" || e.keyCode === 46)
+    if (e.key === "Enter" || e.keyCode === 13) {
+        //console.log("double click!"); // test
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext("2d");
+        // tell the browser we're handling this event
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Get the current panel number:
+        var currentPanelNumber = parseInt(currentPanel.getAttribute("id").replace("panelForm", ""), 10)-1;
+        
+        //console.log("deleteKeyHandler_CharID - currentPanelNum: " + currentPanelNumber);
+        //console.log("deleteKeyHandler_CharID - indPolygons: " + individualPolygonCoordinates_CharID.length);
+        
+        // Create new char element and new storage for associated data
+        newChar = {
+        polygonCoords: individualPolygonCoordinates_CharID,
+        color_charID: "#C942FF",
+            id : pagesData[pageNum].panels[currentPanelNumber].characters.length + 1,
+        label: pagesData[pageNum].panels[currentPanelNumber].characters.length + 1,
+        Description: "",
+        Action: ""
+        } // end of newChar object
+        
+        pagesData[pageNum].panels[currentPanelNumber].characters.push(newChar); // Store created char rects in the overall data structure
+        //console.log(pagesData[pageNum].panels[currentPanelNumber]); // deboog
+        individualPolygonCoordinates_CharID = []; // reset the current polygon coords
+        //console.log(individualPolygonCoordinates); // check
+        drawCharacterInfoOnCanvas(); // Draw all char polygons that have been drawn for all chars in all panels
+        //drawPolygonsOnCanvas_CharID.drawAllPolygons(); // draw all polygons stored so far
+        drawPanelInfoOnCanvas(); //Draw all panels rects or polys on canvas
+        //drawTextSectionInfoOnCanvas(); //Draw all the text rects in all panels on canvas
+        createCharForm("nope", "nope"); // generate the semantic form associated with that char ID rect
+    } // end of if (e.key === "Enter" || e.keyCode === 13)
+    
+} // end of var deleteKeyHandler_CharID = function(e)
+
+
+
+// function that draws the current polygon and all previously drawn polygons while drawing
+function drawPolygonWhileDrawing_CharID(coordsList) {
+    
+    canvas = document.getElementById("canvas");
+    context = canvas.getContext("2d");
+    
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    //console.log("Draw function pageNum: " + pageNum); //test
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(comicPages[pageNum],canvas.width/2 - comicPages[pageNum].width/2, canvas.height/2-comicPages[pageNum].height/2,  comicPages[pageNum].width, comicPages[pageNum].height); // Draw image on canvas
+    context.lineWidth = 3;
+    context.strokeStyle = "#C942FF";
+    // if this is not the first polygon panel created, draw all other polygons
+    if (pagesData[pageNum].panels.length != 0) {
+        drawPolygonsOnCanvas_CharID.drawAllPolygons(); // draw all polygons stored so far
+    }
+    context.beginPath(); // draw small circle on the first coords/click
+    context.arc(coordsList[0].x, coordsList[0].y, 10, 0, Math.PI * 2, true);
+    context.closePath();
+    context.fillStyle = "#C942FF";
+    context.fill();
+    
+    context.beginPath(); // draw the polygon line by line
+    context.moveTo(coordsList[0].x, coordsList[0].y);
+    for(index=1; index<coordsList.length;index++) {
+        context.lineTo(coordsList[index].x, coordsList[index].y);
+    }
+    //context.closePath(); // Don't close path while drawing, only close the path after the double click
+    context.stroke();
+} // end of function drawPolygonWhileDrawing()
+
+var individualPolygonCoordinates_CharID = []; // store Char ID polygon coords
+
+// Draw Polygons - Object with event handlers for drawing polygons on canvas
+var drawPolygonsOnCanvas_CharID = {
+    
+    handleMouseDown: function(e) {
+        if (!charIdON) {
+            return;
+        }
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext("2d");
+        // tell the browser we're handling this event
+        e.preventDefault();
+        e.stopPropagation();
+        // var mousePos = getMousePos(canvas, e);
+        // console.log(mousePos.x + ", " + mousePos.y); //test
+        coordX_charID = parseInt(e.clientX - recOffsetX_charID);
+        coordY_charID = parseInt(e.clientY - recOffsetY_charID);
+        individualPolygonCoordinates_CharID.push({x:coordX_charID,y:coordY_charID});
+        //console.log(individualPolygonCoordinates); // check
+        drawPolygonWhileDrawing_CharID(individualPolygonCoordinates_CharID);
+    },
+    
+    handleMouseDoubleClick: function(e) {
+        if (!charIdON) {
+            return;
+        }
+        //console.log("double click!"); // test
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext("2d");
+        // tell the browser we're handling this event
+        //e.preventDefault();
+        //e.stopPropagation();
+        
+        // Get the current panel number:
+        var currentPanelNumber = parseInt(currentPanel.getAttribute("id").replace("panelForm", ""), 10)-1;
+        
+        //console.log("drawPolygonsOnCanvas_CharID - currentPanelNum: " + currentPanelNumber);
+        //console.log("drawPolygonsOnCanvas_CharID - indPolygons: " + individualPolygonCoordinates_CharID.length);
+        
+        // Create new char element and new storage for associated data
+        newChar = {
+            polygonCoords: individualPolygonCoordinates_CharID,
+            color_charID: "#C942FF",
+            id : pagesData[pageNum].panels[currentPanelNumber].characters.length + 1,
+            label: pagesData[pageNum].panels[currentPanelNumber].characters.length + 1,
+            Description: "",
+            Action: ""
+        } // end of newChar object
+        
+        pagesData[pageNum].panels[currentPanelNumber].characters.push(newChar); // Store created char rects in the overall data structure
+        //console.log(pagesData[pageNum].panels[currentPanelNumber]); // deboog
+        individualPolygonCoordinates_CharID = []; // reset the current polygon coords
+        //console.log(individualPolygonCoordinates); // check
+        drawCharacterInfoOnCanvas(); // Draw all char polygons that have been drawn for all chars in all panels
+        //drawPolygonsOnCanvas_CharID.drawAllPolygons(); // draw all polygons stored so far
+        drawPanelInfoOnCanvas(); //Draw all panels rects or polys on canvas
+        //drawTextSectionInfoOnCanvas(); //Draw all the text rects in all panels on canvas
+        createCharForm("nope", "nope"); // generate the semantic form associated with that char ID rect
+    },
+    
+    drawPolygon: function(coordsList) {
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext("2d");
+        
+        context.lineWidth = 3;
+        context.strokeStyle = "#C942FF";
+        
+        context.beginPath();  // create polygon by drawing lines between each point
+        context.moveTo(coordsList[0].x, coordsList[0].y);
+        for(index=1; index<coordsList.length;index++) {
+            context.lineTo(coordsList[index].x, coordsList[index].y);
+        }
+        context.closePath();
+        context.stroke();
+    },
+    
+    drawAllPolygons: function() {
+        //console.log("drawAllPolygons"); // debugggs
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext("2d");
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        //console.log("Draw function pageNum: " + pageNum); //test
+        context.fillStyle = "white";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(comicPages[pageNum],canvas.width/2 - comicPages[pageNum].width/2, canvas.height/2-comicPages[pageNum].height/2,  comicPages[pageNum].width, comicPages[pageNum].height); // Draw image on canvas
+        context.lineWidth = 3;
+        context.strokeStyle = "#C942FF";
+        
+        // Get the current panel number:
+        var currentPanelNumber = parseInt(currentPanel.getAttribute("id").replace("panelForm", ""), 10)-1;
+        
+        for (var i=0; i<pagesData[pageNum].panels[currentPanelNumber].characters.length; i++) {
+            var q = pagesData[pageNum].panels[currentPanelNumber].characters[i];
+            var polyCoords = q.polygonCoords;
+            var firstXCoord = polyCoords[0].x;
+            var firstYCoord = polyCoords[0].y;
+            drawPolygonsOnCanvas_CharID.drawPolygon(polyCoords);
+            context.beginPath(); // draw circle to indicate panel seg num
+            context.arc(firstXCoord-5, firstYCoord-5, 15, 0, Math.PI * 2, true);
+            context.closePath();
+            context.fillStyle = "#C942FF";
+            context.fill();
+            context.beginPath(); // draw number in circle
+            context.fillStyle = "white";
+            context.font = "12px Arial Black";
+            context.fillText(q.id, firstXCoord-13, firstYCoord); // center into the circle
+        }
+    }
+} // end of drawPolygonsOnCanvas_CharID object
+
+
 
 
 // TEXT RECTS
@@ -2846,18 +3246,23 @@ var drawRectangleOnCanvas_textID = {
 /* Remove the last created char form and the associated rectangle */
 function removeLastCharFormButton(event) {
     //event = mouse click
+    if (event.key === "Enter" || event.keyCode === 13) {
+        console.log("removeLastCharFormButton event.key active");
+        event.preventDefault();
+        return;
+    }
     
     // Remove the last created char input form
     var currentPanel = event.target.parentNode; // Get the panel where the button was clicked
     var currentPanelNumber = parseInt(currentPanel.getAttribute("id").replace("panelForm", ""), 10)-1; // Get the number of that panel
     console.log("removeLastCharFrom Button clicked"); //test
-    console.log("currentPanel: " + currentPanelNumber); //test
+    //console.log("currentPanel: " + currentPanelNumber); //test
     var lastCharIndex = pagesData[pageNum].panels[currentPanelNumber].characters.length-1;
-    
+    //console.log("before pop:  " + pagesData[pageNum].panels[currentPanelNumber].characters);
     
     // Remove the last char form button:
     
-    // The old method...
+    // The OLD method..
     // remove the last char form, which is the sibling previous to the newTextSection heading
     //var newTextSectionsHeading = document.getElementById("newTextSectionsHeading" + (currentPanelNumber+1));
     //console.log("checking new text section " + (currentPanelNumber+1) + " is there?");
@@ -2865,10 +3270,9 @@ function removeLastCharFormButton(event) {
     
     //currentPanel.removeChild(newTextSectionsHeading.previousSibling.previousSibling);
     
-    // The new method is to delete the sibling above the End Task Button
-    
+    // The NEW method is to delete the sibling above the End Task Button
     var numChildrenOnCurrentPanel = currentPanel.children.length; // get number of children on the panel section
-    console.log("number of children on current panel: " + currentPanel.children.length);
+    //console.log("number of children on current panel: " + currentPanel.children.length);
     
     // Check that a new character form element has been added. If so...
     if (numChildrenOnCurrentPanel > 5) {
@@ -2881,6 +3285,10 @@ function removeLastCharFormButton(event) {
         // If not, do nothing.
     }
     
+    if (characterSegmentationTaskSwitch) {
+        individualPolygonCoordinates_CharID = [] // empty any leftover coords
+    } // end of if (characterSegmentationTaskSwitch)
+    
     var temp_charID = charIdON;  // check whether the charID task is active or not
     
     // Redraw the current canvas to get rid of old character rectangle:
@@ -2891,40 +3299,42 @@ function removeLastCharFormButton(event) {
     
     if (temp_charID){ // if charIDTask was active, put event handler back
         charIdON = true;
-        
-        activateCharIDTask(event); // Turn on ability to click on the canvas
-        
+        activateCharIDTask(currentPanel, currentPanelNumber); // Turn on ability to click on the canvas
         // add the handlers back if over 1 character on panel
-        
         //var currentPanel = event.target.parentNode; // Get the panel where the button was clicked
         //var currentPanelNumber = parseInt(currentPanel.getAttribute("id").replace("panelForm", ""), 10)-1; // Get
         var numCharactersInPanel = pagesData[pageNum].panels[currentPanelNumber].characters.length;
         if (numCharactersInPanel>0){
-            
-            canvas.addEventListener("mousemove", function(e) {
-                                    drawRectangleOnCanvas_charID.handleMouseMove(e);
-                                    }, false);
-            
-            //event listener for when the canvas is first clicked
-            // this should get the top part of the rectangle
-            canvas.addEventListener("mousedown", function(e) {
-                                    drawRectangleOnCanvas_charID.handleMouseDown(e);
-                                    }, false);
-            
-            // event listener for when the mouse is released from the canvas
-            // this should generate the new char semantic form
-            canvas.addEventListener("mouseup", function(e) {
-                                    drawRectangleOnCanvas_charID.handleMouseUp(e);
-                                    }, false);
-            
-            // event listener for mouseOut
-            canvas.addEventListener("mouseout", function(e) {
-                                    drawRectangleOnCanvas_charID.handleMouseOut(e);
-                                    }, false);
-            
-            console.log("removeLastCharForm: Char ID event handers added"); // test
-            
-        }
+            if (boundingBoxSegmentation_Char) {
+                canvas.addEventListener("mousemove", function(e) {
+                                        drawRectangleOnCanvas_charID.handleMouseMove(e);
+                                        }, false);
+                //event listener for when the canvas is first clicked
+                // this should get the top part of the rectangle
+                canvas.addEventListener("mousedown", function(e) {
+                                        drawRectangleOnCanvas_charID.handleMouseDown(e);
+                                        }, false);
+                // event listener for when the mouse is released from the canvas
+                // this should generate the new char semantic form
+                canvas.addEventListener("mouseup", function(e) {
+                                        drawRectangleOnCanvas_charID.handleMouseUp(e);
+                                        }, false);
+                // event listener for mouseOut
+                canvas.addEventListener("mouseout", function(e) {
+                                        drawRectangleOnCanvas_charID.handleMouseOut(e);
+                                        }, false);
+                console.log("removeLastCharForm: Char ID event handers added");
+            } // end of if (boundingBoxSegmentation_Char)
+            //if (polygonSegmentation_Char) {
+                //canvas.addEventListener("mousedown", function(e) {
+                                        //drawPolygonsOnCanvas_CharID.handleMouseDown(e);
+                                        //}, false);
+                //canvas.addEventListener("dblclick", function(e) {                                            drawPolygonsOnCanvas_CharID.handleMouseDoubleClick();
+                                        //}, false);
+                //document.addEventListener("keydown", deleteKeyHandler_CharID, true);
+                //console.log("removeLastCharForm: Temp Char ID event handers added");
+            //} // end of if (polygonSegmentation_Char)
+        } // end of if (numCharactersInPanel>0)
     }
 } // end of function removeLastCharFormButton(event)
 
@@ -3026,35 +3436,203 @@ function removeLastTextForm(event) {
 
 
 
-/* Original Char Form Funciton! */
+/* CREATE CHAR FORM - Original Char Form Function! */
 /* Function to Create a Full Char form after a new char rectangle has been created */
-function createCharForm() {
+function createCharForm(optionalCurrentPanelNum, optionalCharIndex) {
     
-    currentPanelNumber = parseInt(currentPanel.getAttribute("id").replace("panelForm", ""), 10)-1;
+    if (optionalCurrentPanelNum == "nope") {
+        currentPanelNumber = parseInt(currentPanel.getAttribute("id").replace("panelForm", ""), 10)-1;
+        //console.log("createCharForm - currentPanelNumber: " + currentPanelNumber);
+        newCharIndex = pagesData[pageNum].panels[currentPanelNumber].characters.length-1;
+    } else {
+        currentPanelNumber = optionalCurrentPanelNum;
+        //console.log("createCharForm - currentPanelNumber: " + currentPanelNumber);
+        newCharIndex = optionalCharIndex;
+    }
     
-    // assign the index of the char form - the char index is enummerated for that particular panel
-    // store the number of indicated chars
-    newCharIndex = pagesData[pageNum].panels[currentPanelNumber].characters.length-1;
+    //console.log("createCharForm - currentPanelNumber: " + currentPanelNumber);
+    //console.log("createCharForm - newCharIndex: " + newCharIndex);
     
     // Create a new form object with the char number/ID
     var charForm = document.createElement("form");
     charForm.setAttribute('method',"post");
     charForm.setAttribute('action',"true");
     charForm.id = "charForm" + newCharIndex;
-    charForm.setAttribute("class", "charNumIndexForm"); // set class to the charNumIndexForm
+    charForm.setAttribute("class", "charFeaturesForms"); // old class set to charNumIndexForm
     
-    // Put the number of the char just outlined in that section on the form
-    var charNumIndicator = document.createElement("p");
-    var newCharIndexString = (newCharIndex + 1).toString();
-    var charNumTextNode = document.createTextNode(newCharIndexString);
-    charNumIndicator.appendChild(charNumTextNode);
+    if (boundingBoxSegmentation_Char) {
+        // create index num of the char just outlined for that section on the form
+        var charNumIndicator = document.createElement("p");
+        var newCharIndexString = (newCharIndex + 1).toString();
+        var charNumTextNode = document.createTextNode(newCharIndexString);
+        charNumIndicator.appendChild(charNumTextNode);
+        charForm.appendChild(charNumIndicator); // Add the char index number to the charForm
+    } // end of if (boundingBoxSegmentation_Char)
     
-    charForm.appendChild(charNumIndicator); // Add the char index number to the charForm
+    if (polygonSegmentation_Char) {
+        
+        // Char Number ID - put in the corner of each charForm
+        var charNumIndicatorContainer = document.createElement('div'); // create container
+        charNumIndicatorContainer.setAttribute('id', "charNumIndicatorContainer" + currentPanelNumber + "." + newCharIndex);
+        charNumIndicatorContainer.setAttribute("class", "charIDSquareContainer");
+        var charNumIndicator = document.createElement('div');
+        charNumIndicator.setAttribute('id', "charNumIndicator" + currentPanelNumber + "." + newCharIndex);
+        charNumIndicator.setAttribute("class", "charIDSquare_polySeg"); // for larger square size use charIDSquare
+        charNum_perPanel = newCharIndex+1; //
+        charNumIndicator.innerHTML = charNum_perPanel;
+
+        //charNumIndicatorContainer.appendChild(charNumIndicator); // put charIDSquare into container
+        //charForm.appendChild(charNumIndicatorContainer); // Add the char index number to the charForm
+        
+        if (animacySegmentationTaskSwitch) {
+            charForm.setAttribute("class", "charFeaturesForms_animacy");
+            //if (charNum_perPanel == 1) {
+                //charForm.style.display = "block";
+                //var small_break = document.createElement('div');
+                //small_break.style.width = "10px";
+                //small_break.style.height = "10px";
+                //small_break.setAttribute("background-color", "white");
+                //small_break.style.display = "block";
+                //charForm.appendChild(small_break);
+            //}
+            //else {
+                //charForm.style.display = "inline-block";
+            //}
+            charForm.appendChild(charNumIndicator);
+        } // end of if (animacySegmentationTaskSwitch)
+        
+        
+        if (!animacySegmentationTaskSwitch) {
+            
+            charNumIndicatorContainer.appendChild(charNumIndicator); // put charIDSquare into container
+
+            // Character Reference Area - main input for the charForm
+            // create container
+            var charRefContainer = document.createElement('div');
+            charRefContainer.id = "charRefContainer" + currentPanelNumber + "." + newCharIndex;
+            charRefContainer.setAttribute("class", "charReferenceTasksContainer");
+            
+            // create ref container heading
+            //var charRefSectionHeading = document.createElement('h4');
+            //charRefSectionHeading.setAttribute('id', "charRefSectionHeading" + currentPanelNumber + "." + newCharIndex);
+            //charRefSectionHeading.setAttribute("class", "headingsInCharForm");
+            //charRefSectionHeading.innerHTML = "Reference and Description";
+
+            // Text input box for the character reference variable
+            var charRefInput = document.createElement("input");
+            charRefInput.setAttribute('type',"text");
+            charRefInput.setAttribute("class", "charFeaturesFormInput");
+            charRefInput.value = charLabelInstruction;
+            charRefInput.setAttribute('id', "charRefInput" + currentPanelNumber + "." + newCharIndex);
+            //charFormInput.addEventListener("onchange", placeCharLabelOnCanvas, false);
+            charRefInput.setAttribute('onInput', "placeCharLabelOnCanvas()"); // add event listener to put label on the canvas
+            charRefInput.addEventListener('keyup', function(e) {getInputValue_NoKeyPressedForOneSec(e)}); // add event listener to get and store input values
+
+            // create datalist to keep char references available to annotator
+            var datalist_charForm = document.createElement('datalist');
+            var datalist_charForm_id = "datalist_charForm" + currentPanelNumber + "." + newCharIndex;
+            datalist_charForm.setAttribute('id', datalist_charForm_id);
+            document.body.appendChild(datalist_charForm);
+            //console.log(datalist_charForm.id); // debugg!
+            charRefInput.setAttribute('list', datalist_charForm_id);
+
+            // Label for the character form input
+            var charRefInputLabel = document.createElement("label");
+            charRefInputLabel.setAttribute("for", "charFeaturesFormInput" + currentPanelNumber + "." + newCharIndex);
+            charRefInputLabel.innerHTML = "Character Label: ";
+            //console.log("char input ID: " + charFormInput.id); //test
+
+            // append these items to the container
+            //charRefContainer.appendChild(charRefSectionHeading);
+            charRefContainer.appendChild(charRefInputLabel);
+            charRefContainer.appendChild(charRefInput);
+            
+            // Add each container element to the charForm
+            charForm.appendChild(charNumIndicatorContainer); // Add the char index number to the charForm
+            charForm.appendChild(charRefContainer); // Add the char ref container to the charForm
+            
+            updateDatalists(); // put any stored char labels onto the newly made datalist
+            
+        } // end of if (animacySegmentationTaskSwitch)
+        
+    } // end of if (polygonSegmentation_Char)
+    
+    
     // Put the char form between the "remove last character" button and "end task for this section" button
-    var endCharIDTaskButton = document.getElementById("endCharIDTaskButton" + currentPanelNumber);
+    if (optionalCurrentPanelNum == "nope") {
+        var endCharIDTaskButton = document.getElementById("endCharIDTaskButton" + currentPanelNumber);
+    } else {
+        
+        console.log("Page revisit");
+        
+        // Show the IndicateChar button for that semantic form
+        var createdIndicateCharButton = document.getElementById("indicateCharButton" + (currentPanelNumber+1));
+        createdIndicateCharButton.style.display = "block";
+        
+        // Add remove last char form button - just once!
+        var removeLastCharFormButtonID = "removeLastCharFormButton" + currentPanelNumber;
+        //console.log("createCharForm - removeLastCharFormButtonID: " + removeLastCharFormButtonID);
+        //boolean expression gives true if element already there, false otherwise
+        var removeLastCharFormButtonCreated = !!document.getElementById(removeLastCharFormButtonID);
+        // Create button when indicateCharButton clicked - only do this once per button
+        //Only give instruction if not already created
+        if (!removeLastCharFormButtonCreated) {
+            var removeLastCharFormButton = document.createElement("BUTTON");
+            removeLastCharFormButton.innerHTML = "Remove Last Character";
+            removeLastCharFormButton.setAttribute("id", removeLastCharFormButtonID);
+            removeLastCharFormButton.setAttribute("onclick", "removeLastCharFormButton(event)");
+            if (animacySegmentationTaskSwitch) {
+                removeLastCharFormButton.innerHTML = "Remove Last Outline";
+                removeLastCharFormButton.style.display = "block";
+            } // end of if (animacySegmentationTaskSwitch)
+            currentPanel = document.getElementById("panelForm" + (currentPanelNumber+1));
+            currentPanel.insertBefore(removeLastCharFormButton, currentPanel.childNodes[3]);
+        } // end of if (!removeLastCharFormButtonCreated)
+        
+        // Add end char ID task button - just once!
+        var endCharIDTaskButtonID = "endCharIDTaskButton" + currentPanelNumber;
+        //console.log("endCharIDTaskButton id: " + endCharIDTaskButtonID); //test
+        //boolean expression if element is already there, false otherwise
+        var endCharIDTaskButtonCreated = !!document.getElementById(endCharIDTaskButtonID);
+        // Create button when inidcateCharButton is clicked - only do this one per button
+        if (!endCharIDTaskButtonCreated) {
+            var endCharIDTaskButton = document.createElement("BUTTON");
+            endCharIDTaskButton.innerHTML = "End Task";
+            endCharIDTaskButton.setAttribute("id", endCharIDTaskButtonID);
+            endCharIDTaskButton.setAttribute("onclick", "endCharIDTask(event)");
+            //console.log("endCharIDTaskButton id when created: " + endCharIDTaskButton.id); //test
+            endCharIDTaskButton.style.display = "block";
+            // get the current panel according to the supplied panel number
+            currentPanel = document.getElementById("panelForm" + (currentPanelNumber+1));
+            currentPanel.insertBefore(endCharIDTaskButton, currentPanel.childNodes[4]);
+        } // end of if (!endCharIDTaskButtonCreated)
+        
+        var endCharIDTaskButton = document.getElementById("endCharIDTaskButton" + currentPanelNumber);
+        
+        if (!animacySegmentationTaskSwitch) {
+        
+            // populate the char text reference inputs with stores labels, if there are any
+            var panel = pagesData[pageNum].panels[currentPanelNumber]
+            var stored_char_label = panel.characters[newCharIndex].label;
+            if (stored_char_label == "" || stored_char_label == charLabelInstruction) {
+                //charRefInput.value = panel.characters[newCharIndex].id;
+                charRefInput.value = charLabelInstruction;
+            }
+            else {
+                charRefInput.value = stored_char_label;
+            } // end of else after if (stored_char_label == "" || stored_char_label == charLabelInstruction)
+        } // end of if (!animacySegmentationTaskSwitch)
+        
+    } // end of else
+
     //console.log(endCharIDTaskButton); //test
     //var newTextSectionHeading = document.getElementById("newTextSectionsHeading" + (currentPanelNumber + 1));
+    
+    //console.log("createCharForm - currentPanelNumber: " + currentPanelNumber);
+    //console.log(currentPanel.getAttribute('id'));
+
     document.getElementById(currentPanel.getAttribute('id')).insertBefore(charForm, endCharIDTaskButton);
+    //console.log(currentPanel.id);
 } // end of function createCharForm()
 
 
@@ -3078,22 +3656,43 @@ function placeCharLabelOnCanvas() {
     //console.log("current character number: " + currentCharacterNum);
     pagesData[pageNum].panels[currentPanelNumber].characters[currentCharacterNum].label = inputValue; // put the label in pagesData
     
-    // Draw that label as white text on the associated circle on the canvas
-    var xcoord = pagesData[pageNum].panels[currentPanelNumber].characters[currentCharacterNum].left;
-    var ycoord = pagesData[pageNum].panels[currentPanelNumber].characters[currentCharacterNum].top;
+    if (!polygonSegmentation_Char) {
     
-    canvas = document.getElementById("canvas");
-    context = canvas.getContext("2d");
-    context.beginPath(); // Redraw circle
-    context.arc(xcoord, ycoord, 15, 0, Math.PI * 2, true);
-    context.closePath();
-    context.fillStyle = "#C942FF";
-    context.fill();
-    context.beginPath(); // put variable in the circle
-    context.fillStyle = "white";
-    context.font = "15px Arial Black";
-    context.fillText(inputValue, xcoord-6, ycoord+6);
+        // Draw that label as white text on the associated circle on the canvas
+        var xcoord = pagesData[pageNum].panels[currentPanelNumber].characters[currentCharacterNum].left;
+        var ycoord = pagesData[pageNum].panels[currentPanelNumber].characters[currentCharacterNum].top;
+        
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext("2d");
+        context.beginPath(); // Redraw circle
+        context.arc(xcoord, ycoord, 15, 0, Math.PI * 2, true);
+        context.closePath();
+        context.fillStyle = "#C942FF";
+        context.fill();
+        context.beginPath(); // put variable in the circle
+        context.fillStyle = "white";
+        context.font = "15px Arial Black";
+        context.fillText(inputValue, xcoord-6, ycoord+6);
+        
+    } // end of if (!polygonSegmentation_Char)
     
+    if (polygonSegmentation_Char) {
+        
+        var polyCoords = pagesData[pageNum].panels[currentPanelNumber].characters[currentCharacterNum].polygonCoords;
+        var firstXCoord = polyCoords[0].x;
+        var firstYCoord = polyCoords[0].y;
+        context.beginPath(); // redraw circle
+        context.arc(firstXCoord-5, firstYCoord-5, 15, 0, Math.PI * 2, true);
+        context.closePath();
+        context.fillStyle = "#C942FF"; //char.color_charID
+        context.fill();
+        context.beginPath(); // put variable in the circle
+        context.fillStyle = "white";
+        context.font = "12px Arial Black";
+        context.fillText(inputValue, firstXCoord-13, firstYCoord); // center into the circle
+        
+    } // end of if (polygonSegmentation_Char)
+
     // change the input to white just in case the background has been highlighted after validation
     document.getElementById(charTextInputID).style.backgroundColor = "white";
     
@@ -3109,32 +3708,38 @@ function getInputValue_NoKeyPressedForOneSec(e) {
 //    //console.log("it me!! " + charTextInputID); //test
 //    currentPanel = event.target.parentNode.parentNode; // Get the panel form where the button was clicked
 //    var currentPanelNumber = parseInt(currentPanel.getAttribute("id").replace("panelForm", ""), 10)-1; // Get the number of that panel
-//    console.log("currentPanel: " + currentPanelNumber); //test
+//   console.log("currentPanel: " + currentPanelNumber); //test
 //
-    var labelOnList = false; // init a boolean to track whether the inputted label has already been inputted
     
+    //console.log("getInputValue_NoKeyPressedForOneSec(e) was run"); // just debuggin!
+    //console.log(char_set);
+    
+    var labelOnList = false; // init a boolean to track whether the inputted label has already been inputted
     var inputValue = event.target.value; // get value from the text input
     //console.log(inputValue); //test
-    
     clearTimeout(timeout); // clear the timeout variable
     
     // Make a new timeout set to go off in 3000ms (3 seconds)
+    // if the text input (char ref) of a charForm is not in the char_set,
+    // add the new input to the set.
     timeout = setTimeout(function () {
                             //console.log('Input Value:', inputValue); // deboog
-                            if (charList.length == 0) {
-                                charList.push(inputValue);
-                            }
-                            else {
-                                for (var c=0; c<charList.length; c++) {
-                                    if (charList[c] == inputValue) {
-                                        labelOnList = true;
-                                    }
-                                }
-                                if (labelOnList == false) {
-                                    charList.push(inputValue);
-                                }
-                            }
+                            //if (charList.length == 0) {
+                                //charList.push(inputValue);
+                            //}
+                            //else {
+                                //for (var c=0; c<charList.length; c++) {
+                                    //if (charList[c] == inputValue) {
+                                        //labelOnList = true;
+                                    //}
+                                //}
+                                //if (labelOnList == false) {
+                                    //charList.push(inputValue);
+                                //}
+                         
+                            //}
                           updateDatalists();
+                          char_set.add(inputValue); // add text input value to set
                          }, 3000);
     
     //console.log(charList); // Debuggins
@@ -3144,16 +3749,18 @@ function getInputValue_NoKeyPressedForOneSec(e) {
 
 
 function updateDatalists() {
-    
     // first, clear all the options on all the datalists
     var totalPanelsOnPage = pagesData[pageNum].panels.length;
     
     for (var m=0; m<totalPanelsOnPage; m++) {
         var totalCharsOnPanel = pagesData[pageNum].panels[m].characters.length;
         for (var n=0; n<totalCharsOnPanel; n++) {
-            var charlabelTextInput_datalist = document.getElementById("datalist" + (m+1) +  "." + n);
+            //var charlabelTextInput_datalist = document.getElementById("datalist" + (m+1) +  "." + n);
+            var charlabelTextInput_datalist = document.getElementById("datalist_charForm" + m + "." + n);
+            //console.log(charlabelTextInput_datalist);
             var dataListOptionsLength = charlabelTextInput_datalist.childNodes.length-1;
                 //console.log(dataListOptionsLength);
+            // remove all options from the datalist object
             for (var b=dataListOptionsLength; b>=0; b--) {
                 //console.log(charlabelTextInput_datalist); // debugz
                 while (charlabelTextInput_datalist.lastElementChild) {
@@ -3161,23 +3768,31 @@ function updateDatalists() {
                 }
             }
         }
-    }
+    } // end of for loop (var m=0; m<totalPanelsOnPage; m++)
     
-    // now put each element from the charList as an option on the datalists
+    // now put each element from the charList/char_set as an option on the datalists
     
     for (var m=0; m<totalPanelsOnPage; m++) {
         var totalCharsOnPanel = pagesData[pageNum].panels[m].characters.length;
         for (var n=0; n<totalCharsOnPanel; n++) {
-            var charlabelTextInput_datalist = document.getElementById("datalist" + (m+1) +  "." + n);
-            for (var a=0; a<charList.length; a++) {
-                var option = document.createElement('option');
-                option.setAttribute('id', "option" + (m+1) + "." + n + "." + a);
-                option.value = charList[a];
+            var charlabelTextInput_datalist = document.getElementById("datalist_charForm" + m +  "." + n);
+            //for (var a=0; a<charList.length; a++) {
+                //var option = document.createElement('option');
+                //option.setAttribute('id', "option" + m + "." + n + "." + a);
+                //option.value = charList[a];
                 //nsole.log(charlabelTextInput_datalist);
-                charlabelTextInput_datalist.appendChild(option);
-            }
-        }
-    }
+                //charlabelTextInput_datalist.appendChild(option);
+            //}
+            
+            char_set.forEach (function (value) {
+                              var option = document.createElement('option');
+                              //option.setAttribute('id', "option" + m + "." + n + "." + a);
+                              option.value = value;
+                              //nsole.log(charlabelTextInput_datalist);
+                              charlabelTextInput_datalist.appendChild(option);
+                              })
+        } // end of loop for (var n=0; n<totalCharsOnPanel; n++)
+    } // end of for loop (var m=0; m<totalPanelsOnPage; m++)
 } // end of updateDatalists()
 
 
@@ -4518,32 +5133,11 @@ function endTextIDTask(event) {
         indicateTextButton.style.display = "block"; // check that there is an indicate char button, and if so show it
     }
     
-    // Do Not show old background form elements - this is from the previous version of the CAT:
-    
-    // display the next element on the form that needs to be filled out:
-    // change all the elements style for display from "none" to "inline-block"
-    //var newBackGroundHeading = document.getElementById("newBackgroundHeading" + (currentPanelNumber+1)).style.display = "block"; //display the heading for the section
-    //var backgroundForm = document.getElementById("backgroundForm" + (currentPanelNumber+1)).style.display = "inline-block"; // display the form elements for the section
-    //var backgroundLocationLabelLabel = document.getElementById("backgroundLocationLabelLabel" + (currentPanelNumber+1)).style.display = "inline-block";
-    //var backgroundLocationLabelInput = document.getElementById("backgroundLocationLabelInput" + (currentPanelNumber+1)).style.display = "inline-block";
-    //var backgroundLocationInputLabel = document.getElementById("backgroundLocationInputLabel" + (currentPanelNumber+1)).style.display = "inline-block";
-    //var backgroundLocationInput = document.getElementById("backgroundLocationInput" + (currentPanelNumber+1)).style.display = "inline-block";
-    //var blankBackgroundButton = document.getElementById("blankBackgroundButton" + (currentPanelNumber+1)).style.display = "inline-block";
-    //var blankBackgroundButtonLabel = document.getElementById("blankBackgroundButtonLabel" + (currentPanelNumber+1)).style.display = "inline-block";
-    //var detailedBackgroundButton = document.getElementById("detailedBackgroundButton" + (currentPanelNumber+1)).style.display = "inline-block";
-    //var detailedBackgroundButtonLabel = document.getElementById("detailedBackgroundButtonLabel" + (currentPanelNumber+1)).style.display = "inline-block";
-    //var textBackgroundButtonLabel = document.getElementById("textBackgroundButtonLabel" + (currentPanelNumber+1)).style.display = "inline-block";
-    //var textBackgroundButton = document.getElementById("textBackgroundButton" + (currentPanelNumber+1)).style.display = "inline-block";
-    
-    // show the indicateChar button in the next section
-    //var indicateCharButton = document.getElementById("indicateCharButton" + (currentPanelNumber+2));
-    //if (indicateCharButton != null) {
-    //indicateCharButton.style.display = "block"; // check that there is an indicate char button, and if so show it
 } // end of endTextIDTask(event)
 
 
 
-/* When the button endCharIDTaskButton is pressed, the char ID task on that panel ends by:
+/* END CHAR ID Task - When the button endCharIDTaskButton is pressed, the char ID task on that panel ends by:
  1) switching off the event handlers and resetting the char ID task
  2) showing the rest of the form that needs to be filled out for that panel section
  3) showing the indicateChar button on the next section */
@@ -4555,11 +5149,11 @@ function endCharIDTask(event) {
     // switching off the event handlers
     charIdON = false; // turn off Char ID task
     
-    //numCharactersOnPage = 0; // reset num of chars
+    //console.log("endCharIDTask(event) charIdON: " + charIdON);
     
     // get the panel where the button was pressed
     currentPanelNumber = parseInt(currentPanel.getAttribute("id").replace("panelForm", ""), 10)-1;
-    //console.log("current panel " + currentPanelNumber);
+    //console.log("endCharIDTask: current panel " + currentPanelNumber);
     
     // clone and replace canvas to turn off the event handlers
     putComicPageOnCanvas();
@@ -4567,6 +5161,10 @@ function endCharIDTask(event) {
     drawCharacterInfoOnCanvas();
     drawTextSectionInfoOnCanvas();
     
+    // if the polygon segmentation tool is being used,
+    if (polygonSegmentation_Char) {
+        individualPolygonCoordinates_CharID = []; // then clear any leftover polygon coords
+    } // end of if (polygonSegmentation_Char)
     
     // turn on that panel's indicate char button's functionality
     // disable the previous indicateCharID button
@@ -4574,16 +5172,6 @@ function endCharIDTask(event) {
     indicateCharButton.setAttribute("onclick", "startIndividualCharID(event)");
     // change the indicate char Id button color back to show the activity is not on
     indicateCharButton.style.color = "black";
-    
-    // Put a line of color between the char task forms and the next text ID task
-    //var endCharTaskDivider = document.createElement();
-    
-    // Show the next task:
-    
-    // The old method was to get the text ID task...
-    //var newTextSectionHeading = document.getElementById("newTextSectionsHeading" + (currentPanelNumber+1)).style.display = "block"; //display the heading for the text section
-    //var indicateTextButton = document.getElementById("indicateTextButton" + (currentPanelNumber+1)).style.display = "inline-block"; // display the form elements for the text section
-    
     
     // The next task is the next Char ID task:
     // show the indicateChar button in the next section
@@ -4646,24 +5234,47 @@ function drawPanelInfoOnCanvas() {
     canvas = document.getElementById("canvas");
     context = canvas.getContext("2d");
     // show the panels stored in the data structure
-    for (var i=0; i<pagesData[pageNum].panels.length; i++) {
-        var r = pagesData[pageNum].panels[i];
-        context.strokeStyle = r.color;
-        context.lineWidth = 4; // set lineWidth so the panels are visible
-        context.globalAlpha = 1; // set transparency value
-        context.strokeRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
-        
-        context.beginPath(); // draw circle
-        context.arc(r.left-5, r.top-5, 15, 0, Math.PI * 2, true);
-        context.closePath();
-        context.fillStyle = r.color;
-        context.fill();
-        
-        context.beginPath(); // draw number in circle
-        context.fillStyle = "white";
-        context.font = "15px Arial Black";
-        context.fillText(i+1, r.left-10, r.top); // center into the circle
-    }
+    if (boundingBoxSegmentation) {
+        for (var i=0; i<pagesData[pageNum].panels.length; i++) {
+            var r = pagesData[pageNum].panels[i];
+            context.strokeStyle = r.color;
+            context.lineWidth = 4; // set lineWidth so the panels are visible
+            context.globalAlpha = 1; // set transparency value
+            context.strokeRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
+            
+            context.beginPath(); // draw circle
+            context.arc(r.left-5, r.top-5, 15, 0, Math.PI * 2, true);
+            context.closePath();
+            context.fillStyle = r.color;
+            context.fill();
+            
+            context.beginPath(); // draw number in circle
+            context.fillStyle = "white";
+            context.font = "15px Arial Black";
+            context.fillText(i+1, r.left-10, r.top); // center into the circle
+        }
+    } // end of if (boundingBoxSegmentation)
+    if (polygonSegmentation) {
+        //drawPolygonsOnCanvas.drawAllPolygons();
+        context.lineWidth = 3;
+        context.strokeStyle = "#FF0000";
+        for (var i=0; i<pagesData[pageNum].panels.length; i++) {
+            var panel = pagesData[pageNum].panels[i]; // Get all stored panel rects
+            var polyCoords = panel.polygonCoords;
+            var firstXCoord = polyCoords[0].x;
+            var firstYCoord = polyCoords[0].y;
+            drawPolygonsOnCanvas.drawPolygon(polyCoords);
+            context.beginPath(); // draw circle to indicate panel seg num
+            context.arc(firstXCoord-5, firstYCoord-5, 15, 0, Math.PI * 2, true);
+            context.closePath();
+            context.fillStyle = panel.color;
+            context.fill();
+            context.beginPath(); // draw number in circle
+            context.fillStyle = "white";
+            context.font = "15px Arial Black";
+            context.fillText(panel.id, firstXCoord-10, firstYCoord); // center into the circle
+        }
+    } // end of if (polygonSegmentation)
 } // end of drawPanelInfoOnCanvas()
 
 /* Draw the stored character rectangle info onto the page */
@@ -4676,22 +5287,50 @@ function drawCharacterInfoOnCanvas(errorFound) {
         var r = pagesData[pageNum].panels[i];
         for (var j=0; j<r.characters.length; j++) {
             var char = r.characters[j];
-            context.strokeStyle = char.color_charID;
-            context.globalAlpha = 1; // set transparency value
-            context.strokeRect(char.left, char.top, char.right - char.left, char.bottom - char.top);
-            
-            context.beginPath(); // put the circles on as well
-            context.arc(char.left, char.top, 15, 0, Math.PI * 2, true);
-            context.closePath();
-            context.fillStyle = char.color_charID;
-            context.fill();
-            
-            if (char.label != charLabelInstruction) {
-                context.beginPath(); // draw char label variable in circle
+            //console.log("char id: " + char.id + ", " + "coords: " + char.polygonCoords.length);
+            //console.log(char.polygonCoords.length); // just checkin!
+            if (polygonSegmentation_Char) {
+                //drawPolygonsOnCanvas_CharID.drawAllPolygons();
+                //console.log(char);
+                var polyCoords = char.polygonCoords;
+                var firstXCoord = polyCoords[0].x;
+                var firstYCoord = polyCoords[0].y;
+                drawPolygonsOnCanvas_CharID.drawPolygon(polyCoords);
+                context.beginPath(); // draw circle to indicate char seg num
+                context.arc(firstXCoord-5, firstYCoord-5, 15, 0, Math.PI * 2, true);
+                context.closePath();
+                context.fillStyle = char.color_charID;
+                context.fill();
+                context.beginPath(); // draw number or var in circle
                 context.fillStyle = "white";
-                context.font = "15px Arial Black";
-                context.fillText(char.label, char.left-6, char.top+6); // center into the circle
-            }
+                context.font = "12px Arial Black";
+                
+                if (char.label != charLabelInstruction) {
+                    context.fillText(char.label, firstXCoord-13, firstYCoord); // center into the circle
+                } else {
+                    context.fillText(char.id, firstXCoord-13, firstYCoord); // center into the circle
+                }
+                
+            } // end of if (polygonSegmentation_Char)
+            else {
+            
+                context.strokeStyle = char.color_charID;
+                context.globalAlpha = 1; // set transparency value
+                context.strokeRect(char.left, char.top, char.right - char.left, char.bottom - char.top);
+                
+                context.beginPath(); // put the circles on as well
+                context.arc(char.left, char.top, 15, 0, Math.PI * 2, true);
+                context.closePath();
+                context.fillStyle = char.color_charID;
+                context.fill();
+                
+                if (char.label != charLabelInstruction) {
+                    context.beginPath(); // draw char label variable in circle
+                    context.fillStyle = "white";
+                    context.font = "15px Arial Black";
+                    context.fillText(char.label, char.left-6, char.top+6); // center into the circle
+                }
+            } // end of else (if not (polygonSegmentation_Char))
             
             if (characterFeaturesTaskSwitch == true) {
                 // replace the label with the index
@@ -4799,7 +5438,7 @@ function drawTextSectionInfoOnCanvas() {
 /* Starts the annotation task with the Next Story */
 function nextStory(event) {
     //console.log("It worked!"); //test
-    location.href = 'https://app.prolific.co/submissions/complete?cc=8A9BF092'; // go back to prolific
+    location.href = 'https://app.prolific.co/submissions/complete?cc=85EFAF76'; // go back to prolific
 }
 
 

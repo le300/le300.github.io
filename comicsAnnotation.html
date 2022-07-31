@@ -76,9 +76,9 @@
                 </div>
                 
                 <div>
-                    <button id="clearLastRectButton" type="button" class="panelIDButtonsVersion2" onclick="clearLastDrawnRectangle(event)">Clear Last Rectangle</button>
+                    <button id="clearLastRectButton" type="button" class="panelIDButtonsVersion2" onclick="clearLastDrawnRectangle(event)">Clear Last Segmentation</button>
                 
-                    <button id="clearButton" type="button" class="panelIDButtonsVersion2" onclick="recordRectsCLEAR(event)">Clear All Rectangles</button>
+                    <button id="clearButton" type="button" class="panelIDButtonsVersion2" onclick="recordRectsCLEAR(event)">Clear All Segmentations</button>
                 </div>
                     <button id="endButton" type="button" class="panelIDButtons" onclick="recordRectsOFF(event)">End Task</button>
                 <div>
@@ -100,6 +100,14 @@
     
                 <!-- State the number of panels/sections inputted by the user clicking on the comic image -->
                 <p id="panelCount"> </p>
+                <div id="animacyInstructions" class="animacyListInstructions">
+                    <ul id="animacyInstructionsList" name="animacyInstructionsList" class="cList">
+                         <li> <b>Click</b> on the image to place points. Lines are drawn between points.  </li>
+                         <li> Do not click and drag to make the lines.  </li>
+                         <li> Use the <b>Backspace</b> key to remove the last made point. </li>
+                         <li> Use the <b>Enter</b> key to close the outline, and move onto the next outline. </li>
+                    </ul>
+                    </div>
                 
                 <div id="listContainer" class="listContainer" style="height: 100px; position: relative;">
                 
