@@ -108,8 +108,6 @@ canvas{
 }
 
 
-
-
 .panelIDButtons {
     background-color: #004d66;
     text-align: center;
@@ -137,6 +135,32 @@ canvas{
     cursor: pointer;
     border-radius: 12px;
 }
+
+/* Feedback textarea for the annotator to record problematic instances */
+
+.feedbackFormContainer {
+    /* vertical-align: middle; */
+    display: none;
+    text-align: center;
+}
+
+.feedbackFormLabel {
+    display: "block";
+    text-align: center;
+    font-size: 15px;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    padding-right: 8px;
+    color: #004d66;
+}
+
+.feedbackFormTextarea {
+    display: block;
+    margin-top: 5px;
+    margin-left: 80px;
+}
+
+
+
 
 
 /* Individual Panel Task Buttons */
@@ -170,6 +194,8 @@ h3 {
     color: #004d66;
 }
 
+
+
 /* "Characters" and "Background" headings */
 h4 {
     margin-top: 5px; 
@@ -178,8 +204,6 @@ h4 {
     font-size: 14px;
     color: #00394d;
 }
-
-
 
 #panelNumSection {
     display: none;

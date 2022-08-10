@@ -181,6 +181,7 @@ const speechTextCharInstruction = "Character variable";
 const textSpeechInstruction = "Associated character variable"
 const otherTextInstruction = "One or two words (e.g. Title)"
 const indicateCharInstructions = "";
+const feedbackFormTextareaText = "Please note any ambiguous cases you find. If there are none, then erase this message and leave this text box blank.";
 
 
 
@@ -568,6 +569,21 @@ function putFirstComicPageOnCanvas() {
 } // end of putFirstComicPageOnCanvas()
 
 
+// create a function that
+function changeTextareaToWhite() {
+    currentTextArea = event.target;
+    console.log(currentTextArea.id);
+    currentTextArea.style.backgroundColor = "";
+} // end of function changeTextareaToWhite()
+
+
+function changeTextareaToWhite_eventHandler() {
+    currentTextArea = event.target;
+    console.log(currentTextArea.id);
+    currentTextArea.style.backgroundColor = "";
+} // end of function changeTextareaToWhite_eventHandler()
+
+
 /* Setup function for annotation tasks */
 function setupPageForAnnotation() {
     // Change the Start Annotation button to a page number display
@@ -597,7 +613,28 @@ function setupPageForAnnotation() {
     if (document.getElementById("startAnnotationButton").innerHTML == "Page 1 of " + comicPages.length && !navigationButtonsCreated) {
         createNavigationButtons();
         navigationButtonsCreated = true;
-    }
+    } // end of if (document.getElementById("startAnnotationButton").innerHTML
+    
+    // Add the feedback form for the the character/animacy segmentation task
+    if (characterSegmentationTaskSwitch) {
+        if (animacySegmentationTaskSwitch) {
+            var originalFeedbackFormFontainer = document.getElementById("feedbackFormContainer");
+            // replace feeback form container with a clone
+            var feedbackFormContainerClone = originalFeedbackFormFontainer.cloneNode(true);
+            feedbackFormContainerClone.style.display = "block";
+            feedbackFormContainerClone.id = "feedbackFormContainer" + pageNum;
+            feedbackForm = feedbackFormContainerClone.children[0];
+            feedbackTextarea = feedbackForm.children[1];
+            feedbackTextarea.id = "feedbackTextarea" + pageNum;
+            feedbackTextarea.value = feedbackFormTextareaText;
+            feedbackTextarea.addEventListener('mousedown', changeTextareaToWhite_eventHandler);
+            //console.log("feedbackTextarea: " + feedbackTextarea.id);
+            var feedbackFormContainerContainer = document.getElementById("feedbackFormContainerContainer");
+            feedbackFormContainerContainer.appendChild(feedbackFormContainerClone);
+            //console.log("feedbackForm start: " + feedbackFormContainerClone.id);
+        } // end of if (animacySegmentationTaskSwitch)
+    } // end of if (characterSegmentationTask)
+    
 } // end of setupPageForAnnotation()
 
 
@@ -619,6 +656,7 @@ function nextPage(event) {
     // Validate forms: Iterate through all character labels (which have been stored) and inputs to make sure that none are missing (also puts char and location information in the respective textareas)
     var errorMessage = validateInputs();
     if (errorMessage != "") {
+        console.log("validateInputs errorMessage: ");
         console.log(errorMessage);
         alert(errorMessage);
         return;
@@ -728,7 +766,38 @@ function nextPage(event) {
         panelRecNum = pagesData[pageNum].panels.length + 1;
         panelCounter(panelRecNum-1); // turn off the panel counter function
         showContentForms(panelRecNum-1); // show content forms
-    }
+        
+        // Add the feedback form for the the character/animacy segmentation task
+        if (animacySegmentationTaskSwitch) {
+            var previousFeedbackFormContainer = document.getElementById("feedbackFormContainer" + (pageNum-1));
+            // replace currently displayed feeback form container with a clone
+            var feedbackFormContainerClone = previousFeedbackFormContainer.cloneNode(true);
+            feedbackFormContainerClone.style.display = "block";
+            feedbackFormContainerClone.id = "feedbackFormContainer" + pageNum;
+            feedbackForm = feedbackFormContainerClone.children[0];
+            feedbackTextarea = feedbackForm.children[1];
+            feedbackTextarea.id = "feedbackTextarea" + pageNum;
+            // if there is a value stored in the pagesData, get it out
+            var revisitDummyPanelNum = pagesData[pageNum].panels.length-1;
+            var revisitDummyPanel = pagesData[pageNum].panels[revisitDummyPanelNum];
+            var currentStoredTextareaValue = revisitDummyPanel["animacyFeedback"];
+            //console.log("nextPage revisit: " + currentStoredTextareaValue);
+            if (currentStoredTextareaValue !== undefined) {
+                feedbackTextarea.value = currentStoredTextareaValue;
+            }
+            else {
+                feedbackTextarea.value = feedbackFormTextareaText;
+            }
+            feedbackTextarea.addEventListener('mousedown', changeTextareaToWhite_eventHandler);
+            
+            var feedbackFormContainerContainer = document.getElementById("feedbackFormContainerContainer");
+            // remove previous form container
+            feedbackFormContainerContainer.removeChild(feedbackFormContainerContainer.children[1]);
+            feedbackFormContainerContainer.appendChild(feedbackFormContainerClone);
+        } // end of if (animacySegmentationTaskSwitch)
+
+    } // end of if (characterSegmentationTaskSwitch == true)
+    
     
     // For Character Features task,
     // display the semantic forms
@@ -799,8 +868,8 @@ function nextPage(event) {
                     //storedCharIndex = j+1;
                     createCharForm(i, j);
                 }
-            }
-        } // end of if (characterSegmentationTaskSwitch == true)
+            } // end of for (var i=0; i<pagesData[pageNum].panels.length; i++)
+       } // end of if (characterSegmentationTaskSwitch == true)
         
         
         // if the charFeaturesTaskSwitch is on, put the canvas and mouseclick eventlisteners on the semantic forms
@@ -984,12 +1053,35 @@ function putPreviousPageOnCanvas(event) {
     } // end if backgroundLocationTaskSwitch is true
     
     if (characterSegmentationTaskSwitch) {
-        
         //console.log("PreviousPage - characterSegmentationTaskSwitch true");
-        
         if (polygonSegmentation_Char) {
             individualPolygonCoordinates_CharID = []; // clear any leftover polygon coords
         } // end of if (polygonSegmentation_Char)
+        
+        if (animacySegmentationTaskSwitch) {
+            var feedbackFormContainerContainer = document.getElementById("feedbackFormContainerContainer");
+            var nextPageFeedbackFormContainer = document.getElementById("feedbackFormContainer" + (pageNum+1));
+            // replace currently displayed feeback form container with a clone
+            var feedbackFormContainerClone = nextPageFeedbackFormContainer.cloneNode(true);
+            feedbackFormContainerClone.style.display = "block";
+            feedbackFormContainerClone.id = "feedbackFormContainer" + pageNum;
+            feedbackForm = feedbackFormContainerClone.children[0];
+            feedbackTextarea = feedbackForm.children[1];
+            feedbackTextarea.id = "feedbackTextarea" + pageNum;
+            
+            // if there is a value stored in the pagesData, get it out
+            var lastPanelNum = pagesData[pageNum].panels.length-1;
+            var lastPanel = pagesData[pageNum].panels[lastPanelNum];
+            var previousTextareaValue = lastPanel["animacyFeedback"];
+            feedbackTextarea.value = previousTextareaValue;
+            feedbackTextarea.addEventListener('mousedown', changeTextareaToWhite_eventHandler);
+            feedbackTextarea.style.backgroundColor = "";
+            // remove previous form container
+            feedbackFormContainerContainer.removeChild(feedbackFormContainerContainer.children[1]);
+            feedbackFormContainerContainer.appendChild(feedbackFormContainerClone);
+            
+        } // end of if (animacySegmentationTaskSwitch)
+        
     } // end of if (characterSegmentationTaskSwitch)
     
     if (characterFeaturesTaskSwitch == true) {
@@ -1119,7 +1211,7 @@ function validateInputs() {
                 newPanel = {
                     polygonCoords: individualPolygonCoordinates,
                     color: "#FF0000",
-                        id : pagesData[pageNum].panels.length + 1,
+                    id : pagesData[pageNum].panels.length + 1,
                     characters:[],
                     textSections: [],
                     background: {}
@@ -1134,7 +1226,35 @@ function validateInputs() {
     if (characterSegmentationTaskSwitch == true) {
         
         if (animacySegmentationTaskSwitch) {
-
+            var currentFeedbackFormTextarea = document.getElementById("feedbackTextarea" + pageNum);
+            //console.log(currentFeedbackFormTextarea);
+            if (feedbackFormTextareaText == currentFeedbackFormTextarea.value) {
+                errorMessage += "Are there any outlines that you are unsure about? See the text box below!"
+                currentFeedbackFormTextarea.style.backgroundColor = "LightPink"; // highlight input
+            } //end of if (currentFeedbackFormTextarea.innerHTML == feedbackFormTextarea)
+            
+            // if a dummy panel has already been created, just put the current feedback string into the dummy panel
+            var lastPanelNum = pagesData[pageNum].panels.length-1;
+            var lastPanel = pagesData[pageNum].panels[lastPanelNum];
+            var storedAnimacyFeedback = lastPanel["animacyFeedback"];
+            if (storedAnimacyFeedback !== undefined) {
+                lastPanel["animacyFeedback"] = currentFeedbackFormTextarea.value
+            }
+            else {
+                // put the feedback information into pagesData
+                dummyPanel = {
+                polygonCoords: [{"x":0, "y":0}],
+                color: "#FF0000",
+                    id : "dummyPanel" + pageNum,
+                characters:[],
+                textSections: [],
+                background: {},
+                    animacyFeedback : currentFeedbackFormTextarea.value
+                } // end of dummyPanel
+                pagesData[pageNum].panels.push(dummyPanel);
+            } // end of else if (feedbackFormTextareaText == currentFeedbackFormTextarea.value)
+            console.log("validateInputs: ");
+            console.log(pagesData[pageNum].panels);
         } // end of if (animacySegmentationTaskSwitch)
         
         else {
@@ -1412,7 +1532,7 @@ function validateInputs() {
     drawPanelInfoOnCanvas();
     drawCharacterInfoOnCanvas(true);
     drawTextSectionInfoOnCanvas();
-    console.log("Validate Forms" + errorMessage);
+    console.log("Validate Forms: " + errorMessage);
     errorFound = false;
     return errorMessage;
 } // end of validateInputs()
@@ -5226,6 +5346,7 @@ function changeBackgroundLabelToWhite() {
     document.getElementById("textBackgroundButtonLabel" + (currentPanelNumber+1)).style.backgroundColor = ""; // remove highlight
     
 } // end of changeBackgroundLabelToWhite()
+
 
 
 /* Draw the stored panel rectangles onto the page */
