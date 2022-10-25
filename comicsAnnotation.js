@@ -207,7 +207,7 @@ if (annotationType == "Background and Location") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Char_Experiment_2").get().then((snapshot) => {
+    db.collection("Char_Experiment_3").get().then((snapshot) => {
                                                     console.log(snapshot.docs); // get an overview of all the documents in the database
                                                     snapshot.docs.forEach(doc => {
                                                                           //console.log(doc.data());
@@ -245,7 +245,7 @@ if (annotationType == "Character Segmentation") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Char_Experiment_2").get().then((snapshot) => {
+    db.collection("Char_Experiment_3").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                 //console.log(doc.data());
@@ -271,7 +271,7 @@ if (annotationType == "Character Features") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Char_Experiment_2").get().then((snapshot) => {
+    db.collection("Char_Experiment_3").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                   //console.log(doc.data());
@@ -297,7 +297,7 @@ if (annotationType == "Text Sections") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Char_Experiment_2").get().then((snapshot) => {
+    db.collection("Char_Experiment_3").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                   //console.log(doc.data());
@@ -763,9 +763,10 @@ function nextPage(event) {
     if (characterSegmentationTaskSwitch == true) {
         // display the semantic forms:
         document.getElementById("panelNumSection").style.display = "block"; // display the panelNumSection
-        panelRecNum = pagesData[pageNum].panels.length + 1;
-        panelCounter(panelRecNum-1); // turn off the panel counter function
-        showContentForms(panelRecNum-1); // show content forms
+        panelRecNum = pagesData[pageNum].panels.length; // + 1
+        console.log("nextPage panelRecNum: " + panelRecNum);
+        panelCounter(panelRecNum); // (-1)
+        showContentForms(panelRecNum); // show content forms (-1)
         
         // Add the feedback form for the the character/animacy segmentation task
         if (animacySegmentationTaskSwitch) {
@@ -1000,9 +1001,9 @@ function putPreviousPageOnCanvas(event) {
     }
     
     // Also store the values for the characterSegmentationTask!
-    if (characterSegmentationTaskSwitch == true) {
-        validateInputs();
-    }
+//    if (characterSegmentationTaskSwitch == true) {
+//        validateInputs();
+//    }
     
     pageNum -= 1; // Decrement pageNum index
     charIdON = false;  // turn off all (panel, char and text ID) event handlers
@@ -1232,27 +1233,76 @@ function validateInputs() {
                 errorMessage += "Are there any outlines that you are unsure about? See the text box below!"
                 currentFeedbackFormTextarea.style.backgroundColor = "LightPink"; // highlight input
             } //end of if (currentFeedbackFormTextarea.innerHTML == feedbackFormTextarea)
-            
-            // if a dummy panel has already been created, just put the current feedback string into the dummy panel
-            var lastPanelNum = pagesData[pageNum].panels.length-1;
-            var lastPanel = pagesData[pageNum].panels[lastPanelNum];
-            var storedAnimacyFeedback = lastPanel["animacyFeedback"];
-            if (storedAnimacyFeedback !== undefined) {
-                lastPanel["animacyFeedback"] = currentFeedbackFormTextarea.value
-            }
             else {
-                // put the feedback information into pagesData
-                dummyPanel = {
-                polygonCoords: [{"x":0, "y":0}],
-                color: "#FF0000",
-                    id : "dummyPanel" + pageNum,
-                characters:[],
-                textSections: [],
-                background: {},
-                    animacyFeedback : currentFeedbackFormTextarea.value
-                } // end of dummyPanel
-                pagesData[pageNum].panels.push(dummyPanel);
-            } // end of else if (feedbackFormTextareaText == currentFeedbackFormTextarea.value)
+                
+                // deal with the animacy task feedback:
+                // add an "animacy feedback" section to the last panel on the page
+                // and put the feedback text in it.
+                // but first, check if this section already exists in the last panel
+                var lastPanelNum = pagesData[pageNum].panels.length-1;
+                var lastPanel = pagesData[pageNum].panels[lastPanelNum];
+                console.log(lastPanel["animacyFeedback"]);
+                lastPanel["animacyFeedback"] = currentFeedbackFormTextarea.value;
+                
+//                if (lastPanel["animacyFeedback"] === undefined) {
+//                    // if not, add this section and put in the feedback
+//                    lastPanel["animacyFeedback"] = currentFeedbackFormTextarea.value;
+//                } else {
+//                    // if so,
+//                    lastPanel["animacyFeedback"] = currentFeedbackFormTextarea.value;
+//                }
+                
+            } // else from (feedbackFormTextareaText == currentFeedbackFormTextarea.value)
+                
+                // make new dummy panel to save the animacy feedback
+                // but first, check if one already exists on this page
+                // look at the id of the last panel created (panel.length - 1)
+//                var lastPanelNum = pagesData[pageNum].panels.length-1;
+//                var lastPanel = pagesData[pageNum].panels[lastPanelNum];
+//                var lastPanelID = lastPanel["id"];
+//                var lastPanelIDString = lastPanelID.toString();
+//                if (lastPanelIDString.includes("dummy")) { // does it have "dummy" in the id?
+//                    // if so, put the animacy feedback in there.
+//                    lastPanel["animacyFeedback"] = currentFeedbackFormTextarea.value;
+//                } else {
+//                    // if not, then make a new dummy panel to hold the animacy feedback.
+//                    dummyPanel = {
+//                    polygonCoords: [{"x":0, "y":0}],
+//                    color: "#FF0000",
+//                        id : "dummyPanel" + pageNum,
+//                    characters:[],
+//                    textSections: [],
+//                    background: {},
+//                        animacyFeedback : currentFeedbackFormTextarea.value
+//                    } // end of dummyPanel
+//                    pagesData[pageNum].panels.push(dummyPanel);
+//                } // end of else for if (lastPanel.id.includes("dummy"))
+//
+//            }
+
+            // if a dummy panel has already been created, just put the current feedback string into the dummy panel
+//            var lastPanelNum = pagesData[pageNum].panels.length-1;
+//            var lastPanel = pagesData[pageNum].panels[lastPanelNum];
+//            var storedAnimacyFeedback = lastPanel["animacyFeedback"];
+//            console.log("validateInputs lastPanelNum: " + lastPanelNum);
+//            console.log("panels.length: " + pagesData[pageNum].panels.length);
+//            console.log("stored animacy feedback: " + storedAnimacyFeedback);
+//            if (storedAnimacyFeedback !== undefined) {
+//                lastPanel["animacyFeedback"] = currentFeedbackFormTextarea.value
+//            }
+//            else {
+//                // put the feedback information into pagesData
+//                dummyPanel = {
+//                polygonCoords: [{"x":0, "y":0}],
+//                color: "#FF0000",
+//                    id : "dummyPanel" + pageNum,
+//                characters:[],
+//                textSections: [],
+//                background: {},
+//                    animacyFeedback : currentFeedbackFormTextarea.value
+//                } // end of dummyPanel
+//                pagesData[pageNum].panels.push(dummyPanel);
+//            } // end of else if (feedbackFormTextareaText == currentFeedbackFormTextarea.value)
             console.log("validateInputs: ");
             console.log(pagesData[pageNum].panels);
         } // end of if (animacySegmentationTaskSwitch)
@@ -2027,10 +2077,11 @@ function panelCounter(x) {
 function showContentForms(x) {
     // Parameter x in the number of panels or sections specified by the user
     // Get the standard semantic form from the html doc
+    console.log("showContentForms x: ", x);
     var panelForm = document.getElementById("semanticForm");
     // Create an identical form for each panel specified by the user
     for (let i=0; i<=x-1; i++) {
-        var j = i+1; // Var for panel number
+        var j = i+1; // Var for panel number label
         // For each x in numPanels, create a clone of the semantic form
         var clone = panelForm.cloneNode(true);
         clone.setAttribute("class","semanticFormDisplay"); // Set css class for display
@@ -2533,7 +2584,7 @@ function sendDataToFireBase(event) {
     //                          jsonString: jsonString
     //                          });
     
-    db.collection("Char_Experiment_2").add({time: Date().toLocaleString(),
+    db.collection("Char_Experiment_3").add({time: Date().toLocaleString(),
                               jsonData: jsonString}
                               ).then(function(snapshot) {
                                 if (storyNum == 32) {
@@ -3006,7 +3057,7 @@ var drawRectangleOnCanvas_charID = {
 // create a separate keypress handler to be turned on for polygon segmentation
 var deleteKeyHandler_CharID = function(e) {
     const key = e.key;
-    console.log("a key pressed: " + key); // deboog
+    //console.log("a key pressed: " + key); // deboog
     if (key === "Backspace" || e.keyCode === 46) {
         //console.log("Delete key pressed."); // deboog
         // remove the last stored coord tuple in the polygon currently being drawn
@@ -3016,7 +3067,7 @@ var deleteKeyHandler_CharID = function(e) {
             drawPolygonWhileDrawing_CharID(individualPolygonCoordinates_CharID);
         }
     } // end of if (key === "Backspace" || e.keyCode === 46)
-    if (e.key === "Enter" || e.keyCode === 13) {
+    if (key === "Enter" || e.keyCode === 13) {
         //console.log("double click!"); // test
         canvas = document.getElementById("canvas");
         context = canvas.getContext("2d");
@@ -3040,7 +3091,15 @@ var deleteKeyHandler_CharID = function(e) {
         Action: ""
         } // end of newChar object
         
-        pagesData[pageNum].panels[currentPanelNumber].characters.push(newChar); // Store created char rects in the overall data structure
+        console.log(newChar);
+        
+        if (newChar.polygonCoords.length == 0) {
+            console.log("Enter pressed twice or polygonCoords empty for another reason. Skip char");
+        } else {
+            pagesData[pageNum].panels[currentPanelNumber].characters.push(newChar); // Store created char rects in the overall data structure
+            createCharForm("nope", "nope"); // generate the semantic form associated with that char ID rect
+        }
+        
         //console.log(pagesData[pageNum].panels[currentPanelNumber]); // deboog
         individualPolygonCoordinates_CharID = []; // reset the current polygon coords
         //console.log(individualPolygonCoordinates); // check
@@ -3048,7 +3107,7 @@ var deleteKeyHandler_CharID = function(e) {
         //drawPolygonsOnCanvas_CharID.drawAllPolygons(); // draw all polygons stored so far
         drawPanelInfoOnCanvas(); //Draw all panels rects or polys on canvas
         //drawTextSectionInfoOnCanvas(); //Draw all the text rects in all panels on canvas
-        createCharForm("nope", "nope"); // generate the semantic form associated with that char ID rect
+        //createCharForm("nope", "nope"); // generate the semantic form associated with that char ID rect
     } // end of if (e.key === "Enter" || e.keyCode === 13)
     
 } // end of var deleteKeyHandler_CharID = function(e)
@@ -5379,9 +5438,12 @@ function drawPanelInfoOnCanvas() {
         //drawPolygonsOnCanvas.drawAllPolygons();
         context.lineWidth = 3;
         context.strokeStyle = "#FF0000";
+        //console.log("drawPanelInfoOnCanvas num panels: " + pagesData[pageNum].panels.length);
         for (var i=0; i<pagesData[pageNum].panels.length; i++) {
             var panel = pagesData[pageNum].panels[i]; // Get all stored panel rects
             var polyCoords = panel.polygonCoords;
+            //console.log("panel num: " + panel.id);
+            //console.log("num polyCoords: " + polyCoords.length);
             var firstXCoord = polyCoords[0].x;
             var firstYCoord = polyCoords[0].y;
             drawPolygonsOnCanvas.drawPolygon(polyCoords);
@@ -5414,6 +5476,7 @@ function drawCharacterInfoOnCanvas(errorFound) {
                 //drawPolygonsOnCanvas_CharID.drawAllPolygons();
                 //console.log(char);
                 var polyCoords = char.polygonCoords;
+                //console.log("polyCoords: " + polyCoords);
                 var firstXCoord = polyCoords[0].x;
                 var firstYCoord = polyCoords[0].y;
                 drawPolygonsOnCanvas_CharID.drawPolygon(polyCoords);
@@ -5518,9 +5581,9 @@ function drawCharacterInfoOnCanvas(errorFound) {
                         context.fillText(char.label, char.left-6, char.top+6); // center into the circle
                     }
                 }
-            }
-        }
-    }
+            } // end of if (characterFeaturesTaskSwitch == true)
+        } // end of for (var j=0; j<r.characters.length; j++)
+    } // end of for (var i=0; i<pagesData[pageNum].panels.length; i++)
 } // end of drawCharacterInfoOnCanvas()
 
 
@@ -5559,7 +5622,7 @@ function drawTextSectionInfoOnCanvas() {
 /* Starts the annotation task with the Next Story */
 function nextStory(event) {
     //console.log("It worked!"); //test
-    location.href = 'https://app.prolific.co/submissions/complete?cc=C87JSA6T'; // go back to prolific
+    location.href = 'https://app.prolific.co/submissions/complete?cc=CB3TTTW9'; // go back to prolific
 }
 
 
