@@ -5622,7 +5622,7 @@ function drawTextSectionInfoOnCanvas() {
 /* Starts the annotation task with the Next Story */
 function nextStory(event) {
     //console.log("It worked!"); //test
-    location.href = 'https://app.prolific.co/submissions/complete?cc=CB3TTTW9'; // go back to prolific
+    location.href = 'https://app.prolific.co/submissions/complete?cc=C13WNTMX'; // go back to prolific
 }
 
 
