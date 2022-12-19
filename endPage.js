@@ -200,7 +200,7 @@ function submitVFLI(event) {
         //                          jsonString: jsonString
         //                          });
         
-        db.collection("Char_Experiment_4").add({time: Date().toLocaleString(),
+        db.collection("Char_Experiment_1_2").add({time: Date().toLocaleString(),
                                                     jsonData: jsonString});
         
         console.log("Submit to Firebase");
