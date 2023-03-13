@@ -1414,6 +1414,9 @@ function putPreviousPageOnCanvas(event) {
     if (characterFeaturesTaskSwitch == true) {
         
         validateInputs(); // store the values of current page before going back a page
+        document.getElementById("panelNumSection").style.display = "block";
+        //panelCounter(pageNum);
+        
         
         // The Old Character Features Task - Just skip for now!!!!
         if (false) {
