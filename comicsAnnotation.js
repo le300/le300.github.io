@@ -207,7 +207,7 @@ if (annotationType == "Background and Location") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Char_Experiment_1_2").get().then((snapshot) => {
+    db.collection("Animacy_Reference").get().then((snapshot) => {
                                                     console.log(snapshot.docs); // get an overview of all the documents in the database
                                                     snapshot.docs.forEach(doc => {
                                                                           //console.log(doc.data());
@@ -245,7 +245,7 @@ if (annotationType == "Character Segmentation") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Char_Experiment_1_2").get().then((snapshot) => {
+    db.collection("Animacy_Reference").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                 //console.log(doc.data());
@@ -268,10 +268,13 @@ if (annotationType == "Character Segmentation") {
 if (annotationType == "Character Features") {
     characterFeaturesTaskSwitch = true; // turn on the character features task switch
     
+    polygonSegmentation = true;
+    polygonSegmentation_Char = true; // turn on polygon segmentation char switch
+    
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Char_Experiment_1_2").get().then((snapshot) => {
+    db.collection("Animacy_Reference").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                   //console.log(doc.data());
@@ -297,7 +300,7 @@ if (annotationType == "Text Sections") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Char_Experiment_1_2").get().then((snapshot) => {
+    db.collection("Animacy_Reference").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                   //console.log(doc.data());
@@ -593,20 +596,24 @@ function setupPageForAnnotation() {
     //startAnnotationButton.style.backgroundColor = "#006080";
     startAnnotationButton.setAttribute("onclick", "true");         // Turn off the button's onlick capabilties
     
+    // if the animacy segmentation task was the last one done, the panels associated with the animacy task will be drawn on the page. There is, however, one dummy panel per page to gather feedback from the user. These need to be removed for the character features task, so the right number of panels is given.
+    if (characterFeaturesTaskSwitch) {
+        // remove the last panel on each page
+        pagesData[pageNum].panels.pop();
+        //console.log("num panels now: " + pagesData[pageNum].panels.length);
+    }
+    
     drawPanelInfoOnCanvas(); // Put stored panel rects on canvas
     
     // display the semantic forms:
     document.getElementById("panelNumSection").style.display = "block"; // display the panelNumSection
+    //console.log("setupPageForAnnotation num panels: " + pagesData[pageNum].panels.length);
     panelRecNum = pagesData[pageNum].panels.length + 1;
+    //console.log("setupPageForAnnotation panelRecNum: ", panelRecNum);
+
     panelCounter(panelRecNum-1); // turn off the panel counter function
     showContentForms(panelRecNum-1); // show content forms
     
-    // Alternative method to get the semantic forms:
-    // get the number of segmentations outlined on page one from pagesData
-    //numRectsPage1 = pagesData[1]["panels"];
-    //console.log(numRectsPage1.length); // debug check that this is the correct number of segmentations
-    // show the semantic forms for each segmentation
-    //showContentForms(panel); //
     
     // Add navigation buttons:
     // Only create buttons at the bottom page when this function runs for the first page
@@ -763,10 +770,9 @@ function nextPage(event) {
     if (characterSegmentationTaskSwitch == true) {
         // display the semantic forms:
         document.getElementById("panelNumSection").style.display = "block"; // display the panelNumSection
-        panelRecNum = pagesData[pageNum].panels.length; // + 1
-        console.log("nextPage panelRecNum: " + panelRecNum);
-        panelCounter(panelRecNum); // (-1)
-        showContentForms(panelRecNum); // show content forms (-1)
+        panelRecNum = pagesData[pageNum].panels.length + 1;
+        panelCounter(panelRecNum-1); // turn off the panel counter function
+        showContentForms(panelRecNum-1); // show content forms
         
         // Add the feedback form for the the character/animacy segmentation task
         if (animacySegmentationTaskSwitch) {
@@ -803,6 +809,21 @@ function nextPage(event) {
     // For Character Features task,
     // display the semantic forms
     if (characterFeaturesTaskSwitch == true) {
+        // remove the last dummy panel on each page
+        for (var d=0; d < pagesData[pageNum].panels.length; d++) {
+            // if it is a dummy panel,
+            var panelID = pagesData[pageNum].panels[d].id;
+            if (Number.isInteger(panelID)) {
+            } else {
+                // remove it!
+                //console.log("panelID: ", panelID);
+                var selectedPanels = pagesData[pageNum].panels;
+                console.log(selectedPanels);
+                // remove panel d
+                selectedPanels.splice(d,1);
+                console.log(selectedPanels);
+            }
+        }
         // display the semantic forms:
         document.getElementById("panelNumSection").style.display = "block"; // display the panelNumSection
         panelRecNum = pagesData[pageNum].panels.length + 1;
@@ -853,13 +874,7 @@ function nextPage(event) {
             document.getElementById("panelIdSection").style.display = "none";
             panelCounter(pagesData[pageNum].panels.length);
         }
-        //console.log(pagesData[pageNum]);
-        //console.log(pagesData[pageNum].storedSemanticFormContainer.cloneNode(true));
-        
-        // replace semantic form container with the stored one
-        // This has been causing an error, and I don't think it's being used anymore, so it's commented out...
-        //var parent = document.getElementById("semanticFormContainer").parentNode;
-        //parent.replaceChild(pagesData[pageNum].storedSemanticFormContainer.cloneNode(true), document.getElementById("semanticFormContainer"));
+
         
         if (characterSegmentationTaskSwitch == true) {
             // Add the information to the semantic forms that has already been annotated
@@ -875,72 +890,378 @@ function nextPage(event) {
         
         // if the charFeaturesTaskSwitch is on, put the canvas and mouseclick eventlisteners on the semantic forms
         if (characterFeaturesTaskSwitch == true) {
-            // add the canvas images and mouse click event listener:
             
-            drawCharacterInfoOnCanvas(true);
+            drawCharacterInfoOnCanvas(true); // put the labels back on the page
             
-            // get the original emotion value per section
-            for (var p=0; p<pagesData[pageNum].panels.length; p++) {
-                for (var c=0; c<pagesData[pageNum].panels[p].characters.length; c++) {
-                    var getEmotionInput = document.getElementById("charEmotionSelect" + (p+1) + "." + c);
-                    //console.log(p);
-                    //console.log(c);
-                    var emotionValue = pagesData[pageNum].panels[p].characters[c].emotion;
-                    
-                    getEmotionInput.value = emotionValue;
-                    //console.log(emotionValue);
-                    
-                    console.log("after next page");
-                    console.log(pagesData[pageNum].panels[p].characters[c]);
-                    console.log(getEmotionInput.id);
-                }
-            } // end of for loop
-            var canvases = document.getElementsByTagName('canvas'); // get all canvases
-            var numCanvases = canvases.length;
-            //console.log("num canvases: " + numCanvases);
-    
-            for (var i=0; i<numCanvases; i++) {
-                if (canvases[i].id.includes("canvas_charBodyImage")) {
-                    canvases[i].getContext('2d').drawImage(charBodyMapImage, 0, 0, 125, 300); // add the image to each canvas
-                    var canvasNum = canvases[i].id.replace("canvas_charBodyImage", "");
-                    //console.log("canvasNum: " + canvasNum);
-                    var panelNum = parseInt(canvasNum.split(".")[1]-1);
-                    //console.log("panelNum: " + panelNum);
-                    var charFigureNum = parseInt(canvasNum.split(".")[2]);
-                    drawSelectedAreasOnCharBodyImage(canvases[i], panelNum, charFigureNum);
-                    //console.log(pagesData[pageNum].panels[panelNum].characters);
-                    // add mouse click event listener to each canvas
-                    canvases[i].addEventListener('mousedown', function(e) {handleMouseClick(e)
-                                                 });
-                }
-                if (canvases[i].id.includes("canvas_charOrientation")) {
-                    context_of_charOrientation = canvases[i].getContext('2d');
-                    // put in the white background
-                    context_of_charOrientation.fillStyle = "white";
-                    context_of_charOrientation.fillRect(0, 0, canvas.width, canvas.height);
-                    context_of_charOrientation.restore();
-                    // put the purple circle
-                    context_of_charOrientation.beginPath();
-                    context_of_charOrientation.arc(cx, cy, 80, 0, 2 * Math.PI, false);
-                    context_of_charOrientation.fillStyle = '#7E06DA';
-                    context_of_charOrientation.fill();
-                    context_of_charOrientation.restore();
-                    // put the little rectangle
-                    context_of_charOrientation.beginPath();
-                    context_of_charOrientation.rect(80, 190, 40, 40);
-                    context_of_charOrientation.fillStyle = '#7E06DA';
-                    context_of_charOrientation.fill();
-                    context_of_charOrientation.restore();
-        
-                    drawOrientationImage(canvases[i].id);
+            // internal function to create a new animacy form for
+            function createAnimacyReferenceForms(p,c) {
+                var idNum = (p+1) + "." + c;
+                //console.log("idNum: ", idNum);
+                
+                // generate a text prompt to get a reference
+                var referenceTextInputContainer = document.createElement('div');
+                referenceTextInputContainer.id = "referenceTextInputContainer" + idNum;
+                referenceTextInputContainer.setAttribute('class', "referenceTextInputContainer");
+                var firstReferenceInputContainer = document.createElement('div');
+                firstReferenceInputContainer.setAttribute("class", "firstReferenceInputContainer");
+                var referenceTextInput = document.createElement('input');
+                referenceTextInput.setAttribute('type', 'text');
+                referenceTextInput.setAttribute("class", "referenceTextInput");
+                referenceTextInput.setAttribute('onchange', "referenceInputs_animacyRef(event)");
+                referenceTextInput.id = "referenceTextInput" + idNum;
+                var referenceTextInputLabel = document.createElement('label');
+                referenceTextInputLabel.setAttribute('for', "referenceTextInput" + idNum);
+                referenceTextInputLabel.id = "referenceTextInputLabel" + idNum;
+                referenceTextInputLabel.innerHTML = "Label: ";
+                // add datalist
+                var referenceTextInput_datalist = document.createElement('datalist');
+                referenceTextInput_datalistID = "referenceTextInput_datalist" + idNum;
+                referenceTextInput_datalist.setAttribute('id', referenceTextInput_datalistID);
+                document.body.appendChild(referenceTextInput_datalist);
+                referenceTextInput.setAttribute('list', referenceTextInput_datalistID);
+                
+                firstReferenceInputContainer.appendChild(referenceTextInputLabel);
+                firstReferenceInputContainer.appendChild(referenceTextInput);
+                referenceTextInputContainer.appendChild(firstReferenceInputContainer);
+                
+                // generate a new checkbox set to check if reference is a group, is part of a group, or the ref refers to another entity seen before
+                // (I know it says radio, but I had to change it to checkbox and it would be a total bitch to change all the variable names!)
+                var attributesRadioSetContainer = document.createElement('div');
+                attributesRadioSetContainer.setAttribute("class", "attributesRadioSetContainer");
+                attributesRadioSetContainer.id = "attributesRadioSetContainer" + idNum;
+                // is a group:
+                var isAGroupRadio = document.createElement('input');
+                isAGroupRadio.setAttribute('type', 'checkbox');
+                isAGroupRadio.setAttribute("class", "attributeCheckbox");
+                isAGroupRadio.setAttribute('name', "referenceAttributesRadioSet");
+                isAGroupRadio.id = "isAGroupRadio" + idNum;
+                isAGroupRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
+                var isAGroupRadioLabel = document.createElement('label');
+                isAGroupRadioLabel.setAttribute('for', "isAGroupRadioLabel" + idNum);
+                isAGroupRadioLabel.id = "isAGroupRadioLabel" + idNum;
+                isAGroupRadioLabel.innerHTML = "Group";
+                // is part of a group:
+                var isPartOfGroupRadio = document.createElement('input');
+                isPartOfGroupRadio.setAttribute('type', 'checkbox');
+                isPartOfGroupRadio.setAttribute("class", "attributeCheckbox");
+                isPartOfGroupRadio.setAttribute('name', "referenceAttributesRadioSet");
+                isPartOfGroupRadio.id = "isPartOfGroupRadio" + idNum;
+                isPartOfGroupRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
+                var isPartOfGroupRadioLabel = document.createElement('label');
+                isPartOfGroupRadioLabel.setAttribute('for', "isPartOfGroupRadio");
+                isPartOfGroupRadioLabel.id = "isPartOfGroupRadioLabel" + idNum;
+                isPartOfGroupRadioLabel.innerHTML = "Part of a group";
+                // Is the same as another label:
+                var isSameAsOtherLabelRadio = document.createElement('input');
+                isSameAsOtherLabelRadio.setAttribute('type', 'checkbox');
+                isSameAsOtherLabelRadio.setAttribute("class", "attributeCheckbox");
+                isSameAsOtherLabelRadio.setAttribute('name', "referenceAttributesRadioSet");
+                isSameAsOtherLabelRadio.id = "isSameAsOtherLabelRadio" + idNum;
+                isSameAsOtherLabelRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
+                var isSameAsOtherLabelRadioLabel = document.createElement('label');
+                isSameAsOtherLabelRadioLabel.setAttribute('for', "isSameAsOtherLabelRadio");
+                isSameAsOtherLabelRadioLabel.id = "isSameAsOtherLabelRadioLabel" + idNum;
+                isSameAsOtherLabelRadioLabel.innerHTML = "Same as other label"
+                
+                // put the attribute radio set into a table
+                var attributeRadioSetTable = document.createElement('table');
+                attributeRadioSetTable.setAttribute("class", "attributeRadioSetTable");
+                attributeRadioSetTable.id = "attributeRadioSetTable" + idNum;
+                // row 1
+                var row1AttributeSet = document.createElement('tr');
+                row1AttributeSet.id = "row1AttributeSet" + idNum;
+                var row1AttributeSetButton = document.createElement('td');
+                var row1AttributeSetLabel = document.createElement('td');
+                row1AttributeSetButton.appendChild(isAGroupRadio);
+                row1AttributeSetLabel.appendChild(isAGroupRadioLabel);
+                row1AttributeSet.appendChild(row1AttributeSetButton);
+                row1AttributeSet.appendChild(row1AttributeSetLabel);
+                attributeRadioSetTable.appendChild(row1AttributeSet);
+                // row 2
+                var row2AttributeSet = document.createElement('tr');
+                row2AttributeSet.id = "row2AttributeSet" + idNum;
+                var row2AttributeSetButton = document.createElement('td');
+                var row2AttributeSetLabel = document.createElement('td');
+                row2AttributeSetButton.appendChild(isPartOfGroupRadio);
+                row2AttributeSetLabel.appendChild(isPartOfGroupRadioLabel);
+                row2AttributeSet.appendChild(row2AttributeSetButton);
+                row2AttributeSet.appendChild(row2AttributeSetLabel);
+                attributeRadioSetTable.appendChild(row2AttributeSet);
+                // row 3
+                var row3AttributeSet = document.createElement('tr');
+                row3AttributeSet.id = "row3AttributeSet" + idNum;
+                var row3AttributeSetButton = document.createElement('td');
+                var row3AttributeSetLabel = document.createElement('td');
+                row3AttributeSetButton.appendChild(isSameAsOtherLabelRadio);
+                row3AttributeSetLabel.appendChild(isSameAsOtherLabelRadioLabel);
+                row3AttributeSet.appendChild(row3AttributeSetButton);
+                row3AttributeSet.appendChild(row3AttributeSetLabel);
+                attributeRadioSetTable.appendChild(row3AttributeSet);
+                
+                // append table to container
+                attributesRadioSetContainer.appendChild(attributeRadioSetTable);
+                // append to reference container
+                referenceTextInputContainer.appendChild(attributesRadioSetContainer);
+                // append to charFeaturesForm
+                var CharFeatForm = document.getElementById("charFeaturesForm" + idNum);
+                CharFeatForm.appendChild(referenceTextInputContainer);
+            } // end of function createAnimacyReferenceForms(p,c)
+            
+            
+            function createIsPartOfGroupReferenceForm(p,c) {
+                var idNum = (p+1) + "." + c;
+                // get the relevant row
+                var currentRow2AttributeSet = document.getElementById("row2AttributeSet" + idNum);
+                
+                var isPartOfGroupRadioTextbox = document.createElement('input');
+                isPartOfGroupRadioTextbox.setAttribute('type', 'text');
+                isPartOfGroupRadioTextbox.id = "isPartOfGroupRadioTextbox" + idNum;
+                isPartOfGroupRadioTextbox.setAttribute("class", "referenceTextInput");
+                isPartOfGroupRadioTextbox.setAttribute('onchange', "referenceInputs_animacyRef(event)");
 
-               }
-                    // add event listeners
-                    canvases[i].addEventListener('mousedown', function(e) {rotateImage.handleMouseDown(e)});
-                    canvases[i].addEventListener('mousemove', function(e) {rotateImage.handleMouseMove(e)});
-                    canvases[i].addEventListener('mouseup', function(e) {rotateImage.handleMouseUp(e)});
-                    canvases[i].addEventListener('mouseout', function(e) {rotateImage.handleMouseOut(e)});
-            }
+                // add datalist
+                var isPartOfGroupRadioTextbox_datalist = document.createElement('datalist');
+                isPartOfGroupRadioTextbox_datalistID = "isPartOfGroupRadioTextbox_datalist" + idNum;
+                isPartOfGroupRadioTextbox_datalist.setAttribute('id', isPartOfGroupRadioTextbox_datalistID);
+                document.body.appendChild(isPartOfGroupRadioTextbox_datalist);
+                isPartOfGroupRadioTextbox.setAttribute('list', isPartOfGroupRadioTextbox_datalistID);
+
+                // just make the input textbox for now
+                var isPartOfGroupRadioTextboxRowText = document.createElement('td');
+                isPartOfGroupRadioTextboxRowText.appendChild(isPartOfGroupRadioTextbox);
+
+                currentRow2AttributeSet.appendChild(isPartOfGroupRadioTextboxRowText);
+            } // end of function createIsAGroupReferenceForm(p,c)
+            
+            
+            function createIsSameAsOtherLabelReferenceForm(p,c) {
+                var idNum = (p+1) + "." + c;
+                // get the relevant row
+                var currentRow3AttributeSet = document.getElementById("row3AttributeSet" + idNum);
+                    
+                var isSameAsOtherLabelTextbox = document.createElement('input');
+                isSameAsOtherLabelTextbox.setAttribute('type', 'text');
+                isSameAsOtherLabelTextbox.id = "isSameAsOtherLabelTextbox" + idNum;
+                isSameAsOtherLabelTextbox.setAttribute("class", "referenceTextInput");
+                isSameAsOtherLabelTextbox.setAttribute('onchange', "referenceInputs_animacyRef(event)");
+
+                // add datalist
+                var isSameAsOtherLabelTextbox_datalist = document.createElement('datalist');
+                isSameAsOtherLabelTextbox_datalistID = "isSameAsOtherLabelTextbox_datalist" + idNum;
+                isSameAsOtherLabelTextbox_datalist.setAttribute('id', isSameAsOtherLabelTextbox_datalistID);
+                document.body.appendChild(isSameAsOtherLabelTextbox_datalist);
+                isSameAsOtherLabelTextbox.setAttribute('list', isSameAsOtherLabelTextbox_datalistID);
+                
+                // add new tr row 3.5 under 3 tr, append the new ref textbox
+                //var isSameAsOtherLabelTextboxRow = document.createElement('tr');
+                //var isSameAsOtherLabelTextboxRowLabel = document.createElement('td');
+                
+                // just make the text input box for now
+                var isSameAsOtherLabelTextboxRowText = document.createElement('td');
+                
+                isSameAsOtherLabelTextboxRowText.appendChild(isSameAsOtherLabelTextbox);
+                currentRow3AttributeSet.appendChild(isSameAsOtherLabelTextboxRowText);
+                    //console.log("IsSameAsOtherLabelRadio true, new form made");
+            } // end of function createIsSameAsOtherLabelReferenceForm(p,c)
+            
+            
+            // put the animacyType radio buttons and label on the page
+            for (var r=0; r<pagesData[pageNum].panels.length; r++) {
+                for (var s=0; s<pagesData[pageNum].panels[r].characters.length; s++) {
+                    var getAnimacyType = pagesData[pageNum].panels[r].characters[s].animacyType;
+                    console.log(getAnimacyType);
+                    
+                    if (getAnimacyType == "humanAnimate") {
+                        document.getElementById("humanAnimateCheckbox" + (r+1) + "." + s).checked = true;
+                        // add ref form and value
+                        createAnimacyReferenceForms(r,s);
+                        document.getElementById("referenceTextInput" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].label;
+                        
+                        // check if any of the group buttons are checked
+                        
+                        // check isAGroup
+                        if (pagesData[pageNum].panels[r].characters[s].isAGroup == true) {
+                            document.getElementById("isAGroupRadio" + (r+1) + "." + s).checked = true;
+                        } // end of if isAGroup == true
+                        
+                        // check isPartOfGroup
+                        if (pagesData[pageNum].panels[r].characters[s].isPartOfGroup == true) {
+                            document.getElementById("isPartOfGroupRadio" + (r+1) + "." + s).checked = true;
+                            // create a ref and fill it with the right label
+                            createIsPartOfGroupReferenceForm(r,s);
+                            document.getElementById("isPartOfGroupRadioTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isPartOfGroupLabel;
+                        } // end of if isPartOfGroup == true
+                        
+                        // check isSameAsOtherLabel
+                        if (pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabel == true) {
+                            
+                            document.getElementById("isSameAsOtherLabelRadio" + (r+1) + "." + s).checked = true;
+                            createIsSameAsOtherLabelReferenceForm(r,s);
+                            document.getElementById("isSameAsOtherLabelTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabelRef;
+                        } // end of if isSameAsOtherLabel == true
+                    } // end of if (getAnimacyType == "humanAnimate")
+                    
+                    if (getAnimacyType == "humanLikeAnimate") {
+                        document.getElementById("humanLikeAnimateCheckbox" + (r+1) + "." + s).checked = true;
+                        // add ref form and value
+                        createAnimacyReferenceForms(r,s);
+                        document.getElementById("referenceTextInput" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].label;
+                        
+                        // check if any of the group buttons are checked
+                        
+                        // check isAGroup
+                        if (pagesData[pageNum].panels[r].characters[s].isAGroup == true) {
+                            document.getElementById("isAGroupRadio" + (r+1) + "." + s).checked = true;
+                        } // end of if isAGroup == true
+                        
+                        // check isPartOfGroup
+                        if (pagesData[pageNum].panels[r].characters[s].isPartOfGroup == true) {
+                            document.getElementById("isPartOfGroupRadio" + (r+1) + "." + s).checked = true;
+                            // create a ref and fill it with the right label
+                            createIsPartOfGroupReferenceForm(r,s);
+                            document.getElementById("isPartOfGroupRadioTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isPartOfGroupLabel;
+                        } // end of if isPartOfGroup == true
+                        
+                        // check isSameAsOtherLabel
+                        if (pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabel == true) {
+                            
+                            document.getElementById("isSameAsOtherLabelRadio" + (r+1) + "." + s).checked = true;
+                            createIsSameAsOtherLabelReferenceForm(r,s);
+                            document.getElementById("isSameAsOtherLabelTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabelRef;
+                        } // end of if isSameAsOtherLabel == true
+                    } // end of if (animacyType == "humanLikeAnimate")
+                    
+                    
+                    if (getAnimacyType == "nonHumanAnimate") {
+                        document.getElementById("nonHumanAnimateCheckbox" + (r+1) + "." + s).checked = true;
+                        // add ref form and value
+                        createAnimacyReferenceForms(r,s);
+                        document.getElementById("referenceTextInput" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].label;
+                        
+                        // check if any of the group buttons are checked
+                        
+                        // check isAGroup
+                        if (pagesData[pageNum].panels[r].characters[s].isAGroup == true) {
+                            document.getElementById("isAGroupRadio" + (r+1) + "." + s).checked = true;
+                        } // end of if isAGroup == true
+                        
+                        // check isPartOfGroup
+                        if (pagesData[pageNum].panels[r].characters[s].isPartOfGroup == true) {
+                            document.getElementById("isPartOfGroupRadio" + (r+1) + "." + s).checked = true;
+                            // create a ref and fill it with the right label
+                            createIsPartOfGroupReferenceForm(r,s);
+                            document.getElementById("isPartOfGroupRadioTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isPartOfGroupLabel;
+                        } // end of if isPartOfGroup == true
+                        
+                        // check isSameAsOtherLabel
+                        if (pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabel == true) {
+                            
+                            document.getElementById("isSameAsOtherLabelRadio" + (r+1) + "." + s).checked = true;
+                            createIsSameAsOtherLabelReferenceForm(r,s);
+                            document.getElementById("isSameAsOtherLabelTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabelRef;
+                        } // end of if isSameAsOtherLabel == true
+                    } // end of if (getAnimacyType == "nonHumanAnimate")
+                    
+                    
+                    
+                    if (getAnimacyType == "ambiguousAnimate") {
+                        document.getElementById("ambiguousCheckbox" + (r+1) + "." + s).checked = true;
+                        // add ref form and value
+                        createAnimacyReferenceForms(r,s);
+                        document.getElementById("referenceTextInput" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].label;
+                        
+                        // check if any of the group buttons are checked
+                        
+                        // check isAGroup
+                        if (pagesData[pageNum].panels[r].characters[s].isAGroup == true) {
+                            document.getElementById("isAGroupRadio" + (r+1) + "." + s).checked = true;
+                        } // end of if isAGroup == true
+                        
+                        // check isPartOfGroup
+                        if (pagesData[pageNum].panels[r].characters[s].isPartOfGroup == true) {
+                            document.getElementById("isPartOfGroupRadio" + (r+1) + "." + s).checked = true;
+                            // create a ref and fill it with the right label
+                            createIsPartOfGroupReferenceForm(r,s);
+                            document.getElementById("isPartOfGroupRadioTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isPartOfGroupLabel;
+                        } // end of if isPartOfGroup == true
+                        
+                        // check isSameAsOtherLabel
+                        if (pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabel == true) {
+                            
+                            document.getElementById("isSameAsOtherLabelRadio" + (r+1) + "." + s).checked = true;
+                            createIsSameAsOtherLabelReferenceForm(r,s);
+                            document.getElementById("isSameAsOtherLabelTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabelRef;
+                        } // end of if isSameAsOtherLabel == true
+                    } // end of if (getAnimacyType == "ambiguousAnimate")
+                    
+                    if (getAnimacyType == "inanimate") {
+                        document.getElementById("inanimateCheckbox" + (r+1) + "." + s).checked = true;
+                    }
+                }
+            } // end of for (var r=0; r<pagesData[pageNum].panels.length; r++)
+
+            // This is for the old Char Features Task - Ignore for now!!!!
+            if (false) {
+                // add the canvas images and mouse click event listener:
+                // get the original emotion value per section
+                for (var p=0; p<pagesData[pageNum].panels.length; p++) {
+                    for (var c=0; c<pagesData[pageNum].panels[p].characters.length; c++) {
+                        var getEmotionInput = document.getElementById("charEmotionSelect" + (p+1) + "." + c);
+                        var emotionValue = pagesData[pageNum].panels[p].characters[c].emotion;
+                        
+                        getEmotionInput.value = emotionValue;
+                        //console.log(emotionValue);
+                        console.log(pagesData[pageNum].panels[p].characters[c]);
+                        console.log(getEmotionInput.id);
+                    }
+                } // end of for loop
+                var canvases = document.getElementsByTagName('canvas'); // get all canvases
+                var numCanvases = canvases.length;
+                //console.log("num canvases: " + numCanvases);
+
+                for (var i=0; i<numCanvases; i++) {
+                    if (canvases[i].id.includes("canvas_charBodyImage")) {
+                        canvases[i].getContext('2d').drawImage(charBodyMapImage, 0, 0, 125, 300); // add the image to each canvas
+                        var canvasNum = canvases[i].id.replace("canvas_charBodyImage", "");
+                        //console.log("canvasNum: " + canvasNum);
+                        var panelNum = parseInt(canvasNum.split(".")[1]-1);
+                        //console.log("panelNum: " + panelNum);
+                        var charFigureNum = parseInt(canvasNum.split(".")[2]);
+                        drawSelectedAreasOnCharBodyImage(canvases[i], panelNum, charFigureNum);
+                        //console.log(pagesData[pageNum].panels[panelNum].characters);
+                        // add mouse click event listener to each canvas
+                        canvases[i].addEventListener('mousedown', function(e) {handleMouseClick(e)
+                                                     });
+                    }
+                    if (canvases[i].id.includes("canvas_charOrientation")) {
+                        context_of_charOrientation = canvases[i].getContext('2d');
+                        // put in the white background
+                        context_of_charOrientation.fillStyle = "white";
+                        context_of_charOrientation.fillRect(0, 0, canvas.width, canvas.height);
+                        context_of_charOrientation.restore();
+                        // put the purple circle
+                        context_of_charOrientation.beginPath();
+                        context_of_charOrientation.arc(cx, cy, 80, 0, 2 * Math.PI, false);
+                        context_of_charOrientation.fillStyle = '#7E06DA';
+                        context_of_charOrientation.fill();
+                        context_of_charOrientation.restore();
+                        // put the little rectangle
+                        context_of_charOrientation.beginPath();
+                        context_of_charOrientation.rect(80, 190, 40, 40);
+                        context_of_charOrientation.fillStyle = '#7E06DA';
+                        context_of_charOrientation.fill();
+                        context_of_charOrientation.restore();
+            
+                        drawOrientationImage(canvases[i].id);
+
+                   }
+                        // add event listeners
+                        canvases[i].addEventListener('mousedown', function(e) {rotateImage.handleMouseDown(e)});
+                        canvases[i].addEventListener('mousemove', function(e) {rotateImage.handleMouseMove(e)});
+                        canvases[i].addEventListener('mouseup', function(e) {rotateImage.handleMouseUp(e)});
+                        canvases[i].addEventListener('mouseout', function(e) {rotateImage.handleMouseOut(e)});
+                }
+            } // end of if (false)
         } // end of if characterFeaturesTaskSwitch == true
     } // end of if ((pageNum+1) <= pagesData.length)
     else {
@@ -1001,9 +1322,14 @@ function putPreviousPageOnCanvas(event) {
     }
     
     // Also store the values for the characterSegmentationTask!
-//    if (characterSegmentationTaskSwitch == true) {
-//        validateInputs();
-//    }
+    if (characterSegmentationTaskSwitch == true) {
+        validateInputs();
+    }
+    
+    // ... and also for the characterFeaturesTaskSwitch
+    if (characterFeaturesTaskSwitch == true) {
+        validateInputs();
+    }
     
     pageNum -= 1; // Decrement pageNum index
     charIdON = false;  // turn off all (panel, char and text ID) event handlers
@@ -1087,63 +1413,69 @@ function putPreviousPageOnCanvas(event) {
     
     if (characterFeaturesTaskSwitch == true) {
         
-        // get the original emotion value per section
-        for (var p=0; p<pagesData[pageNum].panels.length; p++) {
-            for (var c=0; c<pagesData[pageNum].panels[p].characters.length; c++) {
-                var getEmotionInput = document.getElementById("charEmotionSelect" + (p+1) + "." + c);
-                var emotionValue = pagesData[pageNum].panels[p].characters[c].emotion;
-                
-                getEmotionInput.value = emotionValue;
-            }
-        }
+        validateInputs(); // store the values of current page before going back a page
         
-        var canvases = document.getElementsByTagName('canvas'); // get all canvases
-
-        var numCanvases = canvases.length; // get the total number of canvases
-        //console.log("num canvases: " + numCanvases);
-
-        // for each canvas
-        for (var i=0; i<numCanvases; i++) {
-            // if the canvas is one of the charBodyImages and not the comic page
-            if (canvases[i].id.includes("canvas_charBodyImage")) {
-                canvases[i].getContext('2d').drawImage(charBodyMapImage, 0, 0, 125, 300); // add the image to each canvas
-                var canvasNum = canvases[i].id.replace("canvas_charBodyImage", "");
-                //console.log("canvasNum: " + canvasNum);
-                var panelNum = parseInt(canvasNum.split(".")[1]-1);
-                //console.log("panelNum: " + panelNum);
-                var charFigureNum = parseInt(canvasNum.split(".")[2]);
-                drawSelectedAreasOnCharBodyImage(canvases[i], panelNum, charFigureNum);
-                // add mouse click event listener to each canvas
-                canvases[i].addEventListener('mousedown', function(e) {handleMouseClick(e)});
+        // The Old Character Features Task - Just skip for now!!!!
+        if (false) {
+            
+            // get the original emotion value per section
+            for (var p=0; p<pagesData[pageNum].panels.length; p++) {
+                for (var c=0; c<pagesData[pageNum].panels[p].characters.length; c++) {
+                    var getEmotionInput = document.getElementById("charEmotionSelect" + (p+1) + "." + c);
+                    var emotionValue = pagesData[pageNum].panels[p].characters[c].emotion;
+                    
+                    getEmotionInput.value = emotionValue;
+                }
             }
-            if (canvases[i].id.includes("canvas_charOrientation")) {
-                context_of_charOrientation = canvases[i].getContext('2d');
-                // put in the white background
-                context_of_charOrientation.fillStyle = "white";
-                context_of_charOrientation.fillRect(0, 0, canvas.width, canvas.height);
-                context_of_charOrientation.restore();
-                // put the purple circle
-                context_of_charOrientation.beginPath();
-                context_of_charOrientation.arc(cx, cy, 80, 0, 2 * Math.PI, false);
-                context_of_charOrientation.fillStyle = '#7E06DA';
-                context_of_charOrientation.fill();
-                context_of_charOrientation.restore();
-                // put the little rectangle
-                context_of_charOrientation.beginPath();
-                context_of_charOrientation.rect(80, 190, 40, 40);
-                context_of_charOrientation.fillStyle = '#7E06DA';
-                context_of_charOrientation.fill();
-                context_of_charOrientation.restore();
-                
-                drawOrientationImage(canvases[i].id); // draw the kendon image
-                
-                // add event listeners
-                canvases[i].addEventListener('mousedown', function(e) {rotateImage.handleMouseDown(e)});
-                canvases[i].addEventListener('mousemove', function(e) {rotateImage.handleMouseMove(e)});
-                canvases[i].addEventListener('mouseup', function(e) {rotateImage.handleMouseUp(e)});
-                canvases[i].addEventListener('mouseout', function(e) {rotateImage.handleMouseOut(e)});
-            }
-        } // end of for (var i=0; i<numCanvases; i++)
+            
+            var canvases = document.getElementsByTagName('canvas'); // get all canvases
+
+            var numCanvases = canvases.length; // get the total number of canvases
+            //console.log("num canvases: " + numCanvases);
+
+            // for each canvas
+            for (var i=0; i<numCanvases; i++) {
+                // if the canvas is one of the charBodyImages and not the comic page
+                if (canvases[i].id.includes("canvas_charBodyImage")) {
+                    canvases[i].getContext('2d').drawImage(charBodyMapImage, 0, 0, 125, 300); // add the image to each canvas
+                    var canvasNum = canvases[i].id.replace("canvas_charBodyImage", "");
+                    //console.log("canvasNum: " + canvasNum);
+                    var panelNum = parseInt(canvasNum.split(".")[1]-1);
+                    //console.log("panelNum: " + panelNum);
+                    var charFigureNum = parseInt(canvasNum.split(".")[2]);
+                    drawSelectedAreasOnCharBodyImage(canvases[i], panelNum, charFigureNum);
+                    // add mouse click event listener to each canvas
+                    canvases[i].addEventListener('mousedown', function(e) {handleMouseClick(e)});
+                }
+                if (canvases[i].id.includes("canvas_charOrientation")) {
+                    context_of_charOrientation = canvases[i].getContext('2d');
+                    // put in the white background
+                    context_of_charOrientation.fillStyle = "white";
+                    context_of_charOrientation.fillRect(0, 0, canvas.width, canvas.height);
+                    context_of_charOrientation.restore();
+                    // put the purple circle
+                    context_of_charOrientation.beginPath();
+                    context_of_charOrientation.arc(cx, cy, 80, 0, 2 * Math.PI, false);
+                    context_of_charOrientation.fillStyle = '#7E06DA';
+                    context_of_charOrientation.fill();
+                    context_of_charOrientation.restore();
+                    // put the little rectangle
+                    context_of_charOrientation.beginPath();
+                    context_of_charOrientation.rect(80, 190, 40, 40);
+                    context_of_charOrientation.fillStyle = '#7E06DA';
+                    context_of_charOrientation.fill();
+                    context_of_charOrientation.restore();
+                    
+                    drawOrientationImage(canvases[i].id); // draw the kendon image
+                    
+                    // add event listeners
+                    canvases[i].addEventListener('mousedown', function(e) {rotateImage.handleMouseDown(e)});
+                    canvases[i].addEventListener('mousemove', function(e) {rotateImage.handleMouseMove(e)});
+                    canvases[i].addEventListener('mouseup', function(e) {rotateImage.handleMouseUp(e)});
+                    canvases[i].addEventListener('mouseout', function(e) {rotateImage.handleMouseOut(e)});
+                }
+            } // end of for (var i=0; i<numCanvases; i++)
+        } // end of if (false)
     } // end of if (characterFeaturesTaskSwitch == true)
 } // end of putPreviousPageOnCanvas(event)
 
@@ -1233,76 +1565,27 @@ function validateInputs() {
                 errorMessage += "Are there any outlines that you are unsure about? See the text box below!"
                 currentFeedbackFormTextarea.style.backgroundColor = "LightPink"; // highlight input
             } //end of if (currentFeedbackFormTextarea.innerHTML == feedbackFormTextarea)
-            else {
-                
-                // deal with the animacy task feedback:
-                // add an "animacy feedback" section to the last panel on the page
-                // and put the feedback text in it.
-                // but first, check if this section already exists in the last panel
-                var lastPanelNum = pagesData[pageNum].panels.length-1;
-                var lastPanel = pagesData[pageNum].panels[lastPanelNum];
-                console.log(lastPanel["animacyFeedback"]);
-                lastPanel["animacyFeedback"] = currentFeedbackFormTextarea.value;
-                
-//                if (lastPanel["animacyFeedback"] === undefined) {
-//                    // if not, add this section and put in the feedback
-//                    lastPanel["animacyFeedback"] = currentFeedbackFormTextarea.value;
-//                } else {
-//                    // if so,
-//                    lastPanel["animacyFeedback"] = currentFeedbackFormTextarea.value;
-//                }
-                
-            } // else from (feedbackFormTextareaText == currentFeedbackFormTextarea.value)
-                
-                // make new dummy panel to save the animacy feedback
-                // but first, check if one already exists on this page
-                // look at the id of the last panel created (panel.length - 1)
-//                var lastPanelNum = pagesData[pageNum].panels.length-1;
-//                var lastPanel = pagesData[pageNum].panels[lastPanelNum];
-//                var lastPanelID = lastPanel["id"];
-//                var lastPanelIDString = lastPanelID.toString();
-//                if (lastPanelIDString.includes("dummy")) { // does it have "dummy" in the id?
-//                    // if so, put the animacy feedback in there.
-//                    lastPanel["animacyFeedback"] = currentFeedbackFormTextarea.value;
-//                } else {
-//                    // if not, then make a new dummy panel to hold the animacy feedback.
-//                    dummyPanel = {
-//                    polygonCoords: [{"x":0, "y":0}],
-//                    color: "#FF0000",
-//                        id : "dummyPanel" + pageNum,
-//                    characters:[],
-//                    textSections: [],
-//                    background: {},
-//                        animacyFeedback : currentFeedbackFormTextarea.value
-//                    } // end of dummyPanel
-//                    pagesData[pageNum].panels.push(dummyPanel);
-//                } // end of else for if (lastPanel.id.includes("dummy"))
-//
-//            }
-
+            
             // if a dummy panel has already been created, just put the current feedback string into the dummy panel
-//            var lastPanelNum = pagesData[pageNum].panels.length-1;
-//            var lastPanel = pagesData[pageNum].panels[lastPanelNum];
-//            var storedAnimacyFeedback = lastPanel["animacyFeedback"];
-//            console.log("validateInputs lastPanelNum: " + lastPanelNum);
-//            console.log("panels.length: " + pagesData[pageNum].panels.length);
-//            console.log("stored animacy feedback: " + storedAnimacyFeedback);
-//            if (storedAnimacyFeedback !== undefined) {
-//                lastPanel["animacyFeedback"] = currentFeedbackFormTextarea.value
-//            }
-//            else {
-//                // put the feedback information into pagesData
-//                dummyPanel = {
-//                polygonCoords: [{"x":0, "y":0}],
-//                color: "#FF0000",
-//                    id : "dummyPanel" + pageNum,
-//                characters:[],
-//                textSections: [],
-//                background: {},
-//                    animacyFeedback : currentFeedbackFormTextarea.value
-//                } // end of dummyPanel
-//                pagesData[pageNum].panels.push(dummyPanel);
-//            } // end of else if (feedbackFormTextareaText == currentFeedbackFormTextarea.value)
+            var lastPanelNum = pagesData[pageNum].panels.length-1;
+            var lastPanel = pagesData[pageNum].panels[lastPanelNum];
+            var storedAnimacyFeedback = lastPanel["animacyFeedback"];
+            if (storedAnimacyFeedback !== undefined) {
+                lastPanel["animacyFeedback"] = currentFeedbackFormTextarea.value
+            }
+            else {
+                // put the feedback information into pagesData
+                dummyPanel = {
+                polygonCoords: [{"x":0, "y":0}],
+                color: "#FF0000",
+                    id : "dummyPanel" + pageNum,
+                characters:[],
+                textSections: [],
+                background: {},
+                    animacyFeedback : currentFeedbackFormTextarea.value
+                } // end of dummyPanel
+                pagesData[pageNum].panels.push(dummyPanel);
+            } // end of else if (feedbackFormTextareaText == currentFeedbackFormTextarea.value)
             console.log("validateInputs: ");
             console.log(pagesData[pageNum].panels);
         } // end of if (animacySegmentationTaskSwitch)
@@ -1335,168 +1618,274 @@ function validateInputs() {
                 var panel = pagesData[pageNum].panels[i];
                 //console.log(panel); //test
                 for (var j=0; j<panel.characters.length; j++) {
-                    // whatever is in the input box for the label, make that the character label
                     
-                    // Char Checks:
+                    // START of the Animacy Features Checks
+                    // get the animacy type
+                    //console.log("panel num: ", i);
+                    //console.log("char Num: ", j);
+                    var animacyType = "";
+                    var humanAnimateValue = document.getElementById("humanAnimateCheckbox" + (i+1) + "." + j).checked;
+                    var humanLikeAnimateValue = document.getElementById("humanLikeAnimateCheckbox" + (i+1) + "." + j).checked;
+                    var nonHumanAnimateValue = document.getElementById("nonHumanAnimateCheckbox" + (i+1) + "." + j).checked;
+                    var ambiguousAnimateValue = document.getElementById("ambiguousCheckbox" + (i+1) + "." + j).checked;
+                    var inanimateCheckboxValue = document.getElementById("inanimateCheckbox" + (i+1) + "." + j).checked;
+                    //console.log("humanAnimateValue: ", humanAnimateValue);
+                    //console.log("humanLikeAnimateValue: ", humanLikeAnimateValue);
+                    //console.log("nonHumanAnimateValue: ", nonHumanAnimateValue);
+                    //console.log("ambiguousAnimateValue: ", ambiguousAnimateValue);
+                    //console.log("inanimateCheckboxValue: ", inanimateCheckboxValue);
+                    if (humanAnimateValue == true) {
+                        animacyType = "humanAnimate";
+                        panel.characters[j].animacyType = animacyType;
+                    }
+                    if (humanLikeAnimateValue == true) {
+                        animacyType = "humanLikeAnimate";
+                        panel.characters[j].animacyType = animacyType;
+                    }
+                    if (nonHumanAnimateValue == true) {
+                        animacyType = "nonHumanAnimate";
+                        panel.characters[j].animacyType = animacyType;
+                    }
+                    if (ambiguousAnimateValue == true) {
+                        animacyType = "ambiguousAnimate";
+                        panel.characters[j].animacyType = animacyType;
+                    }
+                    if (inanimateCheckboxValue == true) {
+                        animacyType = "inanimate";
+                        panel.characters[j].animacyType = animacyType;
+                    }
                     
-                    // Char reference label
-                    panel.characters[j].label = document.getElementById("charFeaturesFormInput" + (i+1) + "." + j).value;
-                    var character = panel.characters[j];
+                    if (animacyType == "") {
+                        errorMessage += "Please select from the list of options in Section " + (i+1) + ", number " + (j+1) + "\n";
+                        document.getElementById("animacyCheckboxContainer" + (i+1) + "." + j).style.backgroundColor = "LightPink";
+                    }
+     
+                    //console.log("animacyType", animacyType);
+                    //console.log(panel.characters[j].animacyType);
                     
-                    if (character.label == "" || character.label == charLabelInstruction) {
-                        errorMessage += "Missing Character Label for Section " + (i + 1) + " Character Number " + (j + 1) + "\n"; // send message
-                        document.getElementById("charFeaturesFormInput" + (i+1) + "." + j).style.backgroundColor = "LightPink"; // highlight input
-                    } // end of char ref label
+                    //console.log("animacyType", animacyType);
+                    // if the animacyValue is anything other than inanimate,
+                    if (animacyType == "humanAnimate" || animacyType == "humanLikeAnimate" || animacyType == "nonHumanAnimate" || animacyType == "ambiguousAnimate") {
+                        // first get the text box referent value
+                        // if the value is there, add it to data
+                        var refValue = document.getElementById("referenceTextInput" + (i+1) + "." + j).value;
+                        console.log("refValue: ", refValue);
+                        if (refValue == "" || refValue == null) {
+                            errorMessage += "Please add a label in Section " + (i+1) + ", number " + (j+1) + "\n";
+                            document.getElementById("referenceTextInput" + (i+1) + "." + j).style.backgroundColor = "LightPink";
+                        } else {
+                            panel.characters[j].label = refValue;
+                        }
+                        // value of isAGroup in data
+                        var isAGroupValue = document.getElementById("isAGroupRadio" + (i+1) + "." + j).checked;
+                        console.log("isAGroupValue: ", isAGroupValue);
+                        panel.characters[j].isAGroup = isAGroupValue;
+                        
+                        // value of isPartOfGroup button
+                        var isPartOfGroupValue = document.getElementById("isPartOfGroupRadio" + (i+1) + "." + j).checked;
+                        if (isPartOfGroupValue == true) {
+                            panel.characters[j].isPartOfGroup = isPartOfGroupValue;
+                            // value of isPartOfGroup ref
+                            isPartOfGroupRefValue = document.getElementById("isPartOfGroupRadioTextbox" + (i+1) + "." + j).value;
+                            if (isPartOfGroupRefValue == "" || isPartOfGroupRefValue == null) {
+                                errorMessage += "Please add a label in Section " + (i+1) + ", number " + (j+1) + "\n";
+                                document.getElementById("isPartOfGroupRadioTextbox" + (i+1) + "." + j).style.backgroundColor = "LightPink";
+                            } else {
+                                panel.characters[j].isPartOfGroupLabel = isPartOfGroupRefValue;
+                            }
+                        } else { // end of if (isPartOfGroupValue == true)
+                            panel.characters[j].isPartOfGroup = isPartOfGroupValue; // should be false
+                        }
+                        
+                        // value of isSameAsOtherLabel button
+                        var isSameAsOtherLabelValue = document.getElementById("isSameAsOtherLabelRadio" + (i+1) + "." + j).checked;
+                        if (isSameAsOtherLabelValue == true) {
+                            panel.characters[j].isSameAsOtherLabel = isSameAsOtherLabelValue;
+                            // value isSameAsOtherLabel ref
+                            var isSameAsOtherLabelRefValue = document.getElementById("isSameAsOtherLabelTextbox" + (i+1) + "." + j).value;
+                            if (isSameAsOtherLabelRefValue == "" || isSameAsOtherLabelRefValue == null) {
+                                    errorMessage += "Please add a label in Section " + (i+1) + ", number " + (j+1) + "\n";
+                                document.getElementById("isSameAsOtherLabelTextbox" + (i+1) + "." + j).style.backgroundColor = "LightPink";
+                            } else { // end of if (isSameAsOtherLabelValue == true)
+                                panel.characters[j].isSameAsOtherLabelRef = isSameAsOtherLabelRefValue;
+                            }
+                        } else { // end of if (isSameAsOtherLabelValue == true)
+                            panel.characters[j].isSameAsOtherLabel = isSameAsOtherLabelValue;
+                        }
+                        // if none of the buttons are selected,
+                        //if (isAGroupValue == false && isPartOfGroupValue == false && isSameAsOtherLabelValue == false) {
+                            //errorMessage += "Please select from the list of options in Section " + (i+1) + ", number " + (j+1) + "\n";
+                            //document.getElementById("attributesRadioSetContainer" + (i+1) + "." + j).style.backgroundColor = "LightPink";
+                        //}
+                    } // end of if (animacyType == "humanAnimate" || ...
                     
-                    // Char description checkbox and input
-                    var descriptionChecked = document.getElementById("charDescriptionButton" + (i+1) +  "." + j).checked;
-                    //console.log(descriptionChecked); // debug
+
+                    //console.log(panel.characters[j]);
+            
+                    // END of the Animacy Features Checks
                     
-                    // Change in description/category
-                    if (descriptionChecked == true) {
+                    if (false)  {
+                        // Just turn off old char features task for now!!
+                        // Char Checks:
+                        // whatever is in the input box for the label, make that the character label
+                        // Char reference label
+                        panel.characters[j].label = document.getElementById("charFeaturesFormInput" + (i+1) + "." + j).value;
+                        var character = panel.characters[j];
+                        
+                        if (character.label == "" || character.label == charLabelInstruction) {
+                            errorMessage += "Missing Character Label for Section " + (i + 1) + " Character Number " + (j + 1) + "\n"; // send message
+                            document.getElementById("charFeaturesFormInput" + (i+1) + "." + j).style.backgroundColor = "LightPink"; // highlight input
+                        } // end of char ref label
+                        
+                        // Char description checkbox and input
+                        var descriptionChecked = document.getElementById("charDescriptionButton" + (i+1) +  "." + j).checked;
+                        //console.log(descriptionChecked); // debug
+                        
+                        // Change in description/category
+                        if (descriptionChecked == true) {
+                            //console.log(panel.characters[j]);
+                            //console.log(panel.characters[j].Description);
+                            panel.characters[j].Description = document.getElementById("charDescriptionTextInput" + (i+1) +  "." + j).value;
+                            if (panel.characters[j].Description == "" || panel.characters[j].Description == charDescriptionInstruction) {
+                                errorMessage += "Missing Character Description for Section " + (i + 1) + " Character Number " + (j + 1) + "\n";
+                                document.getElementById("charDescriptionTextInput" + (i+1) +  "." + j).style.backgroundColor = "LightPink";
+                            }
+                        } // end of description check input
+                        
+                        // Char emotion input check
+                        panel.characters[j].emotion = document.getElementById("charEmotionSelect" + (i+1) +  "." + j).value;
+                        //console.log(panel.characters[j].emotion);
+                        
+                        if (panel.characters[j].emotion == "Select an Emotion" || panel.characters[j].emotion == "") {
+                            errorMessage += "Missing Emotion Selection for Section "  + (i + 1) + " Character Number " + (j + 1) + "\n";
+                            document.getElementById("charEmotionSelect" + (i+1) +  "." + j).style.color = "red";
+                        }
+                        
+                        //console.log("after validate input");
                         //console.log(panel.characters[j]);
-                        //console.log(panel.characters[j].Description);
-                        panel.characters[j].Description = document.getElementById("charDescriptionTextInput" + (i+1) +  "." + j).value;
-                        if (panel.characters[j].Description == "" || panel.characters[j].Description == charDescriptionInstruction) {
-                            errorMessage += "Missing Character Description for Section " + (i + 1) + " Character Number " + (j + 1) + "\n";
-                            document.getElementById("charDescriptionTextInput" + (i+1) +  "." + j).style.backgroundColor = "LightPink";
-                        }
-                    } // end of description check input
-                    
-                    // Char emotion input check
-                    panel.characters[j].emotion = document.getElementById("charEmotionSelect" + (i+1) +  "." + j).value;
-                    //console.log(panel.characters[j].emotion);
-                    
-                    if (panel.characters[j].emotion == "Select an Emotion" || panel.characters[j].emotion == "") {
-                        errorMessage += "Missing Emotion Selection for Section "  + (i + 1) + " Character Number " + (j + 1) + "\n";
-                        document.getElementById("charEmotionSelect" + (i+1) +  "." + j).style.color = "red";
-                    }
-                    
-                    //console.log("after validate input");
-                    //console.log(panel.characters[j]);
-                    
-                    // Char Body Map image
-                    var charBodyMapImageSections = panel.characters[j].areasShown;
-                    //console.log(charBodyMapImageSections);
-                    var allAreaValues = [];
-                    allAreaValues.push(charBodyMapImageSections.armEast);
-                    allAreaValues.push(charBodyMapImageSections.armWest);
-                    allAreaValues.push(charBodyMapImageSections.footEast);
-                    allAreaValues.push(charBodyMapImageSections.footWest);
-                    allAreaValues.push(charBodyMapImageSections.handEast);
-                    allAreaValues.push(charBodyMapImageSections.handWest);
-                    allAreaValues.push(charBodyMapImageSections.head);
-                    allAreaValues.push(charBodyMapImageSections.legEast);
-                    allAreaValues.push(charBodyMapImageSections.legWest);
-                    allAreaValues.push(charBodyMapImageSections.lowerBody);
-                    allAreaValues.push(charBodyMapImageSections.shouldersEast);
-                    allAreaValues.push(charBodyMapImageSections.shouldersWest);
-                    allAreaValues.push(charBodyMapImageSections.upperBody);
-                    
-                    //console.log(allAreaValues);
-                    
-                    var atLeastOneAreaTrue = false;
-                    
-                    for (var a=0; a<allAreaValues.length; a++) {
-                        if (allAreaValues[a] == true) {
-                            atLeastOneAreaTrue = true;
-                        }
-                    }
-                    if (atLeastOneAreaTrue == false) {
-                        errorMessage += "Missing Areas Depicted for Section " + (i + 1) + " Character Number " + (j + 1) + "\n";
-                        // get the correct canvas and highlihgt its border
-                        var canvasCorrect = document.getElementById("canvas_charBodyImage" + pageNum + "." + (i+1) + "." + j);
-                        canvasCorrect.style.border = '3px solid red';
-                    }
-                    
-                    // Char orientation
-                    // get the radius variable for each canvas
-                    var orientationCanvasId = "canvas_charOrientation" + pageNum + "." + (i+1) + "." + j;
-                    var charOrientationRadians = vars_charOrientation[orientationCanvasId].r;
-                    //console.log(charOrientationRadians);
-                    var pi = Math.PI;
-                    var charOrientationDegrees = charOrientationRadians * (180/pi);
-                    //console.log(charOrientationDegrees);
-                    
-                    panel.characters[j].orientationAngle = {
-                        "radians" : charOrientationRadians,
-                        "degrees" : charOrientationDegrees
-                    }
-                    
-                    //console.log(panel.characters[j]);
-                    
-                    // create variables for each char orientation form created
-                    vars_charOrientation[charOrientation_canvasid] = {
-                        isDown : false,
-                        r : charOrientationRadians
-                    };
-                    //"canvas_charOrientation" + pageNum + "." + y + "." + x;
-                    
-                    // Color and Style - must have at least one selected
-                    panel.characters[j].multicolor = document.getElementById("charFullColorButton" + (i+1) + "." + j).checked;
-                    panel.characters[j].blackandwhite = document.getElementById("blackAndWhiteButton" + (i+1) + "." + j).checked;
-                    panel.characters[j].onecolororgradient = document.getElementById("charOneColorButton" + (i+1) + "." + j).checked;
-                    panel.characters[j].shadowsilhouette = document.getElementById("charSilhouetteButton" + (i+1) + "." + j).checked;
-                    
-                    var characterFeatures = panel.characters[j];
-                    
-                    if (characterFeatures.multicolor == false && characterFeatures.blackandwhite == false && characterFeatures.onecolororgradient == false && characterFeatures.shadowsilhouette == false ) {
                         
-                        errorMessage += "Select at Least One Checkbox in the Color and Style Section for Section  " + (i + 1) + " Character Number " + (j + 1) + "\n";
+                        // Char Body Map image
+                        var charBodyMapImageSections = panel.characters[j].areasShown;
+                        //console.log(charBodyMapImageSections);
+                        var allAreaValues = [];
+                        allAreaValues.push(charBodyMapImageSections.armEast);
+                        allAreaValues.push(charBodyMapImageSections.armWest);
+                        allAreaValues.push(charBodyMapImageSections.footEast);
+                        allAreaValues.push(charBodyMapImageSections.footWest);
+                        allAreaValues.push(charBodyMapImageSections.handEast);
+                        allAreaValues.push(charBodyMapImageSections.handWest);
+                        allAreaValues.push(charBodyMapImageSections.head);
+                        allAreaValues.push(charBodyMapImageSections.legEast);
+                        allAreaValues.push(charBodyMapImageSections.legWest);
+                        allAreaValues.push(charBodyMapImageSections.lowerBody);
+                        allAreaValues.push(charBodyMapImageSections.shouldersEast);
+                        allAreaValues.push(charBodyMapImageSections.shouldersWest);
+                        allAreaValues.push(charBodyMapImageSections.upperBody);
                         
-                        var getMulticolorLabel = document.getElementById("charFullColorLabel" + (i+1) + "." + j);
-                        getMulticolorLabel.style.color = "red";
-                        var getBlackAndWhiteLabel = document.getElementById("blackAndWhiteButtonLabel" + (i+1) + "." + j);
-                        getBlackAndWhiteLabel.style.color = "red";
-                        var getOneColorLabel = document.getElementById("charOneColorButtonLabel" + (i+1) + "." + j);
-                        getOneColorLabel.style.color = "red";
-                        var getShadowLabel = document.getElementById("charSilhouetteButtonLabel" + (i+1) + "." + j);
-                        getShadowLabel.style.color = "red";
+                        //console.log(allAreaValues);
                         
-                    }
-                    
-                    // Char Non-detailed to Full Detail scale
-                    var allDetailScaleValues =[];
-                    
-                    var detailedScaleValue1 = document.getElementById("liValue1" + (i+1) +  "." + j).checked;
-                    var detailedScaleValue2 = document.getElementById("liValue2" + (i+1) +  "." + j).checked;
-                    var detailedScaleValue3 = document.getElementById("liValue3" + (i+1) +  "." + j).checked;
-                    var detailedScaleValue4 = document.getElementById("liValue4" + (i+1) +  "." + j).checked;
-                    var detailedScaleValue5 = document.getElementById("liValue5" + (i+1) +  "." + j).checked;
-                    
-                    allDetailScaleValues.push(detailedScaleValue1);
-                    allDetailScaleValues.push(detailedScaleValue2);
-                    allDetailScaleValues.push(detailedScaleValue3);
-                    allDetailScaleValues.push(detailedScaleValue4);
-                    allDetailScaleValues.push(detailedScaleValue5);
-                    
-                    var atLeastOneRadioButtonTrue = false;
-                    
-                    for (var b=0; b<allDetailScaleValues.length; b++) {
-                        if (allDetailScaleValues[b] == true) {
-                            atLeastOneRadioButtonTrue = true;
-                            panel.characters[j].detail = b+1;
+                        var atLeastOneAreaTrue = false;
+                        
+                        for (var a=0; a<allAreaValues.length; a++) {
+                            if (allAreaValues[a] == true) {
+                                atLeastOneAreaTrue = true;
+                            }
                         }
-                    }
-                    if (atLeastOneRadioButtonTrue == false) {
-                        errorMessage += "Missing Detail Value for Section " + (i + 1) + " Character Number " + (j + 1) + "\n";
-                        var imageDetailScaleRetrieved = document.getElementById("ulImageDetailScale" + (i+1) +  "." + j);
-                        imageDetailScaleRetrieved.style.color = "red";
-                        var radioInput1Label = document.getElementById("li1Label" + (i+1) +  "." + j);
-                        radioInput1Label.style.color = "red";
-                        var radioInput2Label = document.getElementById("li2Label" + (i+1) +  "." + j);
-                        radioInput2Label.style.color = "red";
-                        var radioInput3Label = document.getElementById("li3Label" + (i+1) +  "." + j);
-                        radioInput3Label.style.color = "red";
-                        var radioInput4Label = document.getElementById("li4Label" + (i+1) +  "." + j);
-                        radioInput4Label.style.color = "red";
-                        var radioInput5Label = document.getElementById("li5Label" + (i+1) +  "." + j);
-                        radioInput5Label.style.color = "red";
-                    }
-                    //console.log(panel.characters[j]);
+                        if (atLeastOneAreaTrue == false) {
+                            errorMessage += "Missing Areas Depicted for Section " + (i + 1) + " Character Number " + (j + 1) + "\n";
+                            // get the correct canvas and highlihgt its border
+                            var canvasCorrect = document.getElementById("canvas_charBodyImage" + pageNum + "." + (i+1) + "." + j);
+                            canvasCorrect.style.border = '3px solid red';
+                        }
+                        
+                        // Char orientation
+                        // get the radius variable for each canvas
+                        var orientationCanvasId = "canvas_charOrientation" + pageNum + "." + (i+1) + "." + j;
+                        var charOrientationRadians = vars_charOrientation[orientationCanvasId].r;
+                        //console.log(charOrientationRadians);
+                        var pi = Math.PI;
+                        var charOrientationDegrees = charOrientationRadians * (180/pi);
+                        //console.log(charOrientationDegrees);
+                        
+                        panel.characters[j].orientationAngle = {
+                            "radians" : charOrientationRadians,
+                            "degrees" : charOrientationDegrees
+                        }
+                        
+                        //console.log(panel.characters[j]);
+                        
+                        // create variables for each char orientation form created
+                        vars_charOrientation[charOrientation_canvasid] = {
+                            isDown : false,
+                            r : charOrientationRadians
+                        };
+                        //"canvas_charOrientation" + pageNum + "." + y + "." + x;
+                        
+                        // Color and Style - must have at least one selected
+                        panel.characters[j].multicolor = document.getElementById("charFullColorButton" + (i+1) + "." + j).checked;
+                        panel.characters[j].blackandwhite = document.getElementById("blackAndWhiteButton" + (i+1) + "." + j).checked;
+                        panel.characters[j].onecolororgradient = document.getElementById("charOneColorButton" + (i+1) + "." + j).checked;
+                        panel.characters[j].shadowsilhouette = document.getElementById("charSilhouetteButton" + (i+1) + "." + j).checked;
+                        
+                        var characterFeatures = panel.characters[j];
+                        
+                        if (characterFeatures.multicolor == false && characterFeatures.blackandwhite == false && characterFeatures.onecolororgradient == false && characterFeatures.shadowsilhouette == false ) {
+                            
+                            errorMessage += "Select at Least One Checkbox in the Color and Style Section for Section  " + (i + 1) + " Character Number " + (j + 1) + "\n";
+                            
+                            var getMulticolorLabel = document.getElementById("charFullColorLabel" + (i+1) + "." + j);
+                            getMulticolorLabel.style.color = "red";
+                            var getBlackAndWhiteLabel = document.getElementById("blackAndWhiteButtonLabel" + (i+1) + "." + j);
+                            getBlackAndWhiteLabel.style.color = "red";
+                            var getOneColorLabel = document.getElementById("charOneColorButtonLabel" + (i+1) + "." + j);
+                            getOneColorLabel.style.color = "red";
+                            var getShadowLabel = document.getElementById("charSilhouetteButtonLabel" + (i+1) + "." + j);
+                            getShadowLabel.style.color = "red";
+                            
+                        }
+                        
+                        // Char Non-detailed to Full Detail scale
+                        var allDetailScaleValues =[];
+                        
+                        var detailedScaleValue1 = document.getElementById("liValue1" + (i+1) +  "." + j).checked;
+                        var detailedScaleValue2 = document.getElementById("liValue2" + (i+1) +  "." + j).checked;
+                        var detailedScaleValue3 = document.getElementById("liValue3" + (i+1) +  "." + j).checked;
+                        var detailedScaleValue4 = document.getElementById("liValue4" + (i+1) +  "." + j).checked;
+                        var detailedScaleValue5 = document.getElementById("liValue5" + (i+1) +  "." + j).checked;
+                        
+                        allDetailScaleValues.push(detailedScaleValue1);
+                        allDetailScaleValues.push(detailedScaleValue2);
+                        allDetailScaleValues.push(detailedScaleValue3);
+                        allDetailScaleValues.push(detailedScaleValue4);
+                        allDetailScaleValues.push(detailedScaleValue5);
+                        
+                        var atLeastOneRadioButtonTrue = false;
+                        
+                        for (var b=0; b<allDetailScaleValues.length; b++) {
+                            if (allDetailScaleValues[b] == true) {
+                                atLeastOneRadioButtonTrue = true;
+                                panel.characters[j].detail = b+1;
+                            }
+                        }
+                        if (atLeastOneRadioButtonTrue == false) {
+                            errorMessage += "Missing Detail Value for Section " + (i + 1) + " Character Number " + (j + 1) + "\n";
+                            var imageDetailScaleRetrieved = document.getElementById("ulImageDetailScale" + (i+1) +  "." + j);
+                            imageDetailScaleRetrieved.style.color = "red";
+                            var radioInput1Label = document.getElementById("li1Label" + (i+1) +  "." + j);
+                            radioInput1Label.style.color = "red";
+                            var radioInput2Label = document.getElementById("li2Label" + (i+1) +  "." + j);
+                            radioInput2Label.style.color = "red";
+                            var radioInput3Label = document.getElementById("li3Label" + (i+1) +  "." + j);
+                            radioInput3Label.style.color = "red";
+                            var radioInput4Label = document.getElementById("li4Label" + (i+1) +  "." + j);
+                            radioInput4Label.style.color = "red";
+                            var radioInput5Label = document.getElementById("li5Label" + (i+1) +  "." + j);
+                            radioInput5Label.style.color = "red";
+                        }
+                        //console.log(panel.characters[j]);
+                    } // end of if (false)
                 } // for j char index loop
             } // for i panel index loop
-        
     } // end of character annotation task vadilate input check
     
     if (textSectionsTaskSwitch == true) {
@@ -2050,6 +2439,7 @@ function clearLastDrawnRectangle(event) {
 /*  State how many panels or sections have been identified by the user */
 function panelCounter(x) {
     // Parameter x is the number of panels or sections specified by the user
+    //console.log("panelCounter x = " + x);
     
     // If Page Segmentation Task, do not turn on and show the panelNumSection
     if (pageSegmentationTaskSwitch == true) {
@@ -2065,6 +2455,11 @@ function panelCounter(x) {
         document.getElementById("animacyInstructions").style.display = "block"; 
     } // end of if (animacySegmentationTaskSwitch)
     
+    if (characterFeaturesTaskSwitch) {
+        document.getElementById("animacyInstructions").style.display = "block";
+    }
+    
+    
     // Put the scroll on the semantic forms section
     if (!scrollON) {
         scrollON = true;
@@ -2077,11 +2472,10 @@ function panelCounter(x) {
 function showContentForms(x) {
     // Parameter x in the number of panels or sections specified by the user
     // Get the standard semantic form from the html doc
-    console.log("showContentForms x: ", x);
     var panelForm = document.getElementById("semanticForm");
     // Create an identical form for each panel specified by the user
     for (let i=0; i<=x-1; i++) {
-        var j = i+1; // Var for panel number label
+        var j = i+1; // Var for panel number
         // For each x in numPanels, create a clone of the semantic form
         var clone = panelForm.cloneNode(true);
         clone.setAttribute("class","semanticFormDisplay"); // Set css class for display
@@ -2141,6 +2535,9 @@ function showContentForms(x) {
             
             // for each outlined character
             for (let k=0; k < numCharsPerPanel; k++) {
+                //console.log("charFeaturesForm");
+                //console.log("k = " + k);
+                //console.log("j = " + j);
                 // create a new char form
                 var charFeaturesForm = createCharFeaturesForm(k, j);
                 // put the char feautres form in the correct semantic form
@@ -2476,6 +2873,13 @@ function resetPage(event) {
             scrollON = true;
             document.getElementById("semanticFormContainer").setAttribute("class","semanticFormContainerScroll");
         }
+        // replace all the character labels in pagesData with the original id num
+        for (var i=0; i < pagesData[pageNum].panels.length; i++) {
+            for (var j =0; j < pagesData[pageNum].panels[i].characters.length; j++) {
+                pagesData[pageNum].panels[i].characters[j].label = pagesData[pageNum].panels[i].characters[j].id;
+            }
+        }
+        
         // show panel rects and char rects on the comic page
         drawPanelInfoOnCanvas();
         drawCharacterInfoOnCanvas();
@@ -2584,7 +2988,7 @@ function sendDataToFireBase(event) {
     //                          jsonString: jsonString
     //                          });
     
-    db.collection("Char_Experiment_1_2").add({time: Date().toLocaleString(),
+    db.collection("Animacy_Reference").add({time: Date().toLocaleString(),
                               jsonData: jsonString}
                               ).then(function(snapshot) {
                                 if (storyNum == 32) {
@@ -3057,7 +3461,7 @@ var drawRectangleOnCanvas_charID = {
 // create a separate keypress handler to be turned on for polygon segmentation
 var deleteKeyHandler_CharID = function(e) {
     const key = e.key;
-    //console.log("a key pressed: " + key); // deboog
+    console.log("a key pressed: " + key); // deboog
     if (key === "Backspace" || e.keyCode === 46) {
         //console.log("Delete key pressed."); // deboog
         // remove the last stored coord tuple in the polygon currently being drawn
@@ -3067,7 +3471,7 @@ var deleteKeyHandler_CharID = function(e) {
             drawPolygonWhileDrawing_CharID(individualPolygonCoordinates_CharID);
         }
     } // end of if (key === "Backspace" || e.keyCode === 46)
-    if (key === "Enter" || e.keyCode === 13) {
+    if (e.key === "Enter" || e.keyCode === 13) {
         //console.log("double click!"); // test
         canvas = document.getElementById("canvas");
         context = canvas.getContext("2d");
@@ -3091,15 +3495,7 @@ var deleteKeyHandler_CharID = function(e) {
         Action: ""
         } // end of newChar object
         
-        console.log(newChar);
-        
-        if (newChar.polygonCoords.length == 0) {
-            console.log("Enter pressed twice or polygonCoords empty for another reason. Skip char");
-        } else {
-            pagesData[pageNum].panels[currentPanelNumber].characters.push(newChar); // Store created char rects in the overall data structure
-            createCharForm("nope", "nope"); // generate the semantic form associated with that char ID rect
-        }
-        
+        pagesData[pageNum].panels[currentPanelNumber].characters.push(newChar); // Store created char rects in the overall data structure
         //console.log(pagesData[pageNum].panels[currentPanelNumber]); // deboog
         individualPolygonCoordinates_CharID = []; // reset the current polygon coords
         //console.log(individualPolygonCoordinates); // check
@@ -3107,7 +3503,7 @@ var deleteKeyHandler_CharID = function(e) {
         //drawPolygonsOnCanvas_CharID.drawAllPolygons(); // draw all polygons stored so far
         drawPanelInfoOnCanvas(); //Draw all panels rects or polys on canvas
         //drawTextSectionInfoOnCanvas(); //Draw all the text rects in all panels on canvas
-        //createCharForm("nope", "nope"); // generate the semantic form associated with that char ID rect
+        createCharForm("nope", "nope"); // generate the semantic form associated with that char ID rect
     } // end of if (e.key === "Enter" || e.keyCode === 13)
     
 } // end of var deleteKeyHandler_CharID = function(e)
@@ -3818,22 +4214,54 @@ function createCharForm(optionalCurrentPanelNum, optionalCharIndex) {
 
 /* Puts the Char label on the canvas - goes with event handler for the Character Label text input on the charFeaturesForm */
 function placeCharLabelOnCanvas() {
-    //e.preventDefault(); // tell the browser we're handling this event
-    var charTextInputID = event.target.getAttribute("id"); // get the input id
-    //console.log("it me!! " + charTextInputID); //test
-    currentPanel = event.target.parentNode.parentNode.parentNode; // Get the panel form where the button was clicked
-    var currentPanelNumber = parseInt(currentPanel.getAttribute("id").replace("panelForm", ""), 10)-1; // Get the number of that panel
-    //console.log("currentPanel: " + currentPanelNumber); //test
     
-    var inputValue = event.target.value;
-    //console.log(inputValue); //test
+    // for animacy features task
+    if (characterFeaturesTaskSwitch) {
+        var refTextInput = event.target;
+        // get the id of the ref text input item
+        var refTextInputID = event.target.getAttribute("id");
+        // console.log("refTextInputID: ", refTextInputID);
+        var refTextInputIDNum = refTextInputID.replace(/^\D+/g, "");
+        //console.log("refTextInputIDNum: ", refTextInputIDNum);
+        // get the panel num (first num)
+        var currentPanelNumber = ((parseInt(refTextInputIDNum.split(".")[0]))-1);
+        //console.log("currentPanelNumber: ", currentPanelNumber);
+        // get the char num
+        var currentCharacterNum = parseInt(refTextInputIDNum.split(".")[1]);
+        //console.log("currentCharacterNum", currentCharacterNum);
+        // put the ref as key in pages data "label" value
+        var InputValue = event.target.value;
+        //console.log("InputValue: ", InputValue);
+        //console.log(typeof InputValue);
+        pagesData[pageNum].panels[currentPanelNumber].characters[currentCharacterNum].label = InputValue; // put the label in pagesData
+        
+        //console.log(pagesData[pageNum].panels[currentPanelNumber].characters[currentCharacterNum]);
+        //console.log(pagesData[pageNum].panels[currentPanelNumber]);
+        // below, the polygon will be redrawn by pulling out the appropriate value from pagesData
+    } // end of if (characterFeaturesTaskSwitch)
     
-    var currentCharacterID = event.target.getAttribute('id').replace("charFormInput", "");
-    // Store inputValue into tha right char structure's label field
-    var currentCharacterNum = (parseInt(currentCharacterID.split(".")[1]));
-    //console.log(currentCharacterID.split("."));
-    //console.log("current character number: " + currentCharacterNum);
-    pagesData[pageNum].panels[currentPanelNumber].characters[currentCharacterNum].label = inputValue; // put the label in pagesData
+    // This is for the original char task, put this as false for now!!!
+    if (false) {
+        //e.preventDefault(); // tell the browser we're handling this event
+        var charTextInputID = event.target.getAttribute("id"); // get the input id
+        //console.log("it me!! " + charTextInputID); //test
+        currentPanel = event.target.parentNode.parentNode.parentNode; // Get the panel form where the button was clicked
+        var currentPanelNumber = parseInt(currentPanel.getAttribute("id").replace("panelForm", ""), 10)-1; // Get the number of that panel
+        //console.log("currentPanel: " + currentPanelNumber); //test
+        
+        var inputValue = event.target.value;
+        //console.log(inputValue); //test
+        
+        var currentCharacterID = event.target.getAttribute('id').replace("charFormInput", "");
+        // Store inputValue into tha right char structure's label field
+        var currentCharacterNum = (parseInt(currentCharacterID.split(".")[1]));
+        //console.log(currentCharacterID.split("."));
+        //console.log("current character number: " + currentCharacterNum);
+        pagesData[pageNum].panels[currentPanelNumber].characters[currentCharacterNum].label = inputValue; // put the label in pagesData
+        
+        // change the input to white just in case the background has been highlighted after validation
+        document.getElementById(charTextInputID).style.backgroundColor = "white";
+    } // end of if false
     
     if (!polygonSegmentation_Char) {
     
@@ -3850,7 +4278,7 @@ function placeCharLabelOnCanvas() {
         context.fill();
         context.beginPath(); // put variable in the circle
         context.fillStyle = "white";
-        context.font = "15px Arial Black";
+        context.font = "15px monospace";
         context.fillText(inputValue, xcoord-6, ycoord+6);
         
     } // end of if (!polygonSegmentation_Char)
@@ -3860,20 +4288,18 @@ function placeCharLabelOnCanvas() {
         var polyCoords = pagesData[pageNum].panels[currentPanelNumber].characters[currentCharacterNum].polygonCoords;
         var firstXCoord = polyCoords[0].x;
         var firstYCoord = polyCoords[0].y;
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext("2d");
         context.beginPath(); // redraw circle
-        context.arc(firstXCoord-5, firstYCoord-5, 15, 0, Math.PI * 2, true);
+        context.arc(firstXCoord-5, firstYCoord-5, 20, 0, Math.PI * 2, true);
         context.closePath();
         context.fillStyle = "#C942FF"; //char.color_charID
         context.fill();
         context.beginPath(); // put variable in the circle
         context.fillStyle = "white";
-        context.font = "12px Arial Black";
-        context.fillText(inputValue, firstXCoord-13, firstYCoord); // center into the circle
-        
+        context.font = "15px Arial Black";
+        context.fillText(pagesData[pageNum].panels[currentPanelNumber].characters[currentCharacterNum].label, firstXCoord-13, firstYCoord); // center into the circle
     } // end of if (polygonSegmentation_Char)
-
-    // change the input to white just in case the background has been highlighted after validation
-    document.getElementById(charTextInputID).style.backgroundColor = "white";
     
 } // end function placeCharLabelOnCanvas()
 
@@ -3883,18 +4309,20 @@ function placeCharLabelOnCanvas() {
 // adapted from: https://schier.co/blog/wait-for-user-to-stop-typing-using-javascript
 function getInputValue_NoKeyPressedForOneSec(e) {
     
-//    var charTextInputID = event.target.getAttribute("id"); // get the input id
-//    //console.log("it me!! " + charTextInputID); //test
+    var charTextInputID = event.target.getAttribute("id"); // get the input id
+    console.log("it me! " + charTextInputID); //test
 //    currentPanel = event.target.parentNode.parentNode; // Get the panel form where the button was clicked
 //    var currentPanelNumber = parseInt(currentPanel.getAttribute("id").replace("panelForm", ""), 10)-1; // Get the number of that panel
 //   console.log("currentPanel: " + currentPanelNumber); //test
 //
-    
-    //console.log("getInputValue_NoKeyPressedForOneSec(e) was run"); // just debuggin!
-    //console.log(char_set);
-    
-    var labelOnList = false; // init a boolean to track whether the inputted label has already been inputted
     var inputValue = event.target.value; // get value from the text input
+    console.log("inputValue: ", inputValue);
+    //char_set.add(inputValue); // add text input value to set
+    //console.log("getInputValue_NoKeyPressedForOneSec(e) was run"); // just debuggin!
+    console.log("char set: ", char_set);
+    
+    //var labelOnList = false; // init a boolean to track whether the inputted label has already been inputted
+
     //console.log(inputValue); //test
     clearTimeout(timeout); // clear the timeout variable
     
@@ -3917,8 +4345,8 @@ function getInputValue_NoKeyPressedForOneSec(e) {
                                 //}
                          
                             //}
-                          updateDatalists();
-                          char_set.add(inputValue); // add text input value to set
+                         updateDatalists();
+                         char_set.add(inputValue); // add text input value to set
                          }, 3000);
     
     //console.log(charList); // Debuggins
@@ -3928,50 +4356,135 @@ function getInputValue_NoKeyPressedForOneSec(e) {
 
 
 function updateDatalists() {
-    // first, clear all the options on all the datalists
-    var totalPanelsOnPage = pagesData[pageNum].panels.length;
     
-    for (var m=0; m<totalPanelsOnPage; m++) {
-        var totalCharsOnPanel = pagesData[pageNum].panels[m].characters.length;
-        for (var n=0; n<totalCharsOnPanel; n++) {
-            //var charlabelTextInput_datalist = document.getElementById("datalist" + (m+1) +  "." + n);
-            var charlabelTextInput_datalist = document.getElementById("datalist_charForm" + m + "." + n);
-            //console.log(charlabelTextInput_datalist);
-            var dataListOptionsLength = charlabelTextInput_datalist.childNodes.length-1;
-                //console.log(dataListOptionsLength);
-            // remove all options from the datalist object
-            for (var b=dataListOptionsLength; b>=0; b--) {
-                //console.log(charlabelTextInput_datalist); // debugz
-                while (charlabelTextInput_datalist.lastElementChild) {
-                    charlabelTextInput_datalist.removeChild(charlabelTextInput_datalist.lastElementChild);
+    // put all values in the set into the "labels used so far" in the panelIdNum section
+    var labelSoFar = document.getElementById("labelsSoFar");
+    labelSoFar.innerHTML = "Labels used so far: ";
+    
+    var currentLabelList = [];
+    char_set.forEach(v => currentLabelList.push(v));
+    console.log("currentLabelList: ", currentLabelList);
+    
+    var labels_string = "";
+    
+    for (var c=0; c<currentLabelList.length; c++) {
+        labels_string += currentLabelList[c] + " ";
+    }
+    labelSoFar.innerHTML = "Labels used so far: " + labels_string;
+    
+
+    // below is the old function for char reference, which is sidelined here!
+    
+    if (false) {
+        
+        // first, get all the extant datalists - it is probably the case that not all of them will be created
+        var all_live_datalists = document.getElementsByClassName("referenceTextInput");
+        //console.log(all_live_datalists.length);
+        for (var q=0; q<all_live_datalists.length; q++) {
+            // if there are options, remove them all
+            if (all_live_datalists[q].hasChildNodes()) {
+                // if there are none, just don't do anything
+            }
+            else {
+                // if there are options, remove them
+                while (all_live_datalists[q].lastElementChild) {
+                    all_live_datalists[q].removeChild(all_live_datalists[q].lastElementChild);
                 }
             }
-        }
-    } // end of for loop (var m=0; m<totalPanelsOnPage; m++)
-    
-    // now put each element from the charList/char_set as an option on the datalists
-    
-    for (var m=0; m<totalPanelsOnPage; m++) {
-        var totalCharsOnPanel = pagesData[pageNum].panels[m].characters.length;
-        for (var n=0; n<totalCharsOnPanel; n++) {
-            var charlabelTextInput_datalist = document.getElementById("datalist_charForm" + m +  "." + n);
-            //for (var a=0; a<charList.length; a++) {
-                //var option = document.createElement('option');
-                //option.setAttribute('id', "option" + m + "." + n + "." + a);
-                //option.value = charList[a];
-                //nsole.log(charlabelTextInput_datalist);
-                //charlabelTextInput_datalist.appendChild(option);
-            //}
-            
+            //console.log(all_live_datalists[q].hasChildNodes());
+        } // end of loop for (var q=0; q<all_live_datalists.length; q++)
+        
+        
+        // so now, all extant datalist should be empty
+        // put all the elements in the char_set as an option for every extant datalist
+        
+        for (var r=0; r<all_live_datalists.length; r++) {
+            //console.log(all_live_datalists[r].id);
             char_set.forEach (function (value) {
                               var option = document.createElement('option');
                               //option.setAttribute('id', "option" + m + "." + n + "." + a);
                               option.value = value;
-                              //nsole.log(charlabelTextInput_datalist);
-                              charlabelTextInput_datalist.appendChild(option);
+                              //console.log(value);
+                              option.innerHTML = value;
+                              //console.log(all_live_datalists[r]);
+                              all_live_datalists[r].appendChild(option);
                               })
-        } // end of loop for (var n=0; n<totalCharsOnPanel; n++)
-    } // end of for loop (var m=0; m<totalPanelsOnPage; m++)
+            //console.log(all_live_datalists[r].children.length);
+            //console.log(all_live_datalists[r]);
+        } // end of loop for (var r=0; r<all_live_datalists.length; r++)
+        
+        
+        
+        // first, clear all the options on all the datalists
+        var totalPanelsOnPage = pagesData[pageNum].panels.length;
+        
+        for (var m=0; m<totalPanelsOnPage; m++) {
+            var totalCharsOnPanel = pagesData[pageNum].panels[m].characters.length;
+            for (var n=0; n<totalCharsOnPanel; n++) {
+                //var charlabelTextInput_datalist = document.getElementById("datalist" + (m+1) +  "." + n);
+                
+                // direct this to the right datalists for animacy features task
+                var charlabelTextInput_datalist = document.getElementById("referenceTextInput_datalist" + (m+1) + "." + n);
+                
+                //console.log("before");
+                
+                //console.log("current datalist: ", charlabelTextInput_datalist.id);
+                
+                if (false) {
+                        var charlabelTextInput_datalist = document.getElementById("datalist_charForm" + m + "." + n);
+                        //console.log(charlabelTextInput_datalist);
+                        var dataListOptionsLength = charlabelTextInput_datalist.childNodes.length-1;
+                    // if there are options, remove them all
+                    //var dataListOptionsLength = charlabelTextInput_datalist.childNodes.length;
+                    
+                    console.log(charlabelTextInput_datalist.hasChildNodes());
+                    //console.log(dataListOptionsLength);
+                    
+                   // if (charlabelTextInput_datalist.hasChildNodes() != true) {return}
+                    // remove all options from the datalist object
+                    for (var b=dataListOptionsLength; b>=0; b--) {
+                        //console.log(charlabelTextInput_datalist); // debugz
+                        while (charlabelTextInput_datalist.lastElementChild) {
+                            charlabelTextInput_datalist.removeChild(charlabelTextInput_datalist.lastElementChild);
+                        }
+                    }
+                } // end of if (false)
+                
+                //console.log("after");
+                
+            } // end of loop for (var n=0; n<totalCharsOnPanel; n++)
+        } // end of for loop (var m=0; m<totalPanelsOnPage; m++)
+        
+        // now put each element from the charList/char_set as an option on the datalists
+        
+        for (var m=0; m<totalPanelsOnPage; m++) {
+            var totalCharsOnPanel = pagesData[pageNum].panels[m].characters.length;
+            for (var n=0; n<totalCharsOnPanel; n++) {
+                
+                // direct this to the right datalists for animacy features task
+                var charlabelTextInput_datalist = document.getElementById("referenceTextInput_datalist" + m + "." + n);
+                
+                if (false) {
+                    var charlabelTextInput_datalist = document.getElementById("datalist_charForm" + m +  "." + n);
+                }
+                //for (var a=0; a<charList.length; a++) {
+                    //var option = document.createElement('option');
+                    //option.setAttribute('id', "option" + m + "." + n + "." + a);
+                    //option.value = charList[a];
+                    //nsole.log(charlabelTextInput_datalist);
+                    //charlabelTextInput_datalist.appendChild(option);
+                //}
+                
+                char_set.forEach (function (value) {
+                                  var option = document.createElement('option');
+                                  //option.setAttribute('id', "option" + m + "." + n + "." + a);
+                                  option.value = value;
+                                  //nsole.log(charlabelTextInput_datalist);
+                                  charlabelTextInput_datalist.appendChild(option);
+                                  })
+            } // end of loop for (var n=0; n<totalCharsOnPanel; n++)
+        } // end of for loop (var m=0; m<totalPanelsOnPage; m++)
+    } //end of if (false)
 } // end of updateDatalists()
 
 
@@ -4365,7 +4878,8 @@ function createCharFeaturesForm(x, y) {
     var charFeaturesForm = document.createElement("form");
     charFeaturesForm.setAttribute('method',"post");
     charFeaturesForm.setAttribute('action',"true");
-    charFeaturesForm.id = "charFeatureForm" + x;
+    charFeaturesForm.id = "charFeaturesForm" + y + "." + x;
+    //console.log("charFeaturesForm.id: " + charFeaturesForm.id);
     charFeaturesForm.setAttribute("class", "charFeaturesForms");
     
     // Char Number ID - put in the corner of each charFeaturesForm
@@ -4380,517 +4894,944 @@ function createCharFeaturesForm(x, y) {
     
     charIDSquareContainer.appendChild(charIDSquare); // put charIDSquare into container
     
-    // Character Reference Area on the Form:
+    if (characterFeaturesTaskSwitch) {
+        
+        charFeaturesForm.setAttribute("class","charFeaturesForms_animacyFeatures");
+        charFeaturesForm.appendChild(charIDSquareContainer);
+        
+        // Create forms for animate/uncertain, reference, and group-part relations
+        
+        // Animacy radio buttons:
+        var animacyCheckboxContainer = document.createElement('div');
+        animacyCheckboxContainer.id = "animacyCheckboxContainer" + y + "." + x;
+        animacyCheckboxContainer.setAttribute("class", "animacyCheckboxContainer");
+        // human animate
+        var humanAnimateCheckbox = document.createElement('input');
+        humanAnimateCheckbox.setAttribute('type', 'radio');
+        humanAnimateCheckbox.setAttribute('id', "humanAnimateCheckbox" + y + "." + x);
+        humanAnimateCheckbox.setAttribute('name', "animacyChecks");
+        humanAnimateCheckbox.setAttribute('value', "humanAnimate");
+        humanAnimateCheckbox.setAttribute('onchange', "generateAnimateReferenceTask(event)");
+        var humanAnimateCheckboxLabel = document.createElement('label');
+        humanAnimateCheckboxLabel.setAttribute('for', "humanAnimateCheckbox" + y + "." + x);
+        humanAnimateCheckboxLabel.innerHTML = "1 Human animate";
+        // human-like animate
+        var humanLikeAnimateCheckbox = document.createElement('input');
+        humanLikeAnimateCheckbox.setAttribute('type', 'radio');
+        humanLikeAnimateCheckbox.setAttribute('id', "humanLikeAnimateCheckbox" + y + "." + x);
+        humanLikeAnimateCheckbox.setAttribute('name', "animacyChecks");
+        humanLikeAnimateCheckbox.setAttribute('value', "humanLikeAnimate");
+        humanLikeAnimateCheckbox.setAttribute('onchange', "generateAnimateReferenceTask(event)");
+        var humanLikeAnimateCheckboxLabel = document.createElement('label');
+        humanLikeAnimateCheckboxLabel.setAttribute('for', "humanLikeAnimateCheckbox" + y + "." + x);
+        humanLikeAnimateCheckboxLabel.innerHTML = "2 Human-like animate";
+        // non-human animate
+        var nonHumanAnimateCheckbox = document.createElement('input');
+        nonHumanAnimateCheckbox.setAttribute('type', 'radio');
+        nonHumanAnimateCheckbox.setAttribute('id', "nonHumanAnimateCheckbox" + y + "." + x);
+        nonHumanAnimateCheckbox.setAttribute('name', "animacyChecks");
+        nonHumanAnimateCheckbox.setAttribute('value', "nonHumanAnimate");
+        nonHumanAnimateCheckbox.setAttribute('onchange', "generateAnimateReferenceTask(event)");
+        var nonHumanAnimateCheckboxLabel = document.createElement('label');
+        nonHumanAnimateCheckboxLabel.setAttribute('for', "nonHumanAnimateCheckbox" + y + "." + x);
+        nonHumanAnimateCheckboxLabel.innerHTML = "3 Non-human animate";
+        // ambiguous animacy
+        var ambiguousCheckbox = document.createElement('input');
+        ambiguousCheckbox.setAttribute('type', 'radio');
+        ambiguousCheckbox.id = "ambiguousCheckbox" + y + "." + x;
+        ambiguousCheckbox.setAttribute('name', "animacyChecks");
+        ambiguousCheckbox.setAttribute('value', "ambiguousAnimate");
+        ambiguousCheckbox.setAttribute('onchange', "generateAnimateReferenceTask(event)");
+        var ambiguousCheckboxLabel = document.createElement('label');
+        ambiguousCheckboxLabel.setAttribute('for', "ambiguousCheckbox" + y + "." + x);
+        ambiguousCheckboxLabel.innerHTML = "4 Ambiguous animate"
+        // inanimate
+        var inanimateCheckbox = document.createElement('input');
+        inanimateCheckbox.setAttribute('type', 'radio');
+        inanimateCheckbox.id = "inanimateCheckbox" + y + "." + x;
+        inanimateCheckbox.setAttribute('name', "animacyChecks");
+        inanimateCheckbox.setAttribute('value', "inanimateObject");
+        inanimateCheckbox.setAttribute('onchange', "generateAnimateReferenceTask(event)");
+        var inanimateCheckboxLabel = document.createElement('label');
+        inanimateCheckboxLabel.setAttribute('for', "inanimateCheckbox" + y + "." + x);
+        inanimateCheckboxLabel.innerHTML = "5 Inanimate object";
+        
+        
+        // create table to put animacy options in a vertical row
+        var animacyOptionsTable = document.createElement('table');
+        animacyOptionsTable.setAttribute("class", "animacyOptionsTable");
+        // human animate
+        var row1 = document.createElement('tr');
+        var row1Button = document.createElement('td');
+        var row1Label = document.createElement('td');
+        row1Button.appendChild(humanAnimateCheckbox);
+        row1Label.appendChild(humanAnimateCheckboxLabel);
+        row1.appendChild(row1Button);
+        row1.appendChild(row1Label);
+        animacyOptionsTable.appendChild(row1);
+        // human-like animate
+        var row2 = document.createElement('tr');
+        var row2Button = document.createElement('td');
+        var row2Label = document.createElement('td');
+        row2Button.appendChild(humanLikeAnimateCheckbox);
+        row2Label.appendChild(humanLikeAnimateCheckboxLabel);
+        row2.appendChild(row2Button);
+        row2.appendChild(row2Label);
+        animacyOptionsTable.appendChild(row2);
+        // non-human like animate
+        var row3 = document.createElement('tr');
+        var row3Button = document.createElement('td');
+        var row3Label = document.createElement('td');
+        row3Button.appendChild(nonHumanAnimateCheckbox);
+        row3Label.appendChild(nonHumanAnimateCheckboxLabel);
+        row3.appendChild(row3Button);
+        row3.appendChild(row3Label);
+        animacyOptionsTable.appendChild(row3);
+        // ambiguous animate
+        var row4 = document.createElement('tr');
+        var row4Button = document.createElement('td');
+        var row4Label = document.createElement('td');
+        row4Button.appendChild(ambiguousCheckbox);
+        row4Label.appendChild(ambiguousCheckboxLabel);
+        row4.appendChild(row4Button);
+        row4.appendChild(row4Label);
+        animacyOptionsTable.appendChild(row4);
+        // inanimate object
+        var row5 = document.createElement('tr');
+        var row5Button = document.createElement('td');
+        var row5Label = document.createElement('td');
+        row5Button.appendChild(inanimateCheckbox);
+        row5Label.appendChild(inanimateCheckboxLabel);
+        row5.appendChild(row5Button);
+        row5.appendChild(row5Label);
+        animacyOptionsTable.appendChild(row5);
+        
+        animacyCheckboxContainer.appendChild(animacyOptionsTable);
+        
+        // add everything to charFeaturesForm
+        // append these items to the container
+        charFeaturesForm.appendChild(animacyCheckboxContainer);
+        
+    } // end of if (characterFeaturesTaskSwitch)
     
-    // create container
-    var charReferenceTasksContainer = document.createElement('div');
-    charReferenceTasksContainer.id = "charReferenceTasksContainer" + y + "." + x;
-    charReferenceTasksContainer.setAttribute("class", "charReferenceTasksContainer");
-    
-    // create heading
-    var charReferenceSectionHeading = document.createElement('h4');
-    charReferenceSectionHeading.setAttribute('id', "charReferenceSectionHeading" + y + "." + x);
-    charReferenceSectionHeading.setAttribute("class", "headingsInCharForm");
-    charReferenceSectionHeading.innerHTML = "Reference and Description";
-    
-    
-    // Text input box for the character reference variable
-    var charFeaturesFormInput = document.createElement("input");
-    charFeaturesFormInput.setAttribute('type',"text");
-    //charFeaturesFormInput.setAttribute('name',"characterVariable");
-    charFeaturesFormInput.setAttribute("class", "charFeaturesFormInput");
-    charFeaturesFormInput.value = charLabelInstruction;
-    charFeaturesFormInput.setAttribute('id', "charFeaturesFormInput" + y +  "." + x);
-    //charFormInput.addEventListener("onchange", placeCharLabelOnCanvas, false);
-    charFeaturesFormInput.setAttribute('onInput', "placeCharLabelOnCanvas()"); // add event listener to put label on the canvas
-    charFeaturesFormInput.addEventListener('keyup', function(e) {getInputValue_NoKeyPressedForOneSec(e)}); // add event listener to get and store input values
-    
-    var datalist = document.createElement('datalist');
-    var datalist_id = "datalist" + y +  "." + x;
-    datalist.setAttribute('id', datalist_id);
-    document.body.appendChild(datalist);
-    //console.log(datalist.id);
-    charFeaturesFormInput.setAttribute('list', datalist_id);
-    
-    // Label for the character form input
-    var charFeaturesFormInputLabel = document.createElement("label");
-    charFeaturesFormInputLabel.setAttribute("for", "charFeaturesFormInput" + y +  "." + x);
-    charFeaturesFormInputLabel.innerHTML = "Character Label: ";
-    //console.log("char input ID: " + charFormInput.id); //test
-    
-    // Character description section
-    // create div to group the label and button
-    var charDescriptionContainer = document.createElement('div');
-    charDescriptionContainer.setAttribute('id', "charDescriptionContainer" + y +  "." + x);
-    charDescriptionContainer.setAttribute("class", "charDescriptionContainer"); 
-    
-    // label for button asking whether there was a change in category/description
-    var charDescriptionButtonLabel = document.createElement("label"); // create label
-    charDescriptionButtonLabel.setAttribute("for", "charDescriptionButton" + y +  "." + x);
-    charDescriptionButtonLabel.innerHTML = "Change in Description/Category ";
-    charDescriptionButtonLabel.setAttribute('id', "charDescriptionButtonLabel" + y +  "." + x);
-    
-    // button asking whether there was a change in category/description
-    var charDescriptionButton = document.createElement("input"); // create checkbox
-    charDescriptionButton.setAttribute("type", "checkbox");
-    charDescriptionButton.setAttribute("name", "charDescriptionButton" + x);
-    charDescriptionButton.setAttribute("value", "charDescription");
-    charDescriptionButton.setAttribute('id', "charDescriptionButton" + y +  "." + x);
-    // if selected, show a text input box to put in the new description
-    charDescriptionButton.setAttribute("onchange", "charDescriptionButtonEvent()");  // add event handler
-    
-    // Character emotion section
-    // create div to group the label and dropdown menu
-    var charEmotionContainer = document.createElement('div');
-    charEmotionContainer.setAttribute('id', "charEmotionContainer" + y +  "." + x);
-    charEmotionContainer.setAttribute("class", "charEmotionContainer");
-    
-    // label for emotion dropdown menu
-    var charEmotionSelectLabel = document.createElement("label");
-    charEmotionSelectLabel.setAttribute("for", "charEmotionSelect" + y +  "." + x);
-    charEmotionSelectLabel.innerHTML = "Emotion Depicted: ";
-    charEmotionSelectLabel.setAttribute('id', "charEmotionSelectLabel" + y +  "." + x);
-    
-    // character emotion - dropdown menu
-    var charEmotionSelect = document.createElement("select");
-    charEmotionSelect.id = "charEmotionSelect" + y +  "." + x;
-    charEmotionSelect.setAttribute("onchange", "changeSelecttoWhite()");
-    
-    var selectEmotion = document.createElement('option');
-    selectEmotion.selected = "";
-    selectEmotion.innerHTML = "Select an Emotion";
-    
-    var emotionAnger = document.createElement('option');
-    emotionAnger.value = "Anger";
-    emotionAnger.innerHTML = "Anger";
-    
-    var emotionSurprise = document.createElement('option');
-    emotionSurprise.value = "Surprise";
-    emotionSurprise.innerHTML = "Surprise";
-    
-    var emotionDisgust = document.createElement('option');
-    emotionDisgust.value = "Disgust";
-    emotionDisgust.innerHTML = "Disgust";
-    
-    var emotionEnjoyment = document.createElement('option');
-    emotionEnjoyment.value = "Enjoyment";
-    emotionEnjoyment.innerHTML = "Enjoyment";
-    
-    var emotionFear = document.createElement('option');
-    emotionFear.value = "Fear";
-    emotionFear.innerHTML = "Fear";
-    
-    var emotionSadness = document.createElement('option');
-    emotionSadness.value = "Sadness";
-    emotionSadness.innerHTML = "Sadness";
-    
-    var emotionContempt = document.createElement('option');
-    emotionContempt.value = "Contempt";
-    emotionContempt.innerHTML = "Contempt";
-    
-    charEmotionSelect.appendChild(selectEmotion);
-    charEmotionSelect.appendChild(emotionAnger);
-    charEmotionSelect.appendChild(emotionSurprise);
-    charEmotionSelect.appendChild(emotionDisgust);
-    charEmotionSelect.appendChild(emotionEnjoyment);
-    charEmotionSelect.appendChild(emotionFear);
-    charEmotionSelect.appendChild(emotionSadness);
-    charEmotionSelect.appendChild(emotionContempt);
-    
-    charEmotionContainer.appendChild(charEmotionSelectLabel);
-    charEmotionContainer.appendChild(charEmotionSelect);
-    
-    charDescriptionContainer.appendChild(charDescriptionButtonLabel);
-    charDescriptionContainer.appendChild(charDescriptionButton);
-    
-    // append these items to the container
-    charReferenceTasksContainer.appendChild(charReferenceSectionHeading);
-    charReferenceTasksContainer.appendChild(charFeaturesFormInputLabel);
-    charReferenceTasksContainer.appendChild(charFeaturesFormInput);
-    charReferenceTasksContainer.appendChild(charDescriptionContainer);
-    charReferenceTasksContainer.appendChild(charEmotionContainer);
+    else {
+        // Body areas, gaze, and emotion tasks
+        
+        // Character Reference Area on the Form:
+        
+        // create container
+        var charReferenceTasksContainer = document.createElement('div');
+        charReferenceTasksContainer.id = "charReferenceTasksContainer" + y + "." + x;
+        charReferenceTasksContainer.setAttribute("class", "charReferenceTasksContainer");
+        
+        // create heading
+        var charReferenceSectionHeading = document.createElement('h4');
+        charReferenceSectionHeading.setAttribute('id', "charReferenceSectionHeading" + y + "." + x);
+        charReferenceSectionHeading.setAttribute("class", "headingsInCharForm");
+        charReferenceSectionHeading.innerHTML = "Reference and Description";
+        
+        
+        // Text input box for the character reference variable
+        var charFeaturesFormInput = document.createElement("input");
+        charFeaturesFormInput.setAttribute('type',"text");
+        //charFeaturesFormInput.setAttribute('name',"characterVariable");
+        charFeaturesFormInput.setAttribute("class", "charFeaturesFormInput");
+        charFeaturesFormInput.value = charLabelInstruction;
+        charFeaturesFormInput.setAttribute('id', "charFeaturesFormInput" + y +  "." + x);
+        //charFormInput.addEventListener("onchange", placeCharLabelOnCanvas, false);
+        charFeaturesFormInput.setAttribute('onInput', "placeCharLabelOnCanvas()"); // add event listener to put label on the canvas
+        charFeaturesFormInput.addEventListener('keyup', function(e) {getInputValue_NoKeyPressedForOneSec(e)}); // add event listener to get and store input values
+        
+        var datalist = document.createElement('datalist');
+        var datalist_id = "datalist" + y +  "." + x;
+        datalist.setAttribute('id', datalist_id);
+        document.body.appendChild(datalist);
+        //console.log(datalist.id);
+        charFeaturesFormInput.setAttribute('list', datalist_id);
+        
+        // Label for the character form input
+        var charFeaturesFormInputLabel = document.createElement("label");
+        charFeaturesFormInputLabel.setAttribute("for", "charFeaturesFormInput" + y +  "." + x);
+        charFeaturesFormInputLabel.innerHTML = "Character Label: ";
+        //console.log("char input ID: " + charFormInput.id); //test
+        
+        // Character description section
+        // create div to group the label and button
+        var charDescriptionContainer = document.createElement('div');
+        charDescriptionContainer.setAttribute('id', "charDescriptionContainer" + y +  "." + x);
+        charDescriptionContainer.setAttribute("class", "charDescriptionContainer");
+        
+        // label for button asking whether there was a change in category/description
+        var charDescriptionButtonLabel = document.createElement("label"); // create label
+        charDescriptionButtonLabel.setAttribute("for", "charDescriptionButton" + y +  "." + x);
+        charDescriptionButtonLabel.innerHTML = "Change in Description/Category ";
+        charDescriptionButtonLabel.setAttribute('id', "charDescriptionButtonLabel" + y +  "." + x);
+        
+        // button asking whether there was a change in category/description
+        var charDescriptionButton = document.createElement("input"); // create checkbox
+        charDescriptionButton.setAttribute("type", "checkbox");
+        charDescriptionButton.setAttribute("name", "charDescriptionButton" + x);
+        charDescriptionButton.setAttribute("value", "charDescription");
+        charDescriptionButton.setAttribute('id', "charDescriptionButton" + y +  "." + x);
+        // if selected, show a text input box to put in the new description
+        charDescriptionButton.setAttribute("onchange", "charDescriptionButtonEvent()");  // add event handler
+        
+        // Character emotion section
+        // create div to group the label and dropdown menu
+        var charEmotionContainer = document.createElement('div');
+        charEmotionContainer.setAttribute('id', "charEmotionContainer" + y +  "." + x);
+        charEmotionContainer.setAttribute("class", "charEmotionContainer");
+        
+        // label for emotion dropdown menu
+        var charEmotionSelectLabel = document.createElement("label");
+        charEmotionSelectLabel.setAttribute("for", "charEmotionSelect" + y +  "." + x);
+        charEmotionSelectLabel.innerHTML = "Emotion Depicted: ";
+        charEmotionSelectLabel.setAttribute('id', "charEmotionSelectLabel" + y +  "." + x);
+        
+        // character emotion - dropdown menu
+        var charEmotionSelect = document.createElement("select");
+        charEmotionSelect.id = "charEmotionSelect" + y +  "." + x;
+        charEmotionSelect.setAttribute("onchange", "changeSelecttoWhite()");
+        
+        var selectEmotion = document.createElement('option');
+        selectEmotion.selected = "";
+        selectEmotion.innerHTML = "Select an Emotion";
+        
+        var emotionAnger = document.createElement('option');
+        emotionAnger.value = "Anger";
+        emotionAnger.innerHTML = "Anger";
+        
+        var emotionSurprise = document.createElement('option');
+        emotionSurprise.value = "Surprise";
+        emotionSurprise.innerHTML = "Surprise";
+        
+        var emotionDisgust = document.createElement('option');
+        emotionDisgust.value = "Disgust";
+        emotionDisgust.innerHTML = "Disgust";
+        
+        var emotionEnjoyment = document.createElement('option');
+        emotionEnjoyment.value = "Enjoyment";
+        emotionEnjoyment.innerHTML = "Enjoyment";
+        
+        var emotionFear = document.createElement('option');
+        emotionFear.value = "Fear";
+        emotionFear.innerHTML = "Fear";
+        
+        var emotionSadness = document.createElement('option');
+        emotionSadness.value = "Sadness";
+        emotionSadness.innerHTML = "Sadness";
+        
+        var emotionContempt = document.createElement('option');
+        emotionContempt.value = "Contempt";
+        emotionContempt.innerHTML = "Contempt";
+        
+        charEmotionSelect.appendChild(selectEmotion);
+        charEmotionSelect.appendChild(emotionAnger);
+        charEmotionSelect.appendChild(emotionSurprise);
+        charEmotionSelect.appendChild(emotionDisgust);
+        charEmotionSelect.appendChild(emotionEnjoyment);
+        charEmotionSelect.appendChild(emotionFear);
+        charEmotionSelect.appendChild(emotionSadness);
+        charEmotionSelect.appendChild(emotionContempt);
+        
+        charEmotionContainer.appendChild(charEmotionSelectLabel);
+        charEmotionContainer.appendChild(charEmotionSelect);
+        
+        charDescriptionContainer.appendChild(charDescriptionButtonLabel);
+        charDescriptionContainer.appendChild(charDescriptionButton);
+        
+        // append these items to the container
+        charReferenceTasksContainer.appendChild(charReferenceSectionHeading);
+        charReferenceTasksContainer.appendChild(charFeaturesFormInputLabel);
+        charReferenceTasksContainer.appendChild(charFeaturesFormInput);
+        charReferenceTasksContainer.appendChild(charDescriptionContainer);
+        charReferenceTasksContainer.appendChild(charEmotionContainer);
 
-    console.log(charEmotionSelect.id);
-    console.log(pagesData[pageNum].panels[y-1].characters[x].emotion)
-    //console.log(pagesData[pageNum].panels[y-1].characters[x]);
-    if (pagesData[pageNum].panels[y-1].characters[x].emotion === undefined) {
-        pagesData[pageNum].panels[y-1].characters[x].emotion = "Select an Emotion";
+        console.log(charEmotionSelect.id);
+        console.log(pagesData[pageNum].panels[y-1].characters[x].emotion)
         //console.log(pagesData[pageNum].panels[y-1].characters[x]);
-    }
-//    else {
-//        charEmotionSelect.value = pagesData[pageNum].panels[y-1].characters[x].emotion;
-//    }
-
-    
-    // Character Features Inputs (image features):
-    // Code adapted from https://stackoverflow.com/questions/22317805/how-to-make-canvas-element-in-html-clickable
-    
-    // First, put the headings for these sections in a separate div
-    var charAreasAndOrientationHeadingsContainer = document.createElement('div');
-    charAreasAndOrientationHeadingsContainer.id = "charAreasAndOrientationHeadingsContainer" + y + "." + x;
-    charAreasAndOrientationHeadingsContainer.setAttribute("class", "charAreasAndOrientationHeadingsContainer");
-    
-    // Body elements shown:
-    // Heading for character parts shown
-    var charBodyPartsShownHeading = document.createElement("h4");
-    charBodyPartsShownHeading.id = "charBodyPartsShownHeading" + y + "." + x;
-    charBodyPartsShownHeading.setAttribute("class", "areasDepictedHeading");
-    charBodyPartsShownHeading.innerHTML = "Areas Depicted";
-    
-    // Heading for char orientation task
-    var charOrientationHeading = document.createElement("h4");
-    charOrientationHeading.id = "charOrientationHeading" + y + "." + x;
-    charOrientationHeading.setAttribute("class", "charOrientationHeading");
-    charOrientationHeading.innerHTML = "Orientation of Gaze";
-    
-    charAreasAndOrientationHeadingsContainer.appendChild(charBodyPartsShownHeading);
-    charAreasAndOrientationHeadingsContainer.appendChild(charOrientationHeading);
-    
-    var charBodyMapContainer = document.createElement('div'); // create containter to hold the char body map
-    charBodyMapContainer.setAttribute('id', "charBodyMapContainer" + pageNum + "." + y + "." + x); // set the id for the container
-    //console.log("char body map container: ", charBodyMapContainer.id); // debug
-    charBodyMapContainer.setAttribute("class", "charBodyMapContainer"); 
-    
-    // clone the canvas element created in the init function
-    canvas_charBodyImage_clone = canvas_charBodyImage.cloneNode();
-    canvas_charBodyImage_clone.id = "canvas_charBodyImage" + pageNum + "." + y + "." + x; // assign an id
-    canvas_charBodyImage_clone.width = 130;
-    //canvas_charBodyImage_clone.getContext('2d').globalAlpha = '1.0'; // set the opacity to 0.5 for all canvases
-
-    canvas_charBodyImage_clone.getContext('2d').fillStyle = "white";
-    canvas_charBodyImage_clone.getContext('2d').fillRect(0, 0, canvas_charBodyImage_clone.width, canvas_charBodyImage_clone.height);
-    canvas_charBodyImage_clone.getContext('2d').drawImage(charBodyMapImage, 0, 0, 125, 300);
-    canvas_charBodyImage_clone.getContext('2d').restore();
-    //console.log("id: " + canvas_charBodyImage_clone.id);
-    
-    charBodyMapContainer.appendChild(canvas_charBodyImage_clone);
-    
-    // create a new set of area switches to the character in pagesData - set all switched to false
-    var depictedCharAreas = {"head":false, "shouldersEast":false, "shouldersWest":false, "upperBody":false, "armWest":false, "handWest":false, "armEast":false, "handEast":false, "lowerBody":false, "legWest":false, "footWest":false, "legEast":false, "footEast":false};
-    
-    // if the page has been created once already, apply the values to the areasShown that was already created
-    //console.log(pagesData[pageNum].panels[(y-1)].characters[x].areasShown);
-    if (pagesData[pageNum].panels[(y-1)].characters[x].areasShown === undefined) {
-        // add a new set of area switches to the character in pagesData
-        pagesData[pageNum].panels[(y-1)].characters[x].areasShown = depictedCharAreas;
-        // console.log(pagesData[pageNum].panels[(y-1)].characters[x]); // Deboog
-    }
-    
-    // add mouse click event listener to each canvas
-    canvas_charBodyImage_clone.addEventListener('mousedown', function(e) {handleMouseClick(e)
-                            });
-    
-    // create "full body shown" or "select all" button
-    var selectAllButton = document.createElement('BUTTON');
-    selectAllButton.setAttribute('type', 'button');
-    selectAllButton.id = "selectAllButton" + pageNum + "." + y + "." + x;
-    selectAllButton.innerHTML = "Select All";
-    selectAllButton.setAttribute("onclick", "selectAllCharBodyImage(event)");
-    selectAllButton.setAttribute("class", "selectAllCharBodyMapButton");
-    
-    // create a "clear all" button
-    var clearAllButton = document.createElement('BUTTON');
-    clearAllButton.setAttribute('type', 'button');
-    clearAllButton.id = "clearAllButton" + pageNum + "." + y + "." + x;
-    clearAllButton.innerHTML = "Clear All";
-    clearAllButton.setAttribute("onclick", "clearAllCharBodyImage(event)");
-    clearAllButton.setAttribute("class", "clearAllCharBodyMapButton");
-    
-    // Char Orientation
-    // create container
-    var charOrientationContainer = document.createElement('div');
-    charOrientationContainer.setAttribute('id', "charOrientationContainer" + pageNum + "." + y + "." + x);
-    charOrientationContainer.setAttribute("class", "charOrientationContainer"); 
-    // create canvas
-    canvas_charOrientation_clone = canvas_charOrientation.cloneNode(); // clone canvas
-    canvas_charOrientation_clone.id = "canvas_charOrientation" + pageNum + "." + y + "." + x; // assign an id
-    charOrientation_canvasid = "canvas_charOrientation" + pageNum + "." + y + "." + x;
-    
-    canvas_charOrientation_clone.getContext('2d').fillStyle = "white";
-    canvas_charOrientation_clone.getContext('2d').fillRect(0, 0, canvas.width, canvas.height);
-    canvas_charOrientation_clone.getContext('2d').restore();
-    
-    
-    context_charOrientation_clone = canvas_charOrientation_clone.getContext('2d');
-    
-    cx = canvas_charOrientation.width/2;
-    cy = canvas_charOrientation.height/2;
-    
-    context_charOrientation_clone.beginPath();
-    context_charOrientation_clone.arc(cx, cy, 80, 0, 2 * Math.PI, false);
-    context_charOrientation_clone.fillStyle = '#7E06DA';
-    context_charOrientation_clone.fill();
-    context_charOrientation_clone.restore();
-    
-    context_charOrientation_clone.beginPath();
-    context_charOrientation_clone.rect(80, 190, 40, 40);
-    context_charOrientation_clone.fillStyle = '#7E06DA';
-    context_charOrientation_clone.fill();
-    context_charOrientation_clone.restore();
-    
-    context_charOrientation_clone.drawImage(charOrientationImage, cx-35, cy-30, 70, 60);
-    
-    // if the page has been created once already, apply the values to the orientationAngle that was already created
-    ///console.log(vars_charOrientation);
-    //console.log(pagesData[pageNum].panels[(y-1)].characters[x].orientationAngle);
-    //if (pagesData[pageNum].panels[(y-1)].characters[x].orientationAngle === undefined)
-    //console.log(vars_charOrientation[charOrientation_canvasid]);
-    if (vars_charOrientation[charOrientation_canvasid] === undefined) {
-        // create variables for each char orientation form created
-        vars_charOrientation[charOrientation_canvasid] = {
-            isDown : false,
-            r : 0
+        if (pagesData[pageNum].panels[y-1].characters[x].emotion === undefined) {
+            pagesData[pageNum].panels[y-1].characters[x].emotion = "Select an Emotion";
+            //console.log(pagesData[pageNum].panels[y-1].characters[x]);
         }
-    }
+    //    else {
+    //        charEmotionSelect.value = pagesData[pageNum].panels[y-1].characters[x].emotion;
+    //    }
 
-    
-    
-    //console.log(vars_charOrientation);
-    
-    canvas_charOrientation_clone.addEventListener('mousedown', function(e) {rotateImage.handleMouseDown(e)});
-    canvas_charOrientation_clone.addEventListener('mousemove', function(e) {rotateImage.handleMouseMove(e)});
-    canvas_charOrientation_clone.addEventListener('mouseup', function(e) {rotateImage.handleMouseUp(e)});
-    canvas_charOrientation_clone.addEventListener('mouseout', function(e) {rotateImage.handleMouseOut(e)});
-    
-    charOrientationContainer.appendChild(canvas_charOrientation_clone);
-    
-    
-    
-    // Image features (Color and Style) - Information change associated with the reference:
-    // create container to hold all color/style checkboxes
-    var charImageFeaturesContainer = document.createElement('div');
-    charImageFeaturesContainer.setAttribute('id', "charImageFeaturesContainer" + y + "." + x);
-    charImageFeaturesContainer.setAttribute("class", "charImageFeaturesContainer");
-    
-    // Heading for image feature sections
-    var charImageFeaturesHeading = document.createElement("h4");
-    charImageFeaturesHeading.id = "charImageFeaturesHeading" + y + "." + x;
-    charImageFeaturesHeading.setAttribute("class", "headingsInCharForm");
-    charImageFeaturesHeading.innerHTML = "Color and Style";
-    
-    // group for full color
-    var charFullColorGroup = document.createElement('div');
-    charFullColorGroup.setAttribute('id', "charFullColorGroup" + y + "." + x);
-    
-    var charFullColorLabel = document.createElement("label");
-    charFullColorLabel.setAttribute("for", "charFullColorButton" + y + "." + x);
-    charFullColorLabel.innerHTML = "Multi-Colored ";
-    charFullColorLabel.setAttribute('id', "charFullColorLabel" + y + "." + x);
-    
-    var charFullColorButton = document.createElement("input");
-    charFullColorButton.setAttribute("type", "checkbox");
-    charFullColorButton.setAttribute("name", "charFullColorButton");
-    charFullColorButton.setAttribute("value", "charFullColor");
-    charFullColorButton.setAttribute('id', "charFullColorButton" + y + "." + x);
-    charFullColorButton.setAttribute('onchange', "changeColorStyleButtonLabelsToBlack()");
-    
-    charFullColorGroup.appendChild(charFullColorLabel);
-    charFullColorGroup.appendChild(charFullColorButton);
-    
-    
-    // group for black and white
-    var blackAndWhiteGroup = document.createElement('div');
-    blackAndWhiteGroup.setAttribute('id', "blackAndWhiteGroup" + y + "." + x);
-    
-    var blackAndWhiteButtonLabel = document.createElement("label");
-    blackAndWhiteButtonLabel.setAttribute("for", "blackAndWhiteButton" + y + "." + x);
-    blackAndWhiteButtonLabel.innerHTML = "Black and White ";
-    blackAndWhiteButtonLabel.setAttribute('id', "blackAndWhiteButtonLabel" + y + "." + x);
-    
-    var blackAndWhiteButton = document.createElement("input");
-    blackAndWhiteButton.setAttribute("type", "checkbox");
-    blackAndWhiteButton.setAttribute("name", "charBlackAndWhiteButton");
-    blackAndWhiteButton.setAttribute("value", "charBlackAndWhite");
-    blackAndWhiteButton.setAttribute('id', "blackAndWhiteButton" + y + "." + x);
-    blackAndWhiteButton.setAttribute('onchange', "changeColorStyleButtonLabelsToBlack()");
-    
-    blackAndWhiteGroup.appendChild(blackAndWhiteButtonLabel);
-    blackAndWhiteGroup.appendChild(blackAndWhiteButton);
-    
-    
-    // group for one color or shade button
-    var charOneColorGroup = document.createElement('div');
-    charOneColorGroup.setAttribute('id', "charOneColorGroup" + y + "." + x);
-    
-    var charOneColorButtonLabel = document.createElement("label"); // create the coloring button label
-    charOneColorButtonLabel.setAttribute("for", "charOneColorButton" + y + "." + x); // say what the label is for
-    charOneColorButtonLabel.innerHTML = "One Color or Gradient "; // state the label text
-    charOneColorButtonLabel.setAttribute('id', "charOneColorButtonLabel" + y + "." + x); // give the label an id
-    
-    // one color or gradient checkbox button
-    var charOneColorButton = document.createElement("input"); // create coloring button
-    charOneColorButton.setAttribute("type", "checkbox"); // make it a radio button
-    charOneColorButton.setAttribute("name", "charOneColorButton"); // give it a name
-    charOneColorButton.setAttribute("value", "charOneColor"); // give it a value
-    charOneColorButton.setAttribute('id', "charOneColorButton" + y + "." + x); // set the id
-    charOneColorButton.setAttribute('onchange', "changeColorStyleButtonLabelsToBlack()");
-    
-    charOneColorGroup.appendChild(charOneColorButtonLabel);
-    charOneColorGroup.appendChild(charOneColorButton);
+        
+        // Character Features Inputs (image features):
+        // Code adapted from https://stackoverflow.com/questions/22317805/how-to-make-canvas-element-in-html-clickable
+        
+        // First, put the headings for these sections in a separate div
+        var charAreasAndOrientationHeadingsContainer = document.createElement('div');
+        charAreasAndOrientationHeadingsContainer.id = "charAreasAndOrientationHeadingsContainer" + y + "." + x;
+        charAreasAndOrientationHeadingsContainer.setAttribute("class", "charAreasAndOrientationHeadingsContainer");
+        
+        // Body elements shown:
+        // Heading for character parts shown
+        var charBodyPartsShownHeading = document.createElement("h4");
+        charBodyPartsShownHeading.id = "charBodyPartsShownHeading" + y + "." + x;
+        charBodyPartsShownHeading.setAttribute("class", "areasDepictedHeading");
+        charBodyPartsShownHeading.innerHTML = "Areas Depicted";
+        
+        // Heading for char orientation task
+        var charOrientationHeading = document.createElement("h4");
+        charOrientationHeading.id = "charOrientationHeading" + y + "." + x;
+        charOrientationHeading.setAttribute("class", "charOrientationHeading");
+        charOrientationHeading.innerHTML = "Orientation of Gaze";
+        
+        charAreasAndOrientationHeadingsContainer.appendChild(charBodyPartsShownHeading);
+        charAreasAndOrientationHeadingsContainer.appendChild(charOrientationHeading);
+        
+        var charBodyMapContainer = document.createElement('div'); // create containter to hold the char body map
+        charBodyMapContainer.setAttribute('id', "charBodyMapContainer" + pageNum + "." + y + "." + x); // set the id for the container
+        //console.log("char body map container: ", charBodyMapContainer.id); // debug
+        charBodyMapContainer.setAttribute("class", "charBodyMapContainer");
+        
+        // clone the canvas element created in the init function
+        canvas_charBodyImage_clone = canvas_charBodyImage.cloneNode();
+        canvas_charBodyImage_clone.id = "canvas_charBodyImage" + pageNum + "." + y + "." + x; // assign an id
+        canvas_charBodyImage_clone.width = 130;
+        //canvas_charBodyImage_clone.getContext('2d').globalAlpha = '1.0'; // set the opacity to 0.5 for all canvases
 
-    
-    // group for sillhouette/shadow button
-    var charShadowGroup = document.createElement('div');
-    charShadowGroup.setAttribute('id', "charShadowGroup" + y + "." + x);
-    
-    // Label for sihouette or shadow radio button
-    var charSilhouetteButtonLabel = document.createElement("label"); // create the silhouette button label
-    charSilhouetteButtonLabel.setAttribute("for", "charSilhouetteButton" + y + "." + x); // say what the label is for
-    charSilhouetteButtonLabel.innerHTML = "Sihouette/Shadow "; // state the label text
-    charSilhouetteButtonLabel.setAttribute('id', "charSilhouetteButtonLabel" + y + "." + x); // give the label an id
-    
-    // Silhouette or shadow radio button
-    var charSilhouetteButton = document.createElement("input"); // create silhouette button
-    charSilhouetteButton.setAttribute("type", "checkbox"); // make it a checkbox
-    charSilhouetteButton.setAttribute("name", "charSilhouetteButton"); // give it a name
-    charSilhouetteButton.setAttribute("value", "charSilhouette"); // give it a value
-    charSilhouetteButton.setAttribute('id', "charSilhouetteButton" + y + "." + x); // set the id
-    charSilhouetteButton.setAttribute('onchange', "changeColorStyleButtonLabelsToBlack()");
-    
-    charShadowGroup.appendChild(charSilhouetteButtonLabel);
-    charShadowGroup.appendChild(charSilhouetteButton);
-    
-    
-    
-    // Image detail scale radio buttons
-    // Likert scale code adapted from //https://stackoverflow.com/questions/3623038/a-likert-scale-in-html
-    var ulImageDetailScale = document.createElement('ul'); // create unordered list
-    ulImageDetailScale.setAttribute("class", "likert"); // set the likert class to the ul
-    ulImageDetailScale.setAttribute('id', "ulImageDetailScale" + y + "." + x);
-    
-    var liLessDetail = document.createElement('li'); // create li element for the less detail label
-    liLessDetail.innerHTML = "Non-Detailed"; // set the "less detail" text
-    
-    var li1Label = document.createElement("label");
-    li1Label.setAttribute("for", "liValue1" + y + "." + x);
-    li1Label.innerHTML = "1";
-    li1Label.setAttribute('id', "li1Label" + y + "." + x);
-    li1Label.setAttribute("class", "imageDetailScaleIndividualLabels");
-    
-    var li1 = document.createElement('li'); // create li element
-    var liValue1 = document.createElement("input"); // create input for likert value 1
-    liValue1.setAttribute("type", "radio"); // make it a radio button
-    liValue1.setAttribute("name", "imageDetailScale"); // assign name to likert value
-    liValue1.setAttribute("value", "1"); // assign value 1
-    liValue1.setAttribute('id', "liValue1" + y + "." + x); // set the id
-    liValue1.setAttribute('onchange', "changeLabelsToBlack()");
-    li1.appendChild(liValue1); // append radio button input to li element
-    
-    var li2Label = document.createElement("label");
-    li2Label.setAttribute("for", "liValue2" + y + "." + x);
-    li2Label.innerHTML = "2";
-    li2Label.setAttribute('id', "li2Label" + y + "." + x);
-    li2Label.setAttribute("class", "imageDetailScaleIndividualLabels");
-    
-    var li2 = document.createElement('li'); // create li element
-    var liValue2 = document.createElement("input"); // create input for likert value 2
-    liValue2.setAttribute("type", "radio"); // make it a radio button
-    liValue2.setAttribute("name", "imageDetailScale"); // assign name to likert value
-    liValue2.setAttribute("value", "2"); // assign value 2
-    liValue2.setAttribute('id', "liValue2" + y + "." + x); // set the id
-    liValue2.setAttribute('onchange', "changeLabelsToBlack()");
-    li2.appendChild(liValue2); // append radio button input to li element
-    
-    var li3Label = document.createElement("label");
-    li3Label.setAttribute("for", "liValue3" + y + "." + x);
-    li3Label.innerHTML = "3";
-    li3Label.setAttribute('id', "li3Label" + y + "." + x);
-    li3Label.setAttribute("class", "imageDetailScaleIndividualLabels");
-    
-    var li3 = document.createElement('li'); // create li element
-    var liValue3 = document.createElement("input"); // create input for likert value 3
-    liValue3.setAttribute("type", "radio"); // make it a radio button
-    liValue3.setAttribute("name", "imageDetailScale"); // assign name to likert value
-    liValue3.setAttribute("value", "3"); // assign value 3
-    liValue3.setAttribute('id', "liValue3" + y + "." + x); // set the id
-    liValue3.setAttribute('onchange', "changeLabelsToBlack()");
-    li3.appendChild(liValue3); // append radio button input to li element
-    
-    var li4Label = document.createElement("label");
-    li4Label.setAttribute("for", "liValue4" + y + "." + x);
-    li4Label.innerHTML = "4";
-    li4Label.setAttribute('id', "li4Label" + y + "." + x);
-    li4Label.setAttribute("class", "imageDetailScaleIndividualLabels");
-    
-    var li4 = document.createElement('li'); // create li element
-    var liValue4 = document.createElement("input"); // create input for likert value 4
-    liValue4.setAttribute("type", "radio"); // make it a radio button
-    liValue4.setAttribute("name", "imageDetailScale"); // assign name to likert value
-    liValue4.setAttribute("value", "4"); // assign value 4
-    liValue4.setAttribute('id', "liValue4" + y + "." + x); // set the id
-    liValue4.setAttribute('onchange', "changeLabelsToBlack()");
-    li4.appendChild(liValue4); // append radio button input to li element
-    
-    var li5Label = document.createElement("label");
-    li5Label.setAttribute("for", "liValue5" + y + "." + x);
-    li5Label.innerHTML = "5";
-    li5Label.setAttribute('id', "li5Label" + y + "." + x);
-    li5Label.setAttribute("class", "imageDetailScaleIndividualLabels");
-    
-    var li5 = document.createElement('li'); // create li element
-    var liValue5 = document.createElement("input"); // create input for likert value 5
-    liValue5.setAttribute("type", "radio"); // make it a radio button
-    liValue5.setAttribute("name", "imageDetailScale"); // assign name to likert value
-    liValue5.setAttribute("value", "5"); // assign value 5
-    liValue5.setAttribute('id', "liValue5" + y + "." + x); // set the id
-    liValue5.setAttribute('onchange', "changeLabelsToBlack()");
-    li5.appendChild(liValue5); // append radio button input to li element
-    
-    var liFullDetail = document.createElement('li'); // create li element for the full detail label
-    liFullDetail.innerHTML = "Full Detailed"; // set the "full detail" text
-    
-    ulImageDetailScale.appendChild(liLessDetail); // append less detail li text
-    //ulImageDetailScale.appendChild(li1Label); // append value 1 label
-    ulImageDetailScale.appendChild(li1); // append value 1
-    ulImageDetailScale.appendChild(li2); // append value 2
-    ulImageDetailScale.appendChild(li3); // append value 3
-    ulImageDetailScale.appendChild(li4); // append value 4
-    ulImageDetailScale.appendChild(li5); // append value 5
-    ulImageDetailScale.appendChild(liFullDetail); // append full detail li text
-    
-    var imageDetailScaleLabels = document.createElement('div');
-    imageDetailScaleLabels.setAttribute('id', "imageDetailScaleLabels" + y + "." + x);
-    imageDetailScaleLabels.setAttribute("class", "imageDetailScaleLabels");
-    
-    imageDetailScaleLabels.appendChild(li1Label);
-    imageDetailScaleLabels.appendChild(li2Label);
-    imageDetailScaleLabels.appendChild(li3Label);
-    imageDetailScaleLabels.appendChild(li4Label);
-    imageDetailScaleLabels.appendChild(li5Label);
-    
-    charImageFeaturesContainer.appendChild(charImageFeaturesHeading);
-    charImageFeaturesContainer.appendChild(charFullColorGroup);
-    charImageFeaturesContainer.appendChild(blackAndWhiteGroup);
-    charImageFeaturesContainer.appendChild(charOneColorGroup);
-    charImageFeaturesContainer.appendChild(charShadowGroup);
-    //charImageFeaturesContainer.appendChild(ulImageDetailScale);
-    //var breakElementHere = document.createElement("br");
-    //charImageFeaturesContainer.appendChild(breakElementHere);
-    //charImageFeaturesContainer.appendChild(imageDetailScaleLabels);
+        canvas_charBodyImage_clone.getContext('2d').fillStyle = "white";
+        canvas_charBodyImage_clone.getContext('2d').fillRect(0, 0, canvas_charBodyImage_clone.width, canvas_charBodyImage_clone.height);
+        canvas_charBodyImage_clone.getContext('2d').drawImage(charBodyMapImage, 0, 0, 125, 300);
+        canvas_charBodyImage_clone.getContext('2d').restore();
+        //console.log("id: " + canvas_charBodyImage_clone.id);
+        
+        charBodyMapContainer.appendChild(canvas_charBodyImage_clone);
+        
+        // create a new set of area switches to the character in pagesData - set all switched to false
+        var depictedCharAreas = {"head":false, "shouldersEast":false, "shouldersWest":false, "upperBody":false, "armWest":false, "handWest":false, "armEast":false, "handEast":false, "lowerBody":false, "legWest":false, "footWest":false, "legEast":false, "footEast":false};
+        
+        // if the page has been created once already, apply the values to the areasShown that was already created
+        //console.log(pagesData[pageNum].panels[(y-1)].characters[x].areasShown);
+        if (pagesData[pageNum].panels[(y-1)].characters[x].areasShown === undefined) {
+            // add a new set of area switches to the character in pagesData
+            pagesData[pageNum].panels[(y-1)].characters[x].areasShown = depictedCharAreas;
+            // console.log(pagesData[pageNum].panels[(y-1)].characters[x]); // Deboog
+        }
+        
+        // add mouse click event listener to each canvas
+        canvas_charBodyImage_clone.addEventListener('mousedown', function(e) {handleMouseClick(e)
+                                });
+        
+        // create "full body shown" or "select all" button
+        var selectAllButton = document.createElement('BUTTON');
+        selectAllButton.setAttribute('type', 'button');
+        selectAllButton.id = "selectAllButton" + pageNum + "." + y + "." + x;
+        selectAllButton.innerHTML = "Select All";
+        selectAllButton.setAttribute("onclick", "selectAllCharBodyImage(event)");
+        selectAllButton.setAttribute("class", "selectAllCharBodyMapButton");
+        
+        // create a "clear all" button
+        var clearAllButton = document.createElement('BUTTON');
+        clearAllButton.setAttribute('type', 'button');
+        clearAllButton.id = "clearAllButton" + pageNum + "." + y + "." + x;
+        clearAllButton.innerHTML = "Clear All";
+        clearAllButton.setAttribute("onclick", "clearAllCharBodyImage(event)");
+        clearAllButton.setAttribute("class", "clearAllCharBodyMapButton");
+        
+        // Char Orientation
+        // create container
+        var charOrientationContainer = document.createElement('div');
+        charOrientationContainer.setAttribute('id', "charOrientationContainer" + pageNum + "." + y + "." + x);
+        charOrientationContainer.setAttribute("class", "charOrientationContainer");
+        // create canvas
+        canvas_charOrientation_clone = canvas_charOrientation.cloneNode(); // clone canvas
+        canvas_charOrientation_clone.id = "canvas_charOrientation" + pageNum + "." + y + "." + x; // assign an id
+        charOrientation_canvasid = "canvas_charOrientation" + pageNum + "." + y + "." + x;
+        
+        canvas_charOrientation_clone.getContext('2d').fillStyle = "white";
+        canvas_charOrientation_clone.getContext('2d').fillRect(0, 0, canvas.width, canvas.height);
+        canvas_charOrientation_clone.getContext('2d').restore();
+        
+        
+        context_charOrientation_clone = canvas_charOrientation_clone.getContext('2d');
+        
+        cx = canvas_charOrientation.width/2;
+        cy = canvas_charOrientation.height/2;
+        
+        context_charOrientation_clone.beginPath();
+        context_charOrientation_clone.arc(cx, cy, 80, 0, 2 * Math.PI, false);
+        context_charOrientation_clone.fillStyle = '#7E06DA';
+        context_charOrientation_clone.fill();
+        context_charOrientation_clone.restore();
+        
+        context_charOrientation_clone.beginPath();
+        context_charOrientation_clone.rect(80, 190, 40, 40);
+        context_charOrientation_clone.fillStyle = '#7E06DA';
+        context_charOrientation_clone.fill();
+        context_charOrientation_clone.restore();
+        
+        context_charOrientation_clone.drawImage(charOrientationImage, cx-35, cy-30, 70, 60);
+        
+        // if the page has been created once already, apply the values to the orientationAngle that was already created
+        ///console.log(vars_charOrientation);
+        //console.log(pagesData[pageNum].panels[(y-1)].characters[x].orientationAngle);
+        //if (pagesData[pageNum].panels[(y-1)].characters[x].orientationAngle === undefined)
+        //console.log(vars_charOrientation[charOrientation_canvasid]);
+        if (vars_charOrientation[charOrientation_canvasid] === undefined) {
+            // create variables for each char orientation form created
+            vars_charOrientation[charOrientation_canvasid] = {
+                isDown : false,
+                r : 0
+            }
+        }
 
+        //console.log(vars_charOrientation);
+        
+        canvas_charOrientation_clone.addEventListener('mousedown', function(e) {rotateImage.handleMouseDown(e)});
+        canvas_charOrientation_clone.addEventListener('mousemove', function(e) {rotateImage.handleMouseMove(e)});
+        canvas_charOrientation_clone.addEventListener('mouseup', function(e) {rotateImage.handleMouseUp(e)});
+        canvas_charOrientation_clone.addEventListener('mouseout', function(e) {rotateImage.handleMouseOut(e)});
+        
+        charOrientationContainer.appendChild(canvas_charOrientation_clone);
 
-     
-    // Append all char input elements to the form element:
-    
-    charFeaturesForm.appendChild(charIDSquareContainer); // Add the char ID container
-    charFeaturesForm.appendChild(charReferenceTasksContainer);
-    charFeaturesForm.appendChild(charAreasAndOrientationHeadingsContainer);
-    //charFeaturesForm.appendChild(charBodyPartsShownHeading); // Add the areas depicted heading
-    //charFeaturesForm.appendChild(charOrientationHeading);
-    charFeaturesForm.appendChild(charBodyMapContainer); // Add the char body map container
-    charFeaturesForm.appendChild(charOrientationContainer); // add char orientation container
-    charFeaturesForm.appendChild(charImageFeaturesContainer); // Add the char features container
-    charFeaturesForm.appendChild(selectAllButton); // Add the 'select all' button
-    charFeaturesForm.appendChild(clearAllButton); // Add the "clear all" button
-    charFeaturesForm.appendChild(ulImageDetailScale);
-    var breakElementHere = document.createElement("br");
-    charFeaturesForm.appendChild(breakElementHere);
-    charFeaturesForm.appendChild(imageDetailScaleLabels);
+        // Image features (Color and Style) - Information change associated with the reference:
+        // create container to hold all color/style checkboxes
+        var charImageFeaturesContainer = document.createElement('div');
+        charImageFeaturesContainer.setAttribute('id', "charImageFeaturesContainer" + y + "." + x);
+        charImageFeaturesContainer.setAttribute("class", "charImageFeaturesContainer");
+        
+        // Heading for image feature sections
+        var charImageFeaturesHeading = document.createElement("h4");
+        charImageFeaturesHeading.id = "charImageFeaturesHeading" + y + "." + x;
+        charImageFeaturesHeading.setAttribute("class", "headingsInCharForm");
+        charImageFeaturesHeading.innerHTML = "Color and Style";
+        
+        // group for full color
+        var charFullColorGroup = document.createElement('div');
+        charFullColorGroup.setAttribute('id', "charFullColorGroup" + y + "." + x);
+        
+        var charFullColorLabel = document.createElement("label");
+        charFullColorLabel.setAttribute("for", "charFullColorButton" + y + "." + x);
+        charFullColorLabel.innerHTML = "Multi-Colored ";
+        charFullColorLabel.setAttribute('id', "charFullColorLabel" + y + "." + x);
+        
+        var charFullColorButton = document.createElement("input");
+        charFullColorButton.setAttribute("type", "checkbox");
+        charFullColorButton.setAttribute("name", "charFullColorButton");
+        charFullColorButton.setAttribute("value", "charFullColor");
+        charFullColorButton.setAttribute('id', "charFullColorButton" + y + "." + x);
+        charFullColorButton.setAttribute('onchange', "changeColorStyleButtonLabelsToBlack()");
+        
+        charFullColorGroup.appendChild(charFullColorLabel);
+        charFullColorGroup.appendChild(charFullColorButton);
+        
+        
+        // group for black and white
+        var blackAndWhiteGroup = document.createElement('div');
+        blackAndWhiteGroup.setAttribute('id', "blackAndWhiteGroup" + y + "." + x);
+        
+        var blackAndWhiteButtonLabel = document.createElement("label");
+        blackAndWhiteButtonLabel.setAttribute("for", "blackAndWhiteButton" + y + "." + x);
+        blackAndWhiteButtonLabel.innerHTML = "Black and White ";
+        blackAndWhiteButtonLabel.setAttribute('id', "blackAndWhiteButtonLabel" + y + "." + x);
+        
+        var blackAndWhiteButton = document.createElement("input");
+        blackAndWhiteButton.setAttribute("type", "checkbox");
+        blackAndWhiteButton.setAttribute("name", "charBlackAndWhiteButton");
+        blackAndWhiteButton.setAttribute("value", "charBlackAndWhite");
+        blackAndWhiteButton.setAttribute('id', "blackAndWhiteButton" + y + "." + x);
+        blackAndWhiteButton.setAttribute('onchange', "changeColorStyleButtonLabelsToBlack()");
+        
+        blackAndWhiteGroup.appendChild(blackAndWhiteButtonLabel);
+        blackAndWhiteGroup.appendChild(blackAndWhiteButton);
+        
+        
+        // group for one color or shade button
+        var charOneColorGroup = document.createElement('div');
+        charOneColorGroup.setAttribute('id', "charOneColorGroup" + y + "." + x);
+        
+        var charOneColorButtonLabel = document.createElement("label"); // create the coloring button label
+        charOneColorButtonLabel.setAttribute("for", "charOneColorButton" + y + "." + x); // say what the label is for
+        charOneColorButtonLabel.innerHTML = "One Color or Gradient "; // state the label text
+        charOneColorButtonLabel.setAttribute('id', "charOneColorButtonLabel" + y + "." + x); // give the label an id
+        
+        // one color or gradient checkbox button
+        var charOneColorButton = document.createElement("input"); // create coloring button
+        charOneColorButton.setAttribute("type", "checkbox"); // make it a radio button
+        charOneColorButton.setAttribute("name", "charOneColorButton"); // give it a name
+        charOneColorButton.setAttribute("value", "charOneColor"); // give it a value
+        charOneColorButton.setAttribute('id', "charOneColorButton" + y + "." + x); // set the id
+        charOneColorButton.setAttribute('onchange', "changeColorStyleButtonLabelsToBlack()");
+        
+        charOneColorGroup.appendChild(charOneColorButtonLabel);
+        charOneColorGroup.appendChild(charOneColorButton);
+
+        
+        // group for sillhouette/shadow button
+        var charShadowGroup = document.createElement('div');
+        charShadowGroup.setAttribute('id', "charShadowGroup" + y + "." + x);
+        
+        // Label for sihouette or shadow radio button
+        var charSilhouetteButtonLabel = document.createElement("label"); // create the silhouette button label
+        charSilhouetteButtonLabel.setAttribute("for", "charSilhouetteButton" + y + "." + x); // say what the label is for
+        charSilhouetteButtonLabel.innerHTML = "Sihouette/Shadow "; // state the label text
+        charSilhouetteButtonLabel.setAttribute('id', "charSilhouetteButtonLabel" + y + "." + x); // give the label an id
+        
+        // Silhouette or shadow radio button
+        var charSilhouetteButton = document.createElement("input"); // create silhouette button
+        charSilhouetteButton.setAttribute("type", "checkbox"); // make it a checkbox
+        charSilhouetteButton.setAttribute("name", "charSilhouetteButton"); // give it a name
+        charSilhouetteButton.setAttribute("value", "charSilhouette"); // give it a value
+        charSilhouetteButton.setAttribute('id', "charSilhouetteButton" + y + "." + x); // set the id
+        charSilhouetteButton.setAttribute('onchange', "changeColorStyleButtonLabelsToBlack()");
+        
+        charShadowGroup.appendChild(charSilhouetteButtonLabel);
+        charShadowGroup.appendChild(charSilhouetteButton);
+
+        // Image detail scale radio buttons
+        // Likert scale code adapted from //https://stackoverflow.com/questions/3623038/a-likert-scale-in-html
+        var ulImageDetailScale = document.createElement('ul'); // create unordered list
+        ulImageDetailScale.setAttribute("class", "likert"); // set the likert class to the ul
+        ulImageDetailScale.setAttribute('id', "ulImageDetailScale" + y + "." + x);
+        
+        var liLessDetail = document.createElement('li'); // create li element for the less detail label
+        liLessDetail.innerHTML = "Non-Detailed"; // set the "less detail" text
+        
+        var li1Label = document.createElement("label");
+        li1Label.setAttribute("for", "liValue1" + y + "." + x);
+        li1Label.innerHTML = "1";
+        li1Label.setAttribute('id', "li1Label" + y + "." + x);
+        li1Label.setAttribute("class", "imageDetailScaleIndividualLabels");
+        
+        var li1 = document.createElement('li'); // create li element
+        var liValue1 = document.createElement("input"); // create input for likert value 1
+        liValue1.setAttribute("type", "radio"); // make it a radio button
+        liValue1.setAttribute("name", "imageDetailScale"); // assign name to likert value
+        liValue1.setAttribute("value", "1"); // assign value 1
+        liValue1.setAttribute('id', "liValue1" + y + "." + x); // set the id
+        liValue1.setAttribute('onchange', "changeLabelsToBlack()");
+        li1.appendChild(liValue1); // append radio button input to li element
+        
+        var li2Label = document.createElement("label");
+        li2Label.setAttribute("for", "liValue2" + y + "." + x);
+        li2Label.innerHTML = "2";
+        li2Label.setAttribute('id', "li2Label" + y + "." + x);
+        li2Label.setAttribute("class", "imageDetailScaleIndividualLabels");
+        
+        var li2 = document.createElement('li'); // create li element
+        var liValue2 = document.createElement("input"); // create input for likert value 2
+        liValue2.setAttribute("type", "radio"); // make it a radio button
+        liValue2.setAttribute("name", "imageDetailScale"); // assign name to likert value
+        liValue2.setAttribute("value", "2"); // assign value 2
+        liValue2.setAttribute('id', "liValue2" + y + "." + x); // set the id
+        liValue2.setAttribute('onchange', "changeLabelsToBlack()");
+        li2.appendChild(liValue2); // append radio button input to li element
+        
+        var li3Label = document.createElement("label");
+        li3Label.setAttribute("for", "liValue3" + y + "." + x);
+        li3Label.innerHTML = "3";
+        li3Label.setAttribute('id', "li3Label" + y + "." + x);
+        li3Label.setAttribute("class", "imageDetailScaleIndividualLabels");
+        
+        var li3 = document.createElement('li'); // create li element
+        var liValue3 = document.createElement("input"); // create input for likert value 3
+        liValue3.setAttribute("type", "radio"); // make it a radio button
+        liValue3.setAttribute("name", "imageDetailScale"); // assign name to likert value
+        liValue3.setAttribute("value", "3"); // assign value 3
+        liValue3.setAttribute('id', "liValue3" + y + "." + x); // set the id
+        liValue3.setAttribute('onchange', "changeLabelsToBlack()");
+        li3.appendChild(liValue3); // append radio button input to li element
+        
+        var li4Label = document.createElement("label");
+        li4Label.setAttribute("for", "liValue4" + y + "." + x);
+        li4Label.innerHTML = "4";
+        li4Label.setAttribute('id', "li4Label" + y + "." + x);
+        li4Label.setAttribute("class", "imageDetailScaleIndividualLabels");
+        
+        var li4 = document.createElement('li'); // create li element
+        var liValue4 = document.createElement("input"); // create input for likert value 4
+        liValue4.setAttribute("type", "radio"); // make it a radio button
+        liValue4.setAttribute("name", "imageDetailScale"); // assign name to likert value
+        liValue4.setAttribute("value", "4"); // assign value 4
+        liValue4.setAttribute('id', "liValue4" + y + "." + x); // set the id
+        liValue4.setAttribute('onchange', "changeLabelsToBlack()");
+        li4.appendChild(liValue4); // append radio button input to li element
+        
+        var li5Label = document.createElement("label");
+        li5Label.setAttribute("for", "liValue5" + y + "." + x);
+        li5Label.innerHTML = "5";
+        li5Label.setAttribute('id', "li5Label" + y + "." + x);
+        li5Label.setAttribute("class", "imageDetailScaleIndividualLabels");
+        
+        var li5 = document.createElement('li'); // create li element
+        var liValue5 = document.createElement("input"); // create input for likert value 5
+        liValue5.setAttribute("type", "radio"); // make it a radio button
+        liValue5.setAttribute("name", "imageDetailScale"); // assign name to likert value
+        liValue5.setAttribute("value", "5"); // assign value 5
+        liValue5.setAttribute('id', "liValue5" + y + "." + x); // set the id
+        liValue5.setAttribute('onchange', "changeLabelsToBlack()");
+        li5.appendChild(liValue5); // append radio button input to li element
+        
+        var liFullDetail = document.createElement('li'); // create li element for the full detail label
+        liFullDetail.innerHTML = "Full Detailed"; // set the "full detail" text
+        
+        ulImageDetailScale.appendChild(liLessDetail); // append less detail li text
+        //ulImageDetailScale.appendChild(li1Label); // append value 1 label
+        ulImageDetailScale.appendChild(li1); // append value 1
+        ulImageDetailScale.appendChild(li2); // append value 2
+        ulImageDetailScale.appendChild(li3); // append value 3
+        ulImageDetailScale.appendChild(li4); // append value 4
+        ulImageDetailScale.appendChild(li5); // append value 5
+        ulImageDetailScale.appendChild(liFullDetail); // append full detail li text
+        
+        var imageDetailScaleLabels = document.createElement('div');
+        imageDetailScaleLabels.setAttribute('id', "imageDetailScaleLabels" + y + "." + x);
+        imageDetailScaleLabels.setAttribute("class", "imageDetailScaleLabels");
+        
+        imageDetailScaleLabels.appendChild(li1Label);
+        imageDetailScaleLabels.appendChild(li2Label);
+        imageDetailScaleLabels.appendChild(li3Label);
+        imageDetailScaleLabels.appendChild(li4Label);
+        imageDetailScaleLabels.appendChild(li5Label);
+        
+        charImageFeaturesContainer.appendChild(charImageFeaturesHeading);
+        charImageFeaturesContainer.appendChild(charFullColorGroup);
+        charImageFeaturesContainer.appendChild(blackAndWhiteGroup);
+        charImageFeaturesContainer.appendChild(charOneColorGroup);
+        charImageFeaturesContainer.appendChild(charShadowGroup);
+        //charImageFeaturesContainer.appendChild(ulImageDetailScale);
+        //var breakElementHere = document.createElement("br");
+        //charImageFeaturesContainer.appendChild(breakElementHere);
+        //charImageFeaturesContainer.appendChild(imageDetailScaleLabels);
+
+        // Append all char input elements to the form element:
+        charFeaturesForm.appendChild(charIDSquareContainer); // Add the char ID container
+        charFeaturesForm.appendChild(charReferenceTasksContainer);
+        charFeaturesForm.appendChild(charAreasAndOrientationHeadingsContainer);
+        //charFeaturesForm.appendChild(charBodyPartsShownHeading); // Add the areas depicted heading
+        //charFeaturesForm.appendChild(charOrientationHeading);
+        charFeaturesForm.appendChild(charBodyMapContainer); // Add the char body map container
+        charFeaturesForm.appendChild(charOrientationContainer); // add char orientation container
+        charFeaturesForm.appendChild(charImageFeaturesContainer); // Add the char features container
+        charFeaturesForm.appendChild(selectAllButton); // Add the 'select all' button
+        charFeaturesForm.appendChild(clearAllButton); // Add the "clear all" button
+        charFeaturesForm.appendChild(ulImageDetailScale);
+        var breakElementHere = document.createElement("br");
+        charFeaturesForm.appendChild(breakElementHere);
+        charFeaturesForm.appendChild(imageDetailScaleLabels);
+        
+    } // end of else
     
     // Return the constructed form to be placed on the main semantic form
     return charFeaturesForm
     
 } // end of function createCharFeaturesForm()
+
+
+function generateAnimateReferenceTask(event) {
+    // event = radio button press
+    
+    var animacyRadioButtonID = event.target.getAttribute("id"); // id of node/animacy radio button set that was pressed
+    // regex to replace all leading non-digits with nothing
+    var animacyContainerIDNum = animacyRadioButtonID.replace(/^\D+/g, "");
+    //console.log("animacyContainerIDNum: " + animacyContainerIDNum);
+    
+    // change to regular purple background color
+    document.getElementById("animacyCheckboxContainer" + animacyContainerIDNum).style.backgroundColor = "#f6ebff";
+    
+    charFeaturesFormCurrent = document.getElementById("charFeaturesForm" + animacyContainerIDNum);
+    var animacyRadioButtonValue = event.target.getAttribute("value"); // value of the animacy radio button
+    
+    // if human animate, human-like animate, non-human animate, or ambiguous animate are selected...
+    if (animacyRadioButtonValue == "humanAnimate" || animacyRadioButtonValue == "humanLikeAnimate" || animacyRadioButtonValue == "nonHumanAnimate" || animacyRadioButtonValue == "ambiguousAnimate") {
+        //console.log("animacyRadioButtonValue: " + animacyRadioButtonValue);
+        
+        // check if the charFeaturesFormCurrent has a child/reference container
+        // check if a reference text form already exists
+        
+        if (charFeaturesFormCurrent.children.length > 2) {
+            return; // if it does exist, abort!
+        }
+        else {
+            
+            // if not generate a text prompt to get a reference
+            var referenceTextInputContainer = document.createElement('div');
+            referenceTextInputContainer.id = "referenceTextInputContainer" + animacyContainerIDNum;
+            referenceTextInputContainer.setAttribute('class', "referenceTextInputContainer");
+            var firstReferenceInputContainer = document.createElement('div');
+            firstReferenceInputContainer.setAttribute("class", "firstReferenceInputContainer");
+            var referenceTextInput = document.createElement('input');
+            referenceTextInput.setAttribute('type', 'text');
+            referenceTextInput.setAttribute("class", "referenceTextInput");
+            referenceTextInput.setAttribute('onkeydown', "stopEnter(event)");
+            referenceTextInput.setAttribute('onchange', "referenceInputs_animacyRef(event)");
+            referenceTextInput.addEventListener('keyup', function(e) {getInputValue_NoKeyPressedForOneSec(e)}); // add event listener to get and store input values
+            referenceTextInput.id = "referenceTextInput" + animacyContainerIDNum;
+            var referenceTextInputLabel = document.createElement('label');
+            referenceTextInputLabel.setAttribute('for', "referenceTextInput" + animacyContainerIDNum);
+            referenceTextInputLabel.id = "referenceTextInputLabel" + animacyContainerIDNum;
+            referenceTextInputLabel.innerHTML = "Label: ";
+            // add datalist
+            var referenceTextInput_datalist = document.createElement('datalist');
+            referenceTextInput_datalistID = "referenceTextInput_datalist" + animacyContainerIDNum;
+            referenceTextInput_datalist.setAttribute('id', referenceTextInput_datalistID);
+            document.body.appendChild(referenceTextInput_datalist);
+            referenceTextInput.setAttribute('list', referenceTextInput_datalistID);
+            
+            firstReferenceInputContainer.appendChild(referenceTextInputLabel);
+            firstReferenceInputContainer.appendChild(referenceTextInput);
+            referenceTextInputContainer.appendChild(firstReferenceInputContainer);
+            
+            // generate a new checkbox set to check if reference is a group, is part of a group, or the ref refers to another entity seen before
+            // (I know it says radio, but I had to change it to checkbox and it would be a total bitch to change all the variable names!)
+            var attributesRadioSetContainer = document.createElement('div');
+            attributesRadioSetContainer.setAttribute("class", "attributesRadioSetContainer");
+            attributesRadioSetContainer.id = "attributesRadioSetContainer" + animacyContainerIDNum;
+            // is a group:
+            var isAGroupRadio = document.createElement('input');
+            isAGroupRadio.setAttribute('type', 'checkbox');
+            isAGroupRadio.setAttribute("class", "attributeCheckbox");
+            isAGroupRadio.setAttribute('name', "referenceAttributesRadioSet");
+            isAGroupRadio.id = "isAGroupRadio" + animacyContainerIDNum;
+            isAGroupRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
+            var isAGroupRadioLabel = document.createElement('label');
+            isAGroupRadioLabel.setAttribute('for', "isAGroupRadioLabel" + animacyContainerIDNum);
+            isAGroupRadioLabel.id = "isAGroupRadioLabel" + animacyContainerIDNum;
+            isAGroupRadioLabel.innerHTML = "Group";
+            // is part of a group:
+            var isPartOfGroupRadio = document.createElement('input');
+            isPartOfGroupRadio.setAttribute('type', 'checkbox');
+            isPartOfGroupRadio.setAttribute("class", "attributeCheckbox");
+            isPartOfGroupRadio.setAttribute('name', "referenceAttributesRadioSet");
+            isPartOfGroupRadio.id = "isPartOfGroupRadio" + animacyContainerIDNum;
+            isPartOfGroupRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
+            var isPartOfGroupRadioLabel = document.createElement('label');
+            isPartOfGroupRadioLabel.setAttribute('for', "isPartOfGroupRadio");
+            isPartOfGroupRadioLabel.id = "isPartOfGroupRadioLabel" + animacyContainerIDNum;
+            isPartOfGroupRadioLabel.innerHTML = "Part of group";
+            // Is the same as another label:
+            var isSameAsOtherLabelRadio = document.createElement('input');
+            isSameAsOtherLabelRadio.setAttribute('type', 'checkbox');
+            isSameAsOtherLabelRadio.setAttribute("class", "attributeCheckbox");
+            isSameAsOtherLabelRadio.setAttribute('name', "referenceAttributesRadioSet");
+            isSameAsOtherLabelRadio.id = "isSameAsOtherLabelRadio" + animacyContainerIDNum;
+            isSameAsOtherLabelRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
+            var isSameAsOtherLabelRadioLabel = document.createElement('label');
+            isSameAsOtherLabelRadioLabel.setAttribute('for', "isSameAsOtherLabelRadio");
+            isSameAsOtherLabelRadioLabel.id = "isSameAsOtherLabelRadioLabel" + animacyContainerIDNum;
+            isSameAsOtherLabelRadioLabel.innerHTML = "Same as other label"
+            
+            // put the attribute radio set into a table
+            var attributeRadioSetTable = document.createElement('table');
+            attributeRadioSetTable.setAttribute("class", "attributeRadioSetTable");
+            attributeRadioSetTable.id = "attributeRadioSetTable" + animacyContainerIDNum;
+            // row 1
+            var row1AttributeSet = document.createElement('tr');
+            row1AttributeSet.id = "row1AttributeSet" + animacyContainerIDNum;
+            var row1AttributeSetButton = document.createElement('td');
+            var row1AttributeSetLabel = document.createElement('td');
+            row1AttributeSetButton.appendChild(isAGroupRadio);
+            row1AttributeSetLabel.appendChild(isAGroupRadioLabel);
+            row1AttributeSet.appendChild(row1AttributeSetButton);
+            row1AttributeSet.appendChild(row1AttributeSetLabel);
+            attributeRadioSetTable.appendChild(row1AttributeSet);
+            // row 2
+            var row2AttributeSet = document.createElement('tr');
+            row2AttributeSet.id = "row2AttributeSet" + animacyContainerIDNum;
+            var row2AttributeSetButton = document.createElement('td');
+            var row2AttributeSetLabel = document.createElement('td');
+            row2AttributeSetButton.appendChild(isPartOfGroupRadio);
+            row2AttributeSetLabel.appendChild(isPartOfGroupRadioLabel);
+            row2AttributeSet.appendChild(row2AttributeSetButton);
+            row2AttributeSet.appendChild(row2AttributeSetLabel);
+            attributeRadioSetTable.appendChild(row2AttributeSet);
+            // row 3
+            var row3AttributeSet = document.createElement('tr');
+            row3AttributeSet.id = "row3AttributeSet" + animacyContainerIDNum;
+            var row3AttributeSetButton = document.createElement('td');
+            var row3AttributeSetLabel = document.createElement('td');
+            row3AttributeSetButton.appendChild(isSameAsOtherLabelRadio);
+            row3AttributeSetLabel.appendChild(isSameAsOtherLabelRadioLabel);
+            row3AttributeSet.appendChild(row3AttributeSetButton);
+            row3AttributeSet.appendChild(row3AttributeSetLabel);
+            attributeRadioSetTable.appendChild(row3AttributeSet);
+            
+            // append table to container
+            attributesRadioSetContainer.appendChild(attributeRadioSetTable);
+            // append to reference container
+            referenceTextInputContainer.appendChild(attributesRadioSetContainer);
+            // append to charFeaturesForm
+            charFeaturesFormCurrent.appendChild(referenceTextInputContainer);
+            
+        } // end of else for if (charFeaturesFormCurrent.children.length > 2)
+    } // end of if (animacyRadioButtonValue == "humanAnimate" .... )
+    else {
+        // get rid of any form if it is there
+        if (charFeaturesFormCurrent.children.length > 2) {
+                charFeaturesFormCurrent.removeChild(charFeaturesFormCurrent.lastChild);
+        }
+    } // end of else for if (animacyRadioButtonValue == "humanAnimate" .... )
+} // end of generateAnimateReferenceTask()
+
+
+function generateGroupReferenceInputs(event) {
+    // event = radio button press
+    
+    // depending on what radio button is pressed, generate reference text forms as needed
+    var referenceAttributeSelector = event.target;
+    var referenceAttributeSelectorID = event.target.getAttribute("id"); // id of group radion buttons/node set that was pressed
+    // regex to replace all leading non-digits with nothing
+    var referenceAttributeSelectorIDNum = referenceAttributeSelectorID.replace(/^\D+/g, "");
+    //console.log("groupSelectedCheckboxIDNum: " + groupSelectedCheckboxIDNum);
+    charFeaturesFormCurrentGroup = document.getElementById("charFeaturesForm" + referenceAttributeSelectorIDNum);
+    
+    document.getElementById("attributesRadioSetContainer" + referenceAttributeSelectorIDNum).style.backgroundColor = "#F2D0FF";
+    
+    var currentIsAGroupRadio = document.getElementById("isAGroupRadio" + referenceAttributeSelectorIDNum);
+    var currentIsPartOfGroupRadio = document.getElementById("isPartOfGroupRadio" + referenceAttributeSelectorIDNum);
+    var currentIsSameAsOtherLabelRadio = document.getElementById("isSameAsOtherLabelRadio" + referenceAttributeSelectorIDNum);
+    
+    // if isPartOfGroupRadio is checked, add reference textbox
+    if (currentIsPartOfGroupRadio.checked) {
+        // get the relevant row
+        var currentRow2AttributeSet = document.getElementById("row2AttributeSet" + referenceAttributeSelectorIDNum);
+        if (currentRow2AttributeSet.children.length > 2) { // if the form already exists, move on
+            //console.log("IsPartOfGroupRadio true, no form made");
+            
+        }
+        else {
+            var isPartOfGroupRadioTextbox = document.createElement('input');
+            isPartOfGroupRadioTextbox.setAttribute('type', 'text');
+            isPartOfGroupRadioTextbox.id = "isPartOfGroupRadioTextbox" + referenceAttributeSelectorIDNum;
+            isPartOfGroupRadioTextbox.setAttribute("class", "referenceTextInput");
+            isPartOfGroupRadioTextbox.setAttribute('onkeydown', "stopEnter(event)");
+            isPartOfGroupRadioTextbox.setAttribute('onchange', "referenceInputs_animacyRef(event)");
+            isPartOfGroupRadioTextbox.addEventListener('keyup', function(e) {getInputValue_NoKeyPressedForOneSec(e)}); // add event listener to get and store input values
+            var isPartOfGroupRadioTextboxLabel = document.createElement('label');
+            isPartOfGroupRadioTextboxLabel.setAttribute('for', isPartOfGroupRadioTextbox);
+            isPartOfGroupRadioTextboxLabel.id = "isPartOfGroupRadioTextboxLabel" + referenceAttributeSelectorIDNum;
+            isPartOfGroupRadioTextboxLabel.innerHTML = "Label: ";
+            // add datalist
+            var isPartOfGroupRadioTextbox_datalist = document.createElement('datalist');
+            isPartOfGroupRadioTextbox_datalistID = "isPartOfGroupRadioTextbox_datalist" + referenceAttributeSelectorIDNum;
+            isPartOfGroupRadioTextbox_datalist.setAttribute('id', isPartOfGroupRadioTextbox_datalistID);
+            document.body.appendChild(isPartOfGroupRadioTextbox_datalist);
+            isPartOfGroupRadioTextbox.setAttribute('list', isPartOfGroupRadioTextbox_datalistID);
+            
+            // add new tr row2.5 under 2 tr, append the new ref textbox
+            //var isPartOfGroupRadioTextboxRow = document.createElement('tr');
+            //var isPartOfGroupRadioTextboxRowLabel = document.createElement('td');
+            
+            // just make the input textbox for now
+            var isPartOfGroupRadioTextboxRowText = document.createElement('td');
+            //isPartOfGroupRadioTextboxRowLabel.appendChild(isPartOfGroupRadioTextboxLabel);
+            isPartOfGroupRadioTextboxRowText.appendChild(isPartOfGroupRadioTextbox);
+            //isPartOfGroupRadioTextboxRow.appendChild(isPartOfGroupRadioTextboxRowLabel);
+            //isPartOfGroupRadioTextboxRow.appendChild(isPartOfGroupRadioTextboxRowText);
+            
+            //currentRow2AttributeSet.appendChild(isPartOfGroupRadioTextboxRow);
+            currentRow2AttributeSet.appendChild(isPartOfGroupRadioTextboxRowText);
+            
+            
+           // console.log("IsPartOfGroupRadio true, new form made");
+        } // end of else for if (currentRow2AttributeSet.children.length > 2)
+    } // end of if (currentIsPartOfGroupRadio)
+    
+    // if isPartOfGroupRadio is not checked, make sure there is no textbox
+    if (currentIsPartOfGroupRadio.checked == false) {
+        // get the relevant row
+        var currentRow2AttributeSet = document.getElementById("row2AttributeSet" + referenceAttributeSelectorIDNum);
+        if (currentRow2AttributeSet.children.length > 2) { // if there is a form, remove
+            currentRow2AttributeSet.removeChild(currentRow2AttributeSet.lastChild);
+            //console.log("IsPartOfGroupRadio false, form removed");
+        }
+    } // end of if (currentIsPartOfGroupRadio.checked == false)
+    
+    // if isSameAsOtherLabel is checked, add reference textbox
+    if (currentIsSameAsOtherLabelRadio.checked) {
+        // get the relevant row
+        var currentRow3AttributeSet = document.getElementById("row3AttributeSet" + referenceAttributeSelectorIDNum);
+        if (currentRow3AttributeSet.children.length > 2) { // if the form already exists, move on
+            //console.log("IsSameAsOtherLabelRadio true, form already there");
+        }
+        else {
+            
+            var isSameAsOtherLabelTextbox = document.createElement('input');
+            isSameAsOtherLabelTextbox.setAttribute('type', 'text');
+            isSameAsOtherLabelTextbox.id = "isSameAsOtherLabelTextbox" + referenceAttributeSelectorIDNum;
+            isSameAsOtherLabelTextbox.setAttribute("class", "referenceTextInput");
+            isSameAsOtherLabelTextbox.setAttribute('onkeydown', "stopEnter(event)");
+            isSameAsOtherLabelTextbox.setAttribute('onchange', "referenceInputs_animacyRef(event)");
+            isSameAsOtherLabelTextbox.addEventListener('keyup', function(e) {getInputValue_NoKeyPressedForOneSec(e)}); // add event listener to get and store input values
+            var isSameAsOtherLabelTextboxLabel = document.createElement('label');
+            isSameAsOtherLabelTextboxLabel.setAttribute('for', isSameAsOtherLabelTextbox);
+            isSameAsOtherLabelTextboxLabel.id = "isSameAsOtherLabelTextboxLabel" + referenceAttributeSelectorIDNum;
+            isSameAsOtherLabelTextboxLabel.innerHTML = "Label: ";
+            // add datalist
+            var isSameAsOtherLabelTextbox_datalist = document.createElement('datalist');
+            isSameAsOtherLabelTextbox_datalistID = "isSameAsOtherLabelTextbox_datalist" + referenceAttributeSelectorIDNum;
+            isSameAsOtherLabelTextbox_datalist.setAttribute('id', isSameAsOtherLabelTextbox_datalistID);
+            document.body.appendChild(isSameAsOtherLabelTextbox_datalist);
+            isSameAsOtherLabelTextbox.setAttribute('list', isSameAsOtherLabelTextbox_datalistID);
+            
+            // add new tr row 3.5 under 3 tr, append the new ref textbox
+            //var isSameAsOtherLabelTextboxRow = document.createElement('tr');
+            //var isSameAsOtherLabelTextboxRowLabel = document.createElement('td');
+            
+            // just make the text input box for now
+            var isSameAsOtherLabelTextboxRowText = document.createElement('td');
+            //isSameAsOtherLabelTextboxRowLabel.appendChild(isSameAsOtherLabelTextboxLabel);
+            isSameAsOtherLabelTextboxRowText.appendChild(isSameAsOtherLabelTextbox);
+            //isSameAsOtherLabelTextboxRow.appendChild(isSameAsOtherLabelTextboxRowLabel);
+            //isSameAsOtherLabelTextboxRow.appendChild(isSameAsOtherLabelTextboxRowText);
+            
+            //currentRow3AttributeSet.appendChild(isSameAsOtherLabelTextboxRow);
+            currentRow3AttributeSet.appendChild(isSameAsOtherLabelTextboxRowText);
+            //console.log("IsSameAsOtherLabelRadio true, new form made");
+        } // end of else for if (currentRow3AttributeSet.children.length > 2)
+    } // end of if (currentIsSameAsOtherLabelRadio.checked)
+    
+    // if isSameAsOtherLabel is checked, add reference textbox
+    if (currentIsSameAsOtherLabelRadio.checked == false) {
+        // get the relevant row
+        var currentRow3AttributeSet = document.getElementById("row3AttributeSet" + referenceAttributeSelectorIDNum);
+        if (currentRow3AttributeSet.children.length > 2) { // if the form already exists, remove last child
+            currentRow3AttributeSet.removeChild(currentRow3AttributeSet.lastChild);
+            //console.log("IsSameAsOtherLabelRadio false, form removed");
+        }
+    } // end of if (currentIsSameAsOtherLabelRadio.checked == false)
+    
+} // end of function generateGroupReferenceInputs(event)
+
+
+function stopEnter(event) {
+    // disable the enter key
+    if (event.keyIndentifier == 'U+000A' || event.keyIndentifier == 'Enter' || event.keyCode == 13) {
+        event.preventDefault();
+    }
+} // end of function stopEnter(event)
+
+
+function referenceInputs_animacyRef(event) {
+    // all the onchange function events for animacy reference inputs
+    
+    stopEnter(event);
+    
+    var currentAnimacyRefInput = event.target;
+    var currentAnimacyRefInputID = event.target.getAttribute("id"); // id of text input that was pressed
+    //console.log("currentAnimacyRefInput: ", currentAnimacyRefInput.id);
+    var currentDatalistID = currentAnimacyRefInput.list.id;
+    //console.log("currentAnimacyRefInputID", currentAnimacyRefInputID);
+    // regex to replace all leading non-digits with nothing
+    //var currentAnimacyRefInputIDNum = currentAnimacyRefInputID.replace(/^\D+/g, "");
+    
+    // get rid of the ID numbers for the ref id
+    var currentAnimacyRefInputOnlyText = currentAnimacyRefInputID.replace(/[^a-zA-Z]+/g, "");
+    //console.log(currentAnimacyRefInputOnlyText);
+    // if this is the main label ref, put that on the canvas
+    if (currentAnimacyRefInputOnlyText == "referenceTextInput") {
+        placeCharLabelOnCanvas();
+    }
+
+    // change background color...
+    currentAnimacyRefInput.style.backgroundColor = "white";
+    
+} //end of referenceInputs_animacyRef(e)
 
 
 
@@ -5438,12 +6379,9 @@ function drawPanelInfoOnCanvas() {
         //drawPolygonsOnCanvas.drawAllPolygons();
         context.lineWidth = 3;
         context.strokeStyle = "#FF0000";
-        //console.log("drawPanelInfoOnCanvas num panels: " + pagesData[pageNum].panels.length);
         for (var i=0; i<pagesData[pageNum].panels.length; i++) {
             var panel = pagesData[pageNum].panels[i]; // Get all stored panel rects
             var polyCoords = panel.polygonCoords;
-            //console.log("panel num: " + panel.id);
-            //console.log("num polyCoords: " + polyCoords.length);
             var firstXCoord = polyCoords[0].x;
             var firstYCoord = polyCoords[0].y;
             drawPolygonsOnCanvas.drawPolygon(polyCoords);
@@ -5476,7 +6414,6 @@ function drawCharacterInfoOnCanvas(errorFound) {
                 //drawPolygonsOnCanvas_CharID.drawAllPolygons();
                 //console.log(char);
                 var polyCoords = char.polygonCoords;
-                //console.log("polyCoords: " + polyCoords);
                 var firstXCoord = polyCoords[0].x;
                 var firstYCoord = polyCoords[0].y;
                 drawPolygonsOnCanvas_CharID.drawPolygon(polyCoords);
@@ -5581,9 +6518,9 @@ function drawCharacterInfoOnCanvas(errorFound) {
                         context.fillText(char.label, char.left-6, char.top+6); // center into the circle
                     }
                 }
-            } // end of if (characterFeaturesTaskSwitch == true)
-        } // end of for (var j=0; j<r.characters.length; j++)
-    } // end of for (var i=0; i<pagesData[pageNum].panels.length; i++)
+            }
+        }
+    }
 } // end of drawCharacterInfoOnCanvas()
 
 
@@ -5622,7 +6559,7 @@ function drawTextSectionInfoOnCanvas() {
 /* Starts the annotation task with the Next Story */
 function nextStory(event) {
     //console.log("It worked!"); //test
-    location.href = 'https://app.prolific.co/submissions/complete?cc=C8GYMH9K'; // go back to prolific
+    location.href = 'https://app.prolific.co/submissions/complete?cc=C1KAYBWF'; // go back to prolific
 }
 
 

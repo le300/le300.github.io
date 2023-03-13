@@ -140,3 +140,7 @@ label {
     font-family: Arial, sans-serif;
 }
 
+.example_forms_container {
+    display: block;
+    float: top;
+}
