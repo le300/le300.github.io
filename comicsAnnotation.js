@@ -929,29 +929,29 @@ function nextPage(event) {
                 var attributesRadioSetContainer = document.createElement('div');
                 attributesRadioSetContainer.setAttribute("class", "attributesRadioSetContainer");
                 attributesRadioSetContainer.id = "attributesRadioSetContainer" + idNum;
-                // is a group:
-                var isAGroupRadio = document.createElement('input');
-                isAGroupRadio.setAttribute('type', 'checkbox');
-                isAGroupRadio.setAttribute("class", "attributeCheckbox");
-                isAGroupRadio.setAttribute('name', "referenceAttributesRadioSet");
-                isAGroupRadio.id = "isAGroupRadio" + idNum;
-                isAGroupRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
-                var isAGroupRadioLabel = document.createElement('label');
-                isAGroupRadioLabel.setAttribute('for', "isAGroupRadioLabel" + idNum);
-                isAGroupRadioLabel.id = "isAGroupRadioLabel" + idNum;
-                isAGroupRadioLabel.innerHTML = "Group";
+//                // is a group:
+//                var isAGroupRadio = document.createElement('input');
+//                isAGroupRadio.setAttribute('type', 'checkbox');
+//                isAGroupRadio.setAttribute("class", "attributeCheckbox");
+//                isAGroupRadio.setAttribute('name', "referenceAttributesRadioSet");
+//                isAGroupRadio.id = "isAGroupRadio" + idNum;
+//                isAGroupRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
+//                var isAGroupRadioLabel = document.createElement('label');
+//                isAGroupRadioLabel.setAttribute('for', "isAGroupRadioLabel" + idNum);
+//                isAGroupRadioLabel.id = "isAGroupRadioLabel" + idNum;
+//                isAGroupRadioLabel.innerHTML = "Group";
                 // is part of a group:
-                var isPartOfGroupRadio = document.createElement('input');
-                isPartOfGroupRadio.setAttribute('type', 'checkbox');
-                isPartOfGroupRadio.setAttribute("class", "attributeCheckbox");
-                isPartOfGroupRadio.setAttribute('name', "referenceAttributesRadioSet");
-                isPartOfGroupRadio.id = "isPartOfGroupRadio" + idNum;
-                isPartOfGroupRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
-                var isPartOfGroupRadioLabel = document.createElement('label');
-                isPartOfGroupRadioLabel.setAttribute('for', "isPartOfGroupRadio");
-                isPartOfGroupRadioLabel.id = "isPartOfGroupRadioLabel" + idNum;
-                isPartOfGroupRadioLabel.innerHTML = "Part of a group";
-                // Is the same as another label:
+//                var isPartOfGroupRadio = document.createElement('input');
+//                isPartOfGroupRadio.setAttribute('type', 'checkbox');
+//                isPartOfGroupRadio.setAttribute("class", "attributeCheckbox");
+//                isPartOfGroupRadio.setAttribute('name', "referenceAttributesRadioSet");
+//                isPartOfGroupRadio.id = "isPartOfGroupRadio" + idNum;
+//                isPartOfGroupRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
+//                var isPartOfGroupRadioLabel = document.createElement('label');
+//                isPartOfGroupRadioLabel.setAttribute('for', "isPartOfGroupRadio");
+//                isPartOfGroupRadioLabel.id = "isPartOfGroupRadioLabel" + idNum;
+//                isPartOfGroupRadioLabel.innerHTML = "Part of a group";
+//                // Is the same as another label:
                 var isSameAsOtherLabelRadio = document.createElement('input');
                 isSameAsOtherLabelRadio.setAttribute('type', 'checkbox');
                 isSameAsOtherLabelRadio.setAttribute("class", "attributeCheckbox");
@@ -968,25 +968,25 @@ function nextPage(event) {
                 attributeRadioSetTable.setAttribute("class", "attributeRadioSetTable");
                 attributeRadioSetTable.id = "attributeRadioSetTable" + idNum;
                 // row 1
-                var row1AttributeSet = document.createElement('tr');
-                row1AttributeSet.id = "row1AttributeSet" + idNum;
-                var row1AttributeSetButton = document.createElement('td');
-                var row1AttributeSetLabel = document.createElement('td');
-                row1AttributeSetButton.appendChild(isAGroupRadio);
-                row1AttributeSetLabel.appendChild(isAGroupRadioLabel);
-                row1AttributeSet.appendChild(row1AttributeSetButton);
-                row1AttributeSet.appendChild(row1AttributeSetLabel);
-                attributeRadioSetTable.appendChild(row1AttributeSet);
+//                var row1AttributeSet = document.createElement('tr');
+//                row1AttributeSet.id = "row1AttributeSet" + idNum;
+//                var row1AttributeSetButton = document.createElement('td');
+//                var row1AttributeSetLabel = document.createElement('td');
+//                row1AttributeSetButton.appendChild(isAGroupRadio);
+//                row1AttributeSetLabel.appendChild(isAGroupRadioLabel);
+//                row1AttributeSet.appendChild(row1AttributeSetButton);
+//                row1AttributeSet.appendChild(row1AttributeSetLabel);
+//                attributeRadioSetTable.appendChild(row1AttributeSet);
                 // row 2
-                var row2AttributeSet = document.createElement('tr');
-                row2AttributeSet.id = "row2AttributeSet" + idNum;
-                var row2AttributeSetButton = document.createElement('td');
-                var row2AttributeSetLabel = document.createElement('td');
-                row2AttributeSetButton.appendChild(isPartOfGroupRadio);
-                row2AttributeSetLabel.appendChild(isPartOfGroupRadioLabel);
-                row2AttributeSet.appendChild(row2AttributeSetButton);
-                row2AttributeSet.appendChild(row2AttributeSetLabel);
-                attributeRadioSetTable.appendChild(row2AttributeSet);
+//                var row2AttributeSet = document.createElement('tr');
+//                row2AttributeSet.id = "row2AttributeSet" + idNum;
+//                var row2AttributeSetButton = document.createElement('td');
+//                var row2AttributeSetLabel = document.createElement('td');
+//                row2AttributeSetButton.appendChild(isPartOfGroupRadio);
+//                row2AttributeSetLabel.appendChild(isPartOfGroupRadioLabel);
+//                row2AttributeSet.appendChild(row2AttributeSetButton);
+//                row2AttributeSet.appendChild(row2AttributeSetLabel);
+//                attributeRadioSetTable.appendChild(row2AttributeSet);
                 // row 3
                 var row3AttributeSet = document.createElement('tr');
                 row3AttributeSet.id = "row3AttributeSet" + idNum;
@@ -1008,30 +1008,30 @@ function nextPage(event) {
             } // end of function createAnimacyReferenceForms(p,c)
             
             
-            function createIsPartOfGroupReferenceForm(p,c) {
-                var idNum = (p+1) + "." + c;
-                // get the relevant row
-                var currentRow2AttributeSet = document.getElementById("row2AttributeSet" + idNum);
-                
-                var isPartOfGroupRadioTextbox = document.createElement('input');
-                isPartOfGroupRadioTextbox.setAttribute('type', 'text');
-                isPartOfGroupRadioTextbox.id = "isPartOfGroupRadioTextbox" + idNum;
-                isPartOfGroupRadioTextbox.setAttribute("class", "referenceTextInput");
-                isPartOfGroupRadioTextbox.setAttribute('onchange', "referenceInputs_animacyRef(event)");
-
-                // add datalist
-                var isPartOfGroupRadioTextbox_datalist = document.createElement('datalist');
-                isPartOfGroupRadioTextbox_datalistID = "isPartOfGroupRadioTextbox_datalist" + idNum;
-                isPartOfGroupRadioTextbox_datalist.setAttribute('id', isPartOfGroupRadioTextbox_datalistID);
-                document.body.appendChild(isPartOfGroupRadioTextbox_datalist);
-                isPartOfGroupRadioTextbox.setAttribute('list', isPartOfGroupRadioTextbox_datalistID);
-
-                // just make the input textbox for now
-                var isPartOfGroupRadioTextboxRowText = document.createElement('td');
-                isPartOfGroupRadioTextboxRowText.appendChild(isPartOfGroupRadioTextbox);
-
-                currentRow2AttributeSet.appendChild(isPartOfGroupRadioTextboxRowText);
-            } // end of function createIsAGroupReferenceForm(p,c)
+//            function createIsPartOfGroupReferenceForm(p,c) {
+//                var idNum = (p+1) + "." + c;
+//                // get the relevant row
+//                var currentRow2AttributeSet = document.getElementById("row2AttributeSet" + idNum);
+//
+//                var isPartOfGroupRadioTextbox = document.createElement('input');
+//                isPartOfGroupRadioTextbox.setAttribute('type', 'text');
+//                isPartOfGroupRadioTextbox.id = "isPartOfGroupRadioTextbox" + idNum;
+//                isPartOfGroupRadioTextbox.setAttribute("class", "referenceTextInput");
+//                isPartOfGroupRadioTextbox.setAttribute('onchange', "referenceInputs_animacyRef(event)");
+//
+//                // add datalist
+//                var isPartOfGroupRadioTextbox_datalist = document.createElement('datalist');
+//                isPartOfGroupRadioTextbox_datalistID = "isPartOfGroupRadioTextbox_datalist" + idNum;
+//                isPartOfGroupRadioTextbox_datalist.setAttribute('id', isPartOfGroupRadioTextbox_datalistID);
+//                document.body.appendChild(isPartOfGroupRadioTextbox_datalist);
+//                isPartOfGroupRadioTextbox.setAttribute('list', isPartOfGroupRadioTextbox_datalistID);
+//
+//                // just make the input textbox for now
+//                var isPartOfGroupRadioTextboxRowText = document.createElement('td');
+//                isPartOfGroupRadioTextboxRowText.appendChild(isPartOfGroupRadioTextbox);
+//
+//                currentRow2AttributeSet.appendChild(isPartOfGroupRadioTextboxRowText);
+//            } // end of function createIsAGroupReferenceForm(p,c)
             
             
             function createIsSameAsOtherLabelReferenceForm(p,c) {
@@ -1065,39 +1065,56 @@ function nextPage(event) {
             } // end of function createIsSameAsOtherLabelReferenceForm(p,c)
             
             
-            // put the animacyType radio buttons and label on the page
+            // put the animacyType radio buttons and label on the page - that is, get the right values
             for (var r=0; r<pagesData[pageNum].panels.length; r++) {
                 for (var s=0; s<pagesData[pageNum].panels[r].characters.length; s++) {
                     var getAnimacyType = pagesData[pageNum].panels[r].characters[s].animacyType;
-                    console.log(getAnimacyType);
+                    
+                    //console.log("Page/Panel: " + (pageNum+1) + ", " + r);
+                    //console.log(getAnimacyType);
+                    var matchingCharId = pagesData[pageNum].panels[r].characters[s].id;
+                    //console.log("char id: ", matchingCharId);
+                    var refFormLabel = pagesData[pageNum].panels[r].characters[s].label;
+                    //console.log("reference form label: ", refFormLabel);
+                   
                     
                     if (getAnimacyType == "humanAnimate") {
                         document.getElementById("humanAnimateCheckbox" + (r+1) + "." + s).checked = true;
                         // add ref form and value
                         createAnimacyReferenceForms(r,s);
-                        document.getElementById("referenceTextInput" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].label;
+                        if (refFormLabel == matchingCharId) {
+                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = "";
+                        } else {
+                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = refFormLabel;
+                        }
+ 
                         
                         // check if any of the group buttons are checked
                         
                         // check isAGroup
-                        if (pagesData[pageNum].panels[r].characters[s].isAGroup == true) {
-                            document.getElementById("isAGroupRadio" + (r+1) + "." + s).checked = true;
-                        } // end of if isAGroup == true
-                        
-                        // check isPartOfGroup
-                        if (pagesData[pageNum].panels[r].characters[s].isPartOfGroup == true) {
-                            document.getElementById("isPartOfGroupRadio" + (r+1) + "." + s).checked = true;
-                            // create a ref and fill it with the right label
-                            createIsPartOfGroupReferenceForm(r,s);
-                            document.getElementById("isPartOfGroupRadioTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isPartOfGroupLabel;
-                        } // end of if isPartOfGroup == true
+//                        if (pagesData[pageNum].panels[r].characters[s].isAGroup == true) {
+//                            document.getElementById("isAGroupRadio" + (r+1) + "." + s).checked = true;
+//                        } // end of if isAGroup == true
+//
+//                        // check isPartOfGroup
+//                        if (pagesData[pageNum].panels[r].characters[s].isPartOfGroup == true) {
+//                            document.getElementById("isPartOfGroupRadio" + (r+1) + "." + s).checked = true;
+//                            // create a ref and fill it with the right label
+//                            createIsPartOfGroupReferenceForm(r,s);
+//                            document.getElementById("isPartOfGroupRadioTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isPartOfGroupLabel;
+//                        } // end of if isPartOfGroup == true
                         
                         // check isSameAsOtherLabel
                         if (pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabel == true) {
                             
                             document.getElementById("isSameAsOtherLabelRadio" + (r+1) + "." + s).checked = true;
                             createIsSameAsOtherLabelReferenceForm(r,s);
-                            document.getElementById("isSameAsOtherLabelTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabelRef;
+                            var isSameAsOtherLabelTextbox_value = pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabelRef;
+                            if (isSameAsOtherLabelTextbox_value === undefined) {
+                                document.getElementById("isSameAsOtherLabelTextbox" + (r+1) + "." + s).value = "";
+                            } else {
+                                document.getElementById("isSameAsOtherLabelTextbox" + (r+1) + "." + s).value = isSameAsOtherLabelTextbox_value
+                            }
                         } // end of if isSameAsOtherLabel == true
                     } // end of if (getAnimacyType == "humanAnimate")
                     
@@ -1105,29 +1122,37 @@ function nextPage(event) {
                         document.getElementById("humanLikeAnimateCheckbox" + (r+1) + "." + s).checked = true;
                         // add ref form and value
                         createAnimacyReferenceForms(r,s);
-                        document.getElementById("referenceTextInput" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].label;
-                        
+                        if (refFormLabel == matchingCharId) {
+                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = "";
+                        } else {
+                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = refFormLabel;
+                        }
                         // check if any of the group buttons are checked
                         
                         // check isAGroup
-                        if (pagesData[pageNum].panels[r].characters[s].isAGroup == true) {
-                            document.getElementById("isAGroupRadio" + (r+1) + "." + s).checked = true;
-                        } // end of if isAGroup == true
+//                        if (pagesData[pageNum].panels[r].characters[s].isAGroup == true) {
+//                            document.getElementById("isAGroupRadio" + (r+1) + "." + s).checked = true;
+//                        } // end of if isAGroup == true
                         
                         // check isPartOfGroup
-                        if (pagesData[pageNum].panels[r].characters[s].isPartOfGroup == true) {
-                            document.getElementById("isPartOfGroupRadio" + (r+1) + "." + s).checked = true;
-                            // create a ref and fill it with the right label
-                            createIsPartOfGroupReferenceForm(r,s);
-                            document.getElementById("isPartOfGroupRadioTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isPartOfGroupLabel;
-                        } // end of if isPartOfGroup == true
+//                        if (pagesData[pageNum].panels[r].characters[s].isPartOfGroup == true) {
+//                            document.getElementById("isPartOfGroupRadio" + (r+1) + "." + s).checked = true;
+//                            // create a ref and fill it with the right label
+//                            createIsPartOfGroupReferenceForm(r,s);
+//                            document.getElementById("isPartOfGroupRadioTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isPartOfGroupLabel;
+//                        } // end of if isPartOfGroup == true
                         
                         // check isSameAsOtherLabel
                         if (pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabel == true) {
                             
                             document.getElementById("isSameAsOtherLabelRadio" + (r+1) + "." + s).checked = true;
                             createIsSameAsOtherLabelReferenceForm(r,s);
-                            document.getElementById("isSameAsOtherLabelTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabelRef;
+                            var isSameAsOtherLabelTextbox_value = pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabelRef;
+                            if (isSameAsOtherLabelTextbox_value === undefined) {
+                                document.getElementById("isSameAsOtherLabelTextbox" + (r+1) + "." + s).value = "";
+                            } else {
+                                document.getElementById("isSameAsOtherLabelTextbox" + (r+1) + "." + s).value = isSameAsOtherLabelTextbox_value
+                            }
                         } // end of if isSameAsOtherLabel == true
                     } // end of if (animacyType == "humanLikeAnimate")
                     
@@ -1136,29 +1161,38 @@ function nextPage(event) {
                         document.getElementById("nonHumanAnimateCheckbox" + (r+1) + "." + s).checked = true;
                         // add ref form and value
                         createAnimacyReferenceForms(r,s);
-                        document.getElementById("referenceTextInput" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].label;
+                        if (refFormLabel == matchingCharId) {
+                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = "";
+                        } else {
+                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = refFormLabel;
+                        }
                         
                         // check if any of the group buttons are checked
                         
                         // check isAGroup
-                        if (pagesData[pageNum].panels[r].characters[s].isAGroup == true) {
-                            document.getElementById("isAGroupRadio" + (r+1) + "." + s).checked = true;
-                        } // end of if isAGroup == true
+//                        if (pagesData[pageNum].panels[r].characters[s].isAGroup == true) {
+//                            document.getElementById("isAGroupRadio" + (r+1) + "." + s).checked = true;
+//                        } // end of if isAGroup == true
                         
                         // check isPartOfGroup
-                        if (pagesData[pageNum].panels[r].characters[s].isPartOfGroup == true) {
-                            document.getElementById("isPartOfGroupRadio" + (r+1) + "." + s).checked = true;
-                            // create a ref and fill it with the right label
-                            createIsPartOfGroupReferenceForm(r,s);
-                            document.getElementById("isPartOfGroupRadioTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isPartOfGroupLabel;
-                        } // end of if isPartOfGroup == true
+//                        if (pagesData[pageNum].panels[r].characters[s].isPartOfGroup == true) {
+//                            document.getElementById("isPartOfGroupRadio" + (r+1) + "." + s).checked = true;
+//                            // create a ref and fill it with the right label
+//                            createIsPartOfGroupReferenceForm(r,s);
+//                            document.getElementById("isPartOfGroupRadioTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isPartOfGroupLabel;
+//                        } // end of if isPartOfGroup == true
                         
                         // check isSameAsOtherLabel
                         if (pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabel == true) {
                             
                             document.getElementById("isSameAsOtherLabelRadio" + (r+1) + "." + s).checked = true;
                             createIsSameAsOtherLabelReferenceForm(r,s);
-                            document.getElementById("isSameAsOtherLabelTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabelRef;
+                            var isSameAsOtherLabelTextbox_value = pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabelRef;
+                            if (isSameAsOtherLabelTextbox_value === undefined) {
+                                document.getElementById("isSameAsOtherLabelTextbox" + (r+1) + "." + s).value = "";
+                            } else {
+                                document.getElementById("isSameAsOtherLabelTextbox" + (r+1) + "." + s).value = isSameAsOtherLabelTextbox_value
+                            }
                         } // end of if isSameAsOtherLabel == true
                     } // end of if (getAnimacyType == "nonHumanAnimate")
                     
@@ -1168,29 +1202,38 @@ function nextPage(event) {
                         document.getElementById("ambiguousCheckbox" + (r+1) + "." + s).checked = true;
                         // add ref form and value
                         createAnimacyReferenceForms(r,s);
-                        document.getElementById("referenceTextInput" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].label;
+                        if (refFormLabel == matchingCharId) {
+                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = "";
+                        } else {
+                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = refFormLabel;
+                        }
                         
                         // check if any of the group buttons are checked
                         
                         // check isAGroup
-                        if (pagesData[pageNum].panels[r].characters[s].isAGroup == true) {
-                            document.getElementById("isAGroupRadio" + (r+1) + "." + s).checked = true;
-                        } // end of if isAGroup == true
+//                        if (pagesData[pageNum].panels[r].characters[s].isAGroup == true) {
+//                            document.getElementById("isAGroupRadio" + (r+1) + "." + s).checked = true;
+//                        } // end of if isAGroup == true
                         
                         // check isPartOfGroup
-                        if (pagesData[pageNum].panels[r].characters[s].isPartOfGroup == true) {
-                            document.getElementById("isPartOfGroupRadio" + (r+1) + "." + s).checked = true;
-                            // create a ref and fill it with the right label
-                            createIsPartOfGroupReferenceForm(r,s);
-                            document.getElementById("isPartOfGroupRadioTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isPartOfGroupLabel;
-                        } // end of if isPartOfGroup == true
+//                        if (pagesData[pageNum].panels[r].characters[s].isPartOfGroup == true) {
+//                            document.getElementById("isPartOfGroupRadio" + (r+1) + "." + s).checked = true;
+//                            // create a ref and fill it with the right label
+//                            createIsPartOfGroupReferenceForm(r,s);
+//                            document.getElementById("isPartOfGroupRadioTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isPartOfGroupLabel;
+//                        } // end of if isPartOfGroup == true
                         
                         // check isSameAsOtherLabel
                         if (pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabel == true) {
                             
                             document.getElementById("isSameAsOtherLabelRadio" + (r+1) + "." + s).checked = true;
                             createIsSameAsOtherLabelReferenceForm(r,s);
-                            document.getElementById("isSameAsOtherLabelTextbox" + (r+1) + "." + s).value = pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabelRef;
+                            var isSameAsOtherLabelTextbox_value = pagesData[pageNum].panels[r].characters[s].isSameAsOtherLabelRef;
+                            if (isSameAsOtherLabelTextbox_value === undefined) {
+                                document.getElementById("isSameAsOtherLabelTextbox" + (r+1) + "." + s).value = "";
+                            } else {
+                                document.getElementById("isSameAsOtherLabelTextbox" + (r+1) + "." + s).value = isSameAsOtherLabelTextbox_value
+                            }
                         } // end of if isSameAsOtherLabel == true
                     } // end of if (getAnimacyType == "ambiguousAnimate")
                     
@@ -1672,7 +1715,7 @@ function validateInputs() {
                         // first get the text box referent value
                         // if the value is there, add it to data
                         var refValue = document.getElementById("referenceTextInput" + (i+1) + "." + j).value;
-                        console.log("refValue: ", refValue);
+                        //console.log("refValue: ", refValue);
                         if (refValue == "" || refValue == null) {
                             errorMessage += "Please add a label in Section " + (i+1) + ", number " + (j+1) + "\n";
                             document.getElementById("referenceTextInput" + (i+1) + "." + j).style.backgroundColor = "LightPink";
@@ -1680,25 +1723,25 @@ function validateInputs() {
                             panel.characters[j].label = refValue;
                         }
                         // value of isAGroup in data
-                        var isAGroupValue = document.getElementById("isAGroupRadio" + (i+1) + "." + j).checked;
-                        console.log("isAGroupValue: ", isAGroupValue);
-                        panel.characters[j].isAGroup = isAGroupValue;
+//                        var isAGroupValue = document.getElementById("isAGroupRadio" + (i+1) + "." + j).checked;
+//                        console.log("isAGroupValue: ", isAGroupValue);
+//                        panel.characters[j].isAGroup = isAGroupValue;
                         
                         // value of isPartOfGroup button
-                        var isPartOfGroupValue = document.getElementById("isPartOfGroupRadio" + (i+1) + "." + j).checked;
-                        if (isPartOfGroupValue == true) {
-                            panel.characters[j].isPartOfGroup = isPartOfGroupValue;
-                            // value of isPartOfGroup ref
-                            isPartOfGroupRefValue = document.getElementById("isPartOfGroupRadioTextbox" + (i+1) + "." + j).value;
-                            if (isPartOfGroupRefValue == "" || isPartOfGroupRefValue == null) {
-                                errorMessage += "Please add a label in Section " + (i+1) + ", number " + (j+1) + "\n";
-                                document.getElementById("isPartOfGroupRadioTextbox" + (i+1) + "." + j).style.backgroundColor = "LightPink";
-                            } else {
-                                panel.characters[j].isPartOfGroupLabel = isPartOfGroupRefValue;
-                            }
-                        } else { // end of if (isPartOfGroupValue == true)
-                            panel.characters[j].isPartOfGroup = isPartOfGroupValue; // should be false
-                        }
+//                        var isPartOfGroupValue = document.getElementById("isPartOfGroupRadio" + (i+1) + "." + j).checked;
+//                        if (isPartOfGroupValue == true) {
+//                            panel.characters[j].isPartOfGroup = isPartOfGroupValue;
+//                            // value of isPartOfGroup ref
+//                            isPartOfGroupRefValue = document.getElementById("isPartOfGroupRadioTextbox" + (i+1) + "." + j).value;
+//                            if (isPartOfGroupRefValue == "" || isPartOfGroupRefValue == null) {
+//                                errorMessage += "Please add a label in Section " + (i+1) + ", number " + (j+1) + "\n";
+//                                document.getElementById("isPartOfGroupRadioTextbox" + (i+1) + "." + j).style.backgroundColor = "LightPink";
+//                            } else {
+//                                panel.characters[j].isPartOfGroupLabel = isPartOfGroupRefValue;
+//                            }
+//                        } else { // end of if (isPartOfGroupValue == true)
+//                            panel.characters[j].isPartOfGroup = isPartOfGroupValue; // should be false
+//                        }
                         
                         // value of isSameAsOtherLabel button
                         var isSameAsOtherLabelValue = document.getElementById("isSameAsOtherLabelRadio" + (i+1) + "." + j).checked;
@@ -4313,16 +4356,16 @@ function placeCharLabelOnCanvas() {
 function getInputValue_NoKeyPressedForOneSec(e) {
     
     var charTextInputID = event.target.getAttribute("id"); // get the input id
-    console.log("it me! " + charTextInputID); //test
+    //console.log("it me! " + charTextInputID); //test
 //    currentPanel = event.target.parentNode.parentNode; // Get the panel form where the button was clicked
 //    var currentPanelNumber = parseInt(currentPanel.getAttribute("id").replace("panelForm", ""), 10)-1; // Get the number of that panel
 //   console.log("currentPanel: " + currentPanelNumber); //test
 //
     var inputValue = event.target.value; // get value from the text input
-    console.log("inputValue: ", inputValue);
+    //console.log("inputValue: ", inputValue);
     //char_set.add(inputValue); // add text input value to set
     //console.log("getInputValue_NoKeyPressedForOneSec(e) was run"); // just debuggin!
-    console.log("char set: ", char_set);
+    //console.log("char set: ", char_set);
     
     //var labelOnList = false; // init a boolean to track whether the inputted label has already been inputted
 
@@ -4366,7 +4409,7 @@ function updateDatalists() {
     
     var currentLabelList = [];
     char_set.forEach(v => currentLabelList.push(v));
-    console.log("currentLabelList: ", currentLabelList);
+    //console.log("currentLabelList: ", currentLabelList);
     
     var labels_string = "";
     
@@ -4957,7 +5000,7 @@ function createCharFeaturesForm(x, y) {
         inanimateCheckbox.setAttribute('onchange', "generateAnimateReferenceTask(event)");
         var inanimateCheckboxLabel = document.createElement('label');
         inanimateCheckboxLabel.setAttribute('for', "inanimateCheckbox" + y + "." + x);
-        inanimateCheckboxLabel.innerHTML = "5 Inanimate object";
+        inanimateCheckboxLabel.innerHTML = "5 Inanimate";
         
         
         // create table to put animacy options in a vertical row
@@ -5586,27 +5629,27 @@ function generateAnimateReferenceTask(event) {
             attributesRadioSetContainer.setAttribute("class", "attributesRadioSetContainer");
             attributesRadioSetContainer.id = "attributesRadioSetContainer" + animacyContainerIDNum;
             // is a group:
-            var isAGroupRadio = document.createElement('input');
-            isAGroupRadio.setAttribute('type', 'checkbox');
-            isAGroupRadio.setAttribute("class", "attributeCheckbox");
-            isAGroupRadio.setAttribute('name', "referenceAttributesRadioSet");
-            isAGroupRadio.id = "isAGroupRadio" + animacyContainerIDNum;
-            isAGroupRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
-            var isAGroupRadioLabel = document.createElement('label');
-            isAGroupRadioLabel.setAttribute('for', "isAGroupRadioLabel" + animacyContainerIDNum);
-            isAGroupRadioLabel.id = "isAGroupRadioLabel" + animacyContainerIDNum;
-            isAGroupRadioLabel.innerHTML = "Group";
+//            var isAGroupRadio = document.createElement('input');
+//            isAGroupRadio.setAttribute('type', 'checkbox');
+//            isAGroupRadio.setAttribute("class", "attributeCheckbox");
+//            isAGroupRadio.setAttribute('name', "referenceAttributesRadioSet");
+//            isAGroupRadio.id = "isAGroupRadio" + animacyContainerIDNum;
+//            isAGroupRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
+//            var isAGroupRadioLabel = document.createElement('label');
+//            isAGroupRadioLabel.setAttribute('for', "isAGroupRadioLabel" + animacyContainerIDNum);
+//            isAGroupRadioLabel.id = "isAGroupRadioLabel" + animacyContainerIDNum;
+//            isAGroupRadioLabel.innerHTML = "Group";
             // is part of a group:
-            var isPartOfGroupRadio = document.createElement('input');
-            isPartOfGroupRadio.setAttribute('type', 'checkbox');
-            isPartOfGroupRadio.setAttribute("class", "attributeCheckbox");
-            isPartOfGroupRadio.setAttribute('name', "referenceAttributesRadioSet");
-            isPartOfGroupRadio.id = "isPartOfGroupRadio" + animacyContainerIDNum;
-            isPartOfGroupRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
-            var isPartOfGroupRadioLabel = document.createElement('label');
-            isPartOfGroupRadioLabel.setAttribute('for', "isPartOfGroupRadio");
-            isPartOfGroupRadioLabel.id = "isPartOfGroupRadioLabel" + animacyContainerIDNum;
-            isPartOfGroupRadioLabel.innerHTML = "Part of group";
+//            var isPartOfGroupRadio = document.createElement('input');
+//            isPartOfGroupRadio.setAttribute('type', 'checkbox');
+//            isPartOfGroupRadio.setAttribute("class", "attributeCheckbox");
+//            isPartOfGroupRadio.setAttribute('name', "referenceAttributesRadioSet");
+//            isPartOfGroupRadio.id = "isPartOfGroupRadio" + animacyContainerIDNum;
+//            isPartOfGroupRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
+//            var isPartOfGroupRadioLabel = document.createElement('label');
+//            isPartOfGroupRadioLabel.setAttribute('for', "isPartOfGroupRadio");
+//            isPartOfGroupRadioLabel.id = "isPartOfGroupRadioLabel" + animacyContainerIDNum;
+//            isPartOfGroupRadioLabel.innerHTML = "Part of group";
             // Is the same as another label:
             var isSameAsOtherLabelRadio = document.createElement('input');
             isSameAsOtherLabelRadio.setAttribute('type', 'checkbox');
@@ -5624,25 +5667,25 @@ function generateAnimateReferenceTask(event) {
             attributeRadioSetTable.setAttribute("class", "attributeRadioSetTable");
             attributeRadioSetTable.id = "attributeRadioSetTable" + animacyContainerIDNum;
             // row 1
-            var row1AttributeSet = document.createElement('tr');
-            row1AttributeSet.id = "row1AttributeSet" + animacyContainerIDNum;
-            var row1AttributeSetButton = document.createElement('td');
-            var row1AttributeSetLabel = document.createElement('td');
-            row1AttributeSetButton.appendChild(isAGroupRadio);
-            row1AttributeSetLabel.appendChild(isAGroupRadioLabel);
-            row1AttributeSet.appendChild(row1AttributeSetButton);
-            row1AttributeSet.appendChild(row1AttributeSetLabel);
-            attributeRadioSetTable.appendChild(row1AttributeSet);
+//            var row1AttributeSet = document.createElement('tr');
+//            row1AttributeSet.id = "row1AttributeSet" + animacyContainerIDNum;
+//            var row1AttributeSetButton = document.createElement('td');
+//            var row1AttributeSetLabel = document.createElement('td');
+//            row1AttributeSetButton.appendChild(isAGroupRadio);
+//            row1AttributeSetLabel.appendChild(isAGroupRadioLabel);
+//            row1AttributeSet.appendChild(row1AttributeSetButton);
+//            row1AttributeSet.appendChild(row1AttributeSetLabel);
+//            attributeRadioSetTable.appendChild(row1AttributeSet);
             // row 2
-            var row2AttributeSet = document.createElement('tr');
-            row2AttributeSet.id = "row2AttributeSet" + animacyContainerIDNum;
-            var row2AttributeSetButton = document.createElement('td');
-            var row2AttributeSetLabel = document.createElement('td');
-            row2AttributeSetButton.appendChild(isPartOfGroupRadio);
-            row2AttributeSetLabel.appendChild(isPartOfGroupRadioLabel);
-            row2AttributeSet.appendChild(row2AttributeSetButton);
-            row2AttributeSet.appendChild(row2AttributeSetLabel);
-            attributeRadioSetTable.appendChild(row2AttributeSet);
+//            var row2AttributeSet = document.createElement('tr');
+//            row2AttributeSet.id = "row2AttributeSet" + animacyContainerIDNum;
+//            var row2AttributeSetButton = document.createElement('td');
+//            var row2AttributeSetLabel = document.createElement('td');
+//            row2AttributeSetButton.appendChild(isPartOfGroupRadio);
+//            row2AttributeSetLabel.appendChild(isPartOfGroupRadioLabel);
+//            row2AttributeSet.appendChild(row2AttributeSetButton);
+//            row2AttributeSet.appendChild(row2AttributeSetLabel);
+//            attributeRadioSetTable.appendChild(row2AttributeSet);
             // row 3
             var row3AttributeSet = document.createElement('tr');
             row3AttributeSet.id = "row3AttributeSet" + animacyContainerIDNum;
@@ -5685,65 +5728,65 @@ function generateGroupReferenceInputs(event) {
     
     document.getElementById("attributesRadioSetContainer" + referenceAttributeSelectorIDNum).style.backgroundColor = "#F2D0FF";
     
-    var currentIsAGroupRadio = document.getElementById("isAGroupRadio" + referenceAttributeSelectorIDNum);
-    var currentIsPartOfGroupRadio = document.getElementById("isPartOfGroupRadio" + referenceAttributeSelectorIDNum);
+//    var currentIsAGroupRadio = document.getElementById("isAGroupRadio" + referenceAttributeSelectorIDNum);
+//    var currentIsPartOfGroupRadio = document.getElementById("isPartOfGroupRadio" + referenceAttributeSelectorIDNum);
     var currentIsSameAsOtherLabelRadio = document.getElementById("isSameAsOtherLabelRadio" + referenceAttributeSelectorIDNum);
     
     // if isPartOfGroupRadio is checked, add reference textbox
-    if (currentIsPartOfGroupRadio.checked) {
-        // get the relevant row
-        var currentRow2AttributeSet = document.getElementById("row2AttributeSet" + referenceAttributeSelectorIDNum);
-        if (currentRow2AttributeSet.children.length > 2) { // if the form already exists, move on
-            //console.log("IsPartOfGroupRadio true, no form made");
-            
-        }
-        else {
-            var isPartOfGroupRadioTextbox = document.createElement('input');
-            isPartOfGroupRadioTextbox.setAttribute('type', 'text');
-            isPartOfGroupRadioTextbox.id = "isPartOfGroupRadioTextbox" + referenceAttributeSelectorIDNum;
-            isPartOfGroupRadioTextbox.setAttribute("class", "referenceTextInput");
-            isPartOfGroupRadioTextbox.setAttribute('onkeydown', "stopEnter(event)");
-            isPartOfGroupRadioTextbox.setAttribute('onchange', "referenceInputs_animacyRef(event)");
-            isPartOfGroupRadioTextbox.addEventListener('keyup', function(e) {getInputValue_NoKeyPressedForOneSec(e)}); // add event listener to get and store input values
-            var isPartOfGroupRadioTextboxLabel = document.createElement('label');
-            isPartOfGroupRadioTextboxLabel.setAttribute('for', isPartOfGroupRadioTextbox);
-            isPartOfGroupRadioTextboxLabel.id = "isPartOfGroupRadioTextboxLabel" + referenceAttributeSelectorIDNum;
-            isPartOfGroupRadioTextboxLabel.innerHTML = "Label: ";
-            // add datalist
-            var isPartOfGroupRadioTextbox_datalist = document.createElement('datalist');
-            isPartOfGroupRadioTextbox_datalistID = "isPartOfGroupRadioTextbox_datalist" + referenceAttributeSelectorIDNum;
-            isPartOfGroupRadioTextbox_datalist.setAttribute('id', isPartOfGroupRadioTextbox_datalistID);
-            document.body.appendChild(isPartOfGroupRadioTextbox_datalist);
-            isPartOfGroupRadioTextbox.setAttribute('list', isPartOfGroupRadioTextbox_datalistID);
-            
-            // add new tr row2.5 under 2 tr, append the new ref textbox
-            //var isPartOfGroupRadioTextboxRow = document.createElement('tr');
-            //var isPartOfGroupRadioTextboxRowLabel = document.createElement('td');
-            
-            // just make the input textbox for now
-            var isPartOfGroupRadioTextboxRowText = document.createElement('td');
-            //isPartOfGroupRadioTextboxRowLabel.appendChild(isPartOfGroupRadioTextboxLabel);
-            isPartOfGroupRadioTextboxRowText.appendChild(isPartOfGroupRadioTextbox);
-            //isPartOfGroupRadioTextboxRow.appendChild(isPartOfGroupRadioTextboxRowLabel);
-            //isPartOfGroupRadioTextboxRow.appendChild(isPartOfGroupRadioTextboxRowText);
-            
-            //currentRow2AttributeSet.appendChild(isPartOfGroupRadioTextboxRow);
-            currentRow2AttributeSet.appendChild(isPartOfGroupRadioTextboxRowText);
-            
-            
-           // console.log("IsPartOfGroupRadio true, new form made");
-        } // end of else for if (currentRow2AttributeSet.children.length > 2)
-    } // end of if (currentIsPartOfGroupRadio)
+//    if (currentIsPartOfGroupRadio.checked) {
+//        // get the relevant row
+//        var currentRow2AttributeSet = document.getElementById("row2AttributeSet" + referenceAttributeSelectorIDNum);
+//        if (currentRow2AttributeSet.children.length > 2) { // if the form already exists, move on
+//            //console.log("IsPartOfGroupRadio true, no form made");
+//
+//        }
+//        else {
+//            var isPartOfGroupRadioTextbox = document.createElement('input');
+//            isPartOfGroupRadioTextbox.setAttribute('type', 'text');
+//            isPartOfGroupRadioTextbox.id = "isPartOfGroupRadioTextbox" + referenceAttributeSelectorIDNum;
+//            isPartOfGroupRadioTextbox.setAttribute("class", "referenceTextInput");
+//            isPartOfGroupRadioTextbox.setAttribute('onkeydown', "stopEnter(event)");
+//            isPartOfGroupRadioTextbox.setAttribute('onchange', "referenceInputs_animacyRef(event)");
+//            isPartOfGroupRadioTextbox.addEventListener('keyup', function(e) {getInputValue_NoKeyPressedForOneSec(e)}); // add event listener to get and store input values
+//            var isPartOfGroupRadioTextboxLabel = document.createElement('label');
+//            isPartOfGroupRadioTextboxLabel.setAttribute('for', isPartOfGroupRadioTextbox);
+//            isPartOfGroupRadioTextboxLabel.id = "isPartOfGroupRadioTextboxLabel" + referenceAttributeSelectorIDNum;
+//            isPartOfGroupRadioTextboxLabel.innerHTML = "Label: ";
+//            // add datalist
+//            var isPartOfGroupRadioTextbox_datalist = document.createElement('datalist');
+//            isPartOfGroupRadioTextbox_datalistID = "isPartOfGroupRadioTextbox_datalist" + referenceAttributeSelectorIDNum;
+//            isPartOfGroupRadioTextbox_datalist.setAttribute('id', isPartOfGroupRadioTextbox_datalistID);
+//            document.body.appendChild(isPartOfGroupRadioTextbox_datalist);
+//            isPartOfGroupRadioTextbox.setAttribute('list', isPartOfGroupRadioTextbox_datalistID);
+//
+//            // add new tr row2.5 under 2 tr, append the new ref textbox
+//            //var isPartOfGroupRadioTextboxRow = document.createElement('tr');
+//            //var isPartOfGroupRadioTextboxRowLabel = document.createElement('td');
+//
+//            // just make the input textbox for now
+//            var isPartOfGroupRadioTextboxRowText = document.createElement('td');
+//            //isPartOfGroupRadioTextboxRowLabel.appendChild(isPartOfGroupRadioTextboxLabel);
+//            isPartOfGroupRadioTextboxRowText.appendChild(isPartOfGroupRadioTextbox);
+//            //isPartOfGroupRadioTextboxRow.appendChild(isPartOfGroupRadioTextboxRowLabel);
+//            //isPartOfGroupRadioTextboxRow.appendChild(isPartOfGroupRadioTextboxRowText);
+//
+//            //currentRow2AttributeSet.appendChild(isPartOfGroupRadioTextboxRow);
+//            currentRow2AttributeSet.appendChild(isPartOfGroupRadioTextboxRowText);
+//
+//
+//           // console.log("IsPartOfGroupRadio true, new form made");
+//        } // end of else for if (currentRow2AttributeSet.children.length > 2)
+//    } // end of if (currentIsPartOfGroupRadio)
     
     // if isPartOfGroupRadio is not checked, make sure there is no textbox
-    if (currentIsPartOfGroupRadio.checked == false) {
-        // get the relevant row
-        var currentRow2AttributeSet = document.getElementById("row2AttributeSet" + referenceAttributeSelectorIDNum);
-        if (currentRow2AttributeSet.children.length > 2) { // if there is a form, remove
-            currentRow2AttributeSet.removeChild(currentRow2AttributeSet.lastChild);
-            //console.log("IsPartOfGroupRadio false, form removed");
-        }
-    } // end of if (currentIsPartOfGroupRadio.checked == false)
+//    if (currentIsPartOfGroupRadio.checked == false) {
+//        // get the relevant row
+//        var currentRow2AttributeSet = document.getElementById("row2AttributeSet" + referenceAttributeSelectorIDNum);
+//        if (currentRow2AttributeSet.children.length > 2) { // if there is a form, remove
+//            currentRow2AttributeSet.removeChild(currentRow2AttributeSet.lastChild);
+//            //console.log("IsPartOfGroupRadio false, form removed");
+//        }
+//    } // end of if (currentIsPartOfGroupRadio.checked == false)
     
     // if isSameAsOtherLabel is checked, add reference textbox
     if (currentIsSameAsOtherLabelRadio.checked) {
@@ -6427,14 +6470,14 @@ function drawCharacterInfoOnCanvas(errorFound) {
                 context.fill();
                 context.beginPath(); // draw number or var in circle
                 context.fillStyle = "white";
-                context.font = "12px Arial Black";
+                context.font = "15px Arial Black";
                 
                 if (char.label != charLabelInstruction) {
                     context.fillText(char.label, firstXCoord-13, firstYCoord); // center into the circle
                 } else {
                     context.fillText(char.id, firstXCoord-13, firstYCoord); // center into the circle
                 }
-                
+
             } // end of if (polygonSegmentation_Char)
             else {
             
@@ -6457,9 +6500,27 @@ function drawCharacterInfoOnCanvas(errorFound) {
             } // end of else (if not (polygonSegmentation_Char))
             
             if (characterFeaturesTaskSwitch == true) {
+                
+                if (char.label != char.id) {
+                    // if a label has been put on the canvas, add it here
+                    var polyCoords = char.polygonCoords;
+                    var firstXCoord = polyCoords[0].x;
+                    var firstYCoord = polyCoords[0].y;
+                    context.beginPath(); // redraw circle
+                    context.arc(firstXCoord-5, firstYCoord-5, 20, 0, Math.PI * 2, true);
+                    context.closePath();
+                    context.fillStyle = "#C942FF"; //char.color_charID
+                    context.fill();
+                    context.beginPath(); // put variable in the circle
+                    context.fillStyle = "white";
+                    context.font = "15px Arial Black";
+                    context.fill();
+                    context.fillText(char.label, firstXCoord-13, firstYCoord); // center into the circle
+                }
+                
                 // replace the label with the index
                 context.beginPath(); // put the circles on as well
-                context.arc(char.left, char.top, 15, 0, Math.PI * 2, true);
+                context.arc(char.left, char.top, 20, 0, Math.PI * 2, true);
                 context.closePath();
                 context.fillStyle = char.color_charID;
                 context.fill();
@@ -6475,7 +6536,7 @@ function drawCharacterInfoOnCanvas(errorFound) {
                 if (pressedButtonID == "buttonReset") {
                     
                     context.beginPath(); // put the circles on as well
-                    context.arc(char.left, char.top, 15, 0, Math.PI * 2, true);
+                    context.arc(char.left, char.top, 20, 0, Math.PI * 2, true);
                     context.closePath();
                     context.fillStyle = char.color_charID;
                     context.fill();
@@ -6490,7 +6551,7 @@ function drawCharacterInfoOnCanvas(errorFound) {
                 if (pressedButtonID == "buttonPreviousPage") {
                     
                     context.beginPath(); // put the circles on as well
-                    context.arc(char.left, char.top, 15, 0, Math.PI * 2, true);
+                    context.arc(char.left, char.top, 20, 0, Math.PI * 2, true);
                     context.closePath();
                     context.fillStyle = char.color_charID;
                     context.fill();
@@ -6505,7 +6566,7 @@ function drawCharacterInfoOnCanvas(errorFound) {
                 if (pressedButtonID == "buttonNextPage" && errorFound) {
 
                     context.beginPath(); // put the circles on as well
-                    context.arc(char.left, char.top, 15, 0, Math.PI * 2, true);
+                    context.arc(char.left, char.top, 20, 0, Math.PI * 2, true);
                     context.closePath();
                     context.fillStyle = char.color_charID;
                     context.fill();
@@ -6562,7 +6623,7 @@ function drawTextSectionInfoOnCanvas() {
 /* Starts the annotation task with the Next Story */
 function nextStory(event) {
     //console.log("It worked!"); //test
-    location.href = 'https://app.prolific.co/submissions/complete?cc=C1KAYBWF'; // go back to prolific
+    location.href = 'https://app.prolific.co/submissions/complete?cc=CVWTXSEO'; // go back to prolific
 }
 
 
