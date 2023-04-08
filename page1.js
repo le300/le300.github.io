@@ -88,7 +88,7 @@ function startFullAnnotation() {
     /* Function to start the practice annotation
      */
     // setup global variables to specify correct annotation task
-    storyNum = 18;
+    storyNum = 2;
     annotationType = "Character Features"; // Page Segmentation, Character Segmentation
     participantNum = 0;
     
