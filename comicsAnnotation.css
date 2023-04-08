@@ -211,12 +211,12 @@ h4 {
 
 
 .panelNumSectionFormat {
-    margin: 5px;
+    margin: 0px;
     width: 475px;
     text-align: center;
     padding: 20px; /* 20px when char and locs display is there, 10px when not */
     background-color: #008CBA;
-    height: 75px; /* 150px when char and locs display is there, 20px when not */
+    height: 175px; /* 150px when char and locs display is there, 20px when not */
     border-radius: 25px;
     border: 5px solid #008CBA;
 }
@@ -326,7 +326,7 @@ div.hidden {
     border: 5px solid #008CBA;
     padding: 20px;
     margin: 2px;
-    width: 475px; /* 450  - changed for the animacy char task */
+    width: 460px; /* 450  - changed for the animacy char task */
 }
 
 
@@ -417,18 +417,17 @@ div.hidden {
     width: 70%;
     border: 2px solid #b5e3ff;
     border-radius: 10px;
-    padding: 0px;
+    padding-right: 10px;
     margin-left: 60px;
-    font-family: monospace;
+    font: 14px arial, sans-serif;
     color: white;
-    font-size: medium;
 }
 
 .charFeaturesForms_animacyFeatures {
     text-align: center;
     font-size: x-small;
     display: inline-block;
-    width: 460px;
+    width: 450px;
     padding: 5px;
     margin: 3px 0;
     height: 125px;

@@ -207,7 +207,7 @@ if (annotationType == "Background and Location") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Animacy_Reference").get().then((snapshot) => {
+    db.collection("Animacy_Type_Ref_2").get().then((snapshot) => {
                                                     console.log(snapshot.docs); // get an overview of all the documents in the database
                                                     snapshot.docs.forEach(doc => {
                                                                           //console.log(doc.data());
@@ -245,7 +245,7 @@ if (annotationType == "Character Segmentation") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Animacy_Reference").get().then((snapshot) => {
+    db.collection("Animacy_Type_Ref_2").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                 //console.log(doc.data());
@@ -274,7 +274,7 @@ if (annotationType == "Character Features") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Animacy_Reference").get().then((snapshot) => {
+    db.collection("Animacy_Type_Ref_2").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                   //console.log(doc.data());
@@ -300,7 +300,7 @@ if (annotationType == "Text Sections") {
     // retrieve the corrent document from firebase and assign to pagesData
     
     // Get the appropriate page segmentation annotated pages from Firebase
-    db.collection("Animacy_Reference").get().then((snapshot) => {
+    db.collection("Animacy_Type_Ref_2").get().then((snapshot) => {
                                             console.log(snapshot.docs); // get an overview of all the documents in the database
                                             snapshot.docs.forEach(doc => {
                                                                   //console.log(doc.data());
@@ -898,37 +898,98 @@ function nextPage(event) {
                 var idNum = (p+1) + "." + c;
                 //console.log("idNum: ", idNum);
                 
-                // generate a text prompt to get a reference
+                // reference type form
+                // container to hold all references and attributes
                 var referenceTextInputContainer = document.createElement('div');
                 referenceTextInputContainer.id = "referenceTextInputContainer" + idNum;
                 referenceTextInputContainer.setAttribute('class', "referenceTextInputContainer");
-                var firstReferenceInputContainer = document.createElement('div');
-                firstReferenceInputContainer.setAttribute("class", "firstReferenceInputContainer");
-                var referenceTextInput = document.createElement('input');
-                referenceTextInput.setAttribute('type', 'text');
-                referenceTextInput.setAttribute("class", "referenceTextInput");
-                referenceTextInput.setAttribute('onchange', "referenceInputs_animacyRef(event)");
-                referenceTextInput.id = "referenceTextInput" + idNum;
-                var referenceTextInputLabel = document.createElement('label');
-                referenceTextInputLabel.setAttribute('for', "referenceTextInput" + idNum);
-                referenceTextInputLabel.id = "referenceTextInputLabel" + idNum;
-                referenceTextInputLabel.innerHTML = "Label: ";
-                // add datalist
-                var referenceTextInput_datalist = document.createElement('datalist');
-                referenceTextInput_datalistID = "referenceTextInput_datalist" + idNum;
-                referenceTextInput_datalist.setAttribute('id', referenceTextInput_datalistID);
-                document.body.appendChild(referenceTextInput_datalist);
-                referenceTextInput.setAttribute('list', referenceTextInput_datalistID);
                 
-                firstReferenceInputContainer.appendChild(referenceTextInputLabel);
-                firstReferenceInputContainer.appendChild(referenceTextInput);
-                referenceTextInputContainer.appendChild(firstReferenceInputContainer);
+                // ind ref radio button
+                var referenceRadioButton = document.createElement('input');
+                referenceRadioButton.setAttribute('type', 'radio');
+                referenceRadioButton.setAttribute('id', "referenceRadioButton" + idNum);
+                referenceRadioButton.setAttribute('name', "referenceType");
+                referenceRadioButton.setAttribute('onchange', "generateGroupReferenceInputs(event)");
+                var referenceRadioButtonLabel = document.createElement('label');
+                referenceRadioButtonLabel.setAttribute('for', "referenceRadioButton" + idNum);
+                referenceRadioButtonLabel.innerHTML = "Individual";
+                //console.log(referenceRadioButton.id);
+                // type radio button
+                var typeRadioButton = document.createElement('input');
+                typeRadioButton.setAttribute('type', 'radio');
+                typeRadioButton.setAttribute('id', "typeRadioButton" + idNum);
+                typeRadioButton.setAttribute('name', "referenceType");
+                typeRadioButton.setAttribute('onchange', "generateGroupReferenceInputs(event)");
+                var typeRadioButtonLabel = document.createElement('label');
+                typeRadioButtonLabel.setAttribute('for', "typeRadioButton" + idNum);
+                typeRadioButtonLabel.innerHTML = "Non-individual";
                 
+                // generate a text prompt to get a reference
+//                var referenceTextInputContainer = document.createElement('div');
+//                referenceTextInputContainer.id = "referenceTextInputContainer" + idNum;
+//                referenceTextInputContainer.setAttribute('class', "referenceTextInputContainer");
+//                var firstReferenceInputContainer = document.createElement('div');
+//                firstReferenceInputContainer.setAttribute("class", "firstReferenceInputContainer");
+//                var referenceTextInput = document.createElement('input');
+//                referenceTextInput.setAttribute('type', 'text');
+//                referenceTextInput.setAttribute("class", "referenceTextInput");
+//                referenceTextInput.setAttribute('onchange', "referenceInputs_animacyRef(event)");
+//                referenceTextInput.id = "referenceTextInput" + idNum;
+//                var referenceTextInputLabel = document.createElement('label');
+//                referenceTextInputLabel.setAttribute('for', "referenceTextInput" + idNum);
+//                referenceTextInputLabel.id = "referenceTextInputLabel" + idNum;
+//                referenceTextInputLabel.innerHTML = "Label: ";
+//                // add datalist
+//                var referenceTextInput_datalist = document.createElement('datalist');
+//                referenceTextInput_datalistID = "referenceTextInput_datalist" + idNum;
+//                referenceTextInput_datalist.setAttribute('id', referenceTextInput_datalistID);
+//                document.body.appendChild(referenceTextInput_datalist);
+//                referenceTextInput.setAttribute('list', referenceTextInput_datalistID);
+//
+//                firstReferenceInputContainer.appendChild(referenceTextInputLabel);
+//                firstReferenceInputContainer.appendChild(referenceTextInput);
+//                referenceTextInputContainer.appendChild(firstReferenceInputContainer);
+//
                 // generate a new checkbox set to check if reference is a group, is part of a group, or the ref refers to another entity seen before
                 // (I know it says radio, but I had to change it to checkbox and it would be a total bitch to change all the variable names!)
                 var attributesRadioSetContainer = document.createElement('div');
                 attributesRadioSetContainer.setAttribute("class", "attributesRadioSetContainer");
                 attributesRadioSetContainer.id = "attributesRadioSetContainer" + idNum;
+                
+                // put the attribute radio set into a table
+                var attributeRadioSetTable = document.createElement('table');
+                attributeRadioSetTable.setAttribute("class", "attributeRadioSetTable");
+                attributeRadioSetTable.id = "attributeRadioSetTable" + idNum;
+                
+                var row1AttributeSet = document.createElement('tr');
+                row1AttributeSet.id = "row1AttributeSet" + idNum;
+                var row1AttributeSetButton = document.createElement('td');
+                var row1AttributeSetLabel = document.createElement('td');
+                row1AttributeSetButton.appendChild(referenceRadioButtonLabel);
+                row1AttributeSetLabel.appendChild(referenceRadioButton);
+                row1AttributeSet.appendChild(row1AttributeSetButton);
+                row1AttributeSet.appendChild(row1AttributeSetLabel);
+                attributeRadioSetTable.appendChild(row1AttributeSet);
+                // row 2
+                var row2AttributeSet = document.createElement('tr');
+                row2AttributeSet.id = "row2AttributeSet" + idNum;
+                var row2AttributeSetButton = document.createElement('td');
+                var row2AttributeSetLabel = document.createElement('td');
+                row2AttributeSetButton.appendChild(typeRadioButtonLabel);
+                row2AttributeSetLabel.appendChild(typeRadioButton);
+                row2AttributeSet.appendChild(row2AttributeSetButton);
+                row2AttributeSet.appendChild(row2AttributeSetLabel);
+                attributeRadioSetTable.appendChild(row2AttributeSet);
+                
+                // append table to container
+                attributesRadioSetContainer.appendChild(attributeRadioSetTable);
+                // append to reference container
+                referenceTextInputContainer.appendChild(attributesRadioSetContainer);
+                // append to charFeaturesForm
+                var CharFeatForm = document.getElementById("charFeaturesForm" + idNum);
+                CharFeatForm.appendChild(referenceTextInputContainer);
+                
+                
 //                // is a group:
 //                var isAGroupRadio = document.createElement('input');
 //                isAGroupRadio.setAttribute('type', 'checkbox');
@@ -952,21 +1013,21 @@ function nextPage(event) {
 //                isPartOfGroupRadioLabel.id = "isPartOfGroupRadioLabel" + idNum;
 //                isPartOfGroupRadioLabel.innerHTML = "Part of a group";
 //                // Is the same as another label:
-                var isSameAsOtherLabelRadio = document.createElement('input');
-                isSameAsOtherLabelRadio.setAttribute('type', 'checkbox');
-                isSameAsOtherLabelRadio.setAttribute("class", "attributeCheckbox");
-                isSameAsOtherLabelRadio.setAttribute('name', "referenceAttributesRadioSet");
-                isSameAsOtherLabelRadio.id = "isSameAsOtherLabelRadio" + idNum;
-                isSameAsOtherLabelRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
-                var isSameAsOtherLabelRadioLabel = document.createElement('label');
-                isSameAsOtherLabelRadioLabel.setAttribute('for', "isSameAsOtherLabelRadio");
-                isSameAsOtherLabelRadioLabel.id = "isSameAsOtherLabelRadioLabel" + idNum;
-                isSameAsOtherLabelRadioLabel.innerHTML = "Same as other label"
-                
-                // put the attribute radio set into a table
-                var attributeRadioSetTable = document.createElement('table');
-                attributeRadioSetTable.setAttribute("class", "attributeRadioSetTable");
-                attributeRadioSetTable.id = "attributeRadioSetTable" + idNum;
+//                var isSameAsOtherLabelRadio = document.createElement('input');
+//                isSameAsOtherLabelRadio.setAttribute('type', 'checkbox');
+//                isSameAsOtherLabelRadio.setAttribute("class", "attributeCheckbox");
+//                isSameAsOtherLabelRadio.setAttribute('name', "referenceAttributesRadioSet");
+//                isSameAsOtherLabelRadio.id = "isSameAsOtherLabelRadio" + idNum;
+//                isSameAsOtherLabelRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
+//                var isSameAsOtherLabelRadioLabel = document.createElement('label');
+//                isSameAsOtherLabelRadioLabel.setAttribute('for', "isSameAsOtherLabelRadio");
+//                isSameAsOtherLabelRadioLabel.id = "isSameAsOtherLabelRadioLabel" + idNum;
+//                isSameAsOtherLabelRadioLabel.innerHTML = "Same as other label"
+//
+//                // put the attribute radio set into a table
+//                var attributeRadioSetTable = document.createElement('table');
+//                attributeRadioSetTable.setAttribute("class", "attributeRadioSetTable");
+//                attributeRadioSetTable.id = "attributeRadioSetTable" + idNum;
                 // row 1
 //                var row1AttributeSet = document.createElement('tr');
 //                row1AttributeSet.id = "row1AttributeSet" + idNum;
@@ -988,23 +1049,24 @@ function nextPage(event) {
 //                row2AttributeSet.appendChild(row2AttributeSetLabel);
 //                attributeRadioSetTable.appendChild(row2AttributeSet);
                 // row 3
-                var row3AttributeSet = document.createElement('tr');
-                row3AttributeSet.id = "row3AttributeSet" + idNum;
-                var row3AttributeSetButton = document.createElement('td');
-                var row3AttributeSetLabel = document.createElement('td');
-                row3AttributeSetButton.appendChild(isSameAsOtherLabelRadio);
-                row3AttributeSetLabel.appendChild(isSameAsOtherLabelRadioLabel);
-                row3AttributeSet.appendChild(row3AttributeSetButton);
-                row3AttributeSet.appendChild(row3AttributeSetLabel);
-                attributeRadioSetTable.appendChild(row3AttributeSet);
+//                var row3AttributeSet = document.createElement('tr');
+//                row3AttributeSet.id = "row3AttributeSet" + idNum;
+//                var row3AttributeSetButton = document.createElement('td');
+//                var row3AttributeSetLabel = document.createElement('td');
+//                row3AttributeSetButton.appendChild(isSameAsOtherLabelRadio);
+//                row3AttributeSetLabel.appendChild(isSameAsOtherLabelRadioLabel);
+//                row3AttributeSet.appendChild(row3AttributeSetButton);
+//                row3AttributeSet.appendChild(row3AttributeSetLabel);
+//                attributeRadioSetTable.appendChild(row3AttributeSet);
                 
-                // append table to container
-                attributesRadioSetContainer.appendChild(attributeRadioSetTable);
-                // append to reference container
-                referenceTextInputContainer.appendChild(attributesRadioSetContainer);
-                // append to charFeaturesForm
-                var CharFeatForm = document.getElementById("charFeaturesForm" + idNum);
-                CharFeatForm.appendChild(referenceTextInputContainer);
+//                // append table to container
+//                attributesRadioSetContainer.appendChild(attributeRadioSetTable);
+//                // append to reference container
+//                referenceTextInputContainer.appendChild(attributesRadioSetContainer);
+//                // append to charFeaturesForm
+//                var CharFeatForm = document.getElementById("charFeaturesForm" + idNum);
+//                CharFeatForm.appendChild(referenceTextInputContainer);
+                
             } // end of function createAnimacyReferenceForms(p,c)
             
             
@@ -1065,6 +1127,65 @@ function nextPage(event) {
             } // end of function createIsSameAsOtherLabelReferenceForm(p,c)
             
             
+            function createIndTextRef(p,c) {
+                var idNum = (p+1) + "." + c;
+                
+                var currentRow1AttributeSet = document.getElementById("row1AttributeSet" + idNum);
+                // create new reference input
+                var referenceTextInput = document.createElement('input');
+                referenceTextInput.setAttribute('type', 'text');
+                referenceTextInput.setAttribute("class", "referenceTextInput");
+                referenceTextInput.setAttribute('onkeydown', "stopEnter(event)");
+                referenceTextInput.setAttribute('onchange', "referenceInputs_animacyRef(event)");
+                referenceTextInput.addEventListener('keyup', function(e) {getInputValue_NoKeyPressedForOneSec(e)}); // add event listener to get and store input values
+                referenceTextInput.id = "referenceTextInput" + idNum;
+                // add datalist
+                var referenceTextInput_datalist = document.createElement('datalist');
+                referenceTextInput_datalistID = "referenceTextInput_datalist" + idNum;
+                referenceTextInput_datalist.setAttribute('id', referenceTextInput_datalistID);
+                document.body.appendChild(referenceTextInput_datalist);
+                referenceTextInput.setAttribute('list', referenceTextInput_datalistID);
+
+                // add to the table
+                var refTextBoxTd = document.createElement('td');
+                refTextBoxTd.appendChild(referenceTextInput);
+                currentRow1AttributeSet.appendChild(refTextBoxTd);
+                } // end of function createIndTextRef(p,c)
+            
+            
+            function createSameAsOtherLabelCheckbox(p,c) {
+
+                var idNum = (p+1) + "." + c;
+
+                var isSameAsOtherLabelRadio = document.createElement('input');
+                isSameAsOtherLabelRadio.setAttribute('type', 'checkbox');
+                isSameAsOtherLabelRadio.setAttribute("class", "attributeCheckbox");
+                isSameAsOtherLabelRadio.setAttribute('name', "referenceAttributesRadioSet");
+                isSameAsOtherLabelRadio.id = "isSameAsOtherLabelRadio" + idNum;
+                isSameAsOtherLabelRadio.setAttribute('onchange', "createSameAsOTherLabelTextbox(event)");
+                var isSameAsOtherLabelRadioLabel = document.createElement('label');
+                isSameAsOtherLabelRadioLabel.setAttribute('for', "isSameAsOtherLabelRadio");
+                isSameAsOtherLabelRadioLabel.id = "isSameAsOtherLabelRadioLabel" + idNum;
+                isSameAsOtherLabelRadioLabel.innerHTML = "Had a different label"
+                
+                var referenceTable = document.getElementById("attributeRadioSetTable" + idNum);
+
+                var currentReferenceTable = document.getElementById("attributeRadioSetTable" + idNum);
+                
+                // row 3
+                var row3AttributeSet = document.createElement('tr');
+                row3AttributeSet.id = "row3AttributeSet" + idNum;
+                var row3AttributeSetButton = document.createElement('td');
+                var row3AttributeSetLabel = document.createElement('td');
+                row3AttributeSetButton.appendChild(isSameAsOtherLabelRadio);
+                row3AttributeSetLabel.appendChild(isSameAsOtherLabelRadioLabel);
+                row3AttributeSet.appendChild(row3AttributeSetButton);
+                row3AttributeSet.appendChild(row3AttributeSetLabel);
+                currentReferenceTable.appendChild(row3AttributeSet);
+
+            } // end of createSameAsOtherLabelCheckbox(p,c)
+
+            
             // put the animacyType radio buttons and label on the page - that is, get the right values
             for (var r=0; r<pagesData[pageNum].panels.length; r++) {
                 for (var s=0; s<pagesData[pageNum].panels[r].characters.length; s++) {
@@ -1080,13 +1201,24 @@ function nextPage(event) {
                     
                     if (getAnimacyType == "humanAnimate") {
                         document.getElementById("humanAnimateCheckbox" + (r+1) + "." + s).checked = true;
-                        // add ref form and value
                         createAnimacyReferenceForms(r,s);
-                        if (refFormLabel == matchingCharId) {
-                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = "";
+                        // add ref form and value
+                        if (refFormLabel == "T") {
+                            document.getElementById("typeRadioButton" + (r+1) + "." + s).checked = true;
                         } else {
-                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = refFormLabel;
-                        }
+                            document.getElementById("referenceRadioButton" + (r+1) + "." + s).checked = true;
+                            createIndTextRef(r,s)
+                            if (refFormLabel == matchingCharId) {
+                                document.getElementById("referenceTextInput" + (r+1) + "." + s).value = "";
+                            } else {
+                                document.getElementById("referenceTextInput" + (r+1) + "." + s).value = refFormLabel;
+                            }
+                            // add the isSameAsOtherLabelRadio checkbox
+                            createSameAsOtherLabelCheckbox(r,s)
+                            if (document.getElementById("referenceRadioButton" + (r+1) + "." + s).checked == false) {
+                                document.getElementById("typeRadioButton" + (r+1) + "." + s).checked = true;
+                            }
+                        } // end of else for if (document.getElementById("referenceRadioButton" + (r+1) + "." + s).checked = false)
  
                         
                         // check if any of the group buttons are checked
@@ -1118,15 +1250,35 @@ function nextPage(event) {
                         } // end of if isSameAsOtherLabel == true
                     } // end of if (getAnimacyType == "humanAnimate")
                     
+                    
                     if (getAnimacyType == "humanLikeAnimate") {
                         document.getElementById("humanLikeAnimateCheckbox" + (r+1) + "." + s).checked = true;
                         // add ref form and value
                         createAnimacyReferenceForms(r,s);
-                        if (refFormLabel == matchingCharId) {
-                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = "";
+                        // add ref form and value
+                        if (refFormLabel == "T") {
+                            document.getElementById("typeRadioButton" + (r+1) + "." + s).checked = true;
                         } else {
-                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = refFormLabel;
-                        }
+                            document.getElementById("referenceRadioButton" + (r+1) + "." + s).checked = true;
+                            createIndTextRef(r,s)
+                            if (refFormLabel == matchingCharId) {
+                                document.getElementById("referenceTextInput" + (r+1) + "." + s).value = "";
+                            } else {
+                                document.getElementById("referenceTextInput" + (r+1) + "." + s).value = refFormLabel;
+                            }
+                            // add the isSameAsOtherLabelRadio checkbox
+                            createSameAsOtherLabelCheckbox(r,s)
+                            if (document.getElementById("referenceRadioButton" + (r+1) + "." + s).checked == false) {
+                                document.getElementById("typeRadioButton" + (r+1) + "." + s).checked = true;
+                            }
+                        } // end of else for if (document.getElementById("referenceRadioButton" + (r+1) + "." + s).checked = false)
+
+//                        createAnimacyReferenceForms(r,s);
+//                        if (refFormLabel == matchingCharId) {
+//                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = "";
+//                        } else {
+//                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = refFormLabel;
+//                        }
                         // check if any of the group buttons are checked
                         
                         // check isAGroup
@@ -1161,11 +1313,31 @@ function nextPage(event) {
                         document.getElementById("nonHumanAnimateCheckbox" + (r+1) + "." + s).checked = true;
                         // add ref form and value
                         createAnimacyReferenceForms(r,s);
-                        if (refFormLabel == matchingCharId) {
-                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = "";
+                        // add ref form and value
+                        if (refFormLabel == "T") {
+                            document.getElementById("typeRadioButton" + (r+1) + "." + s).checked = true;
                         } else {
-                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = refFormLabel;
-                        }
+                            document.getElementById("referenceRadioButton" + (r+1) + "." + s).checked = true;
+                            createIndTextRef(r,s)
+                            if (refFormLabel == matchingCharId) {
+                                document.getElementById("referenceTextInput" + (r+1) + "." + s).value = "";
+                            } else {
+                                document.getElementById("referenceTextInput" + (r+1) + "." + s).value = refFormLabel;
+                            }
+                            // add the isSameAsOtherLabelRadio checkbox
+                            createSameAsOtherLabelCheckbox(r,s)
+                            if (document.getElementById("referenceRadioButton" + (r+1) + "." + s).checked == false) {
+                                document.getElementById("typeRadioButton" + (r+1) + "." + s).checked = true;
+                            }
+                        } // end of else for if (document.getElementById("referenceRadioButton" + (r+1) + "." + s).checked = false)
+                        
+//
+//                        createAnimacyReferenceForms(r,s);
+//                        if (refFormLabel == matchingCharId) {
+//                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = "";
+//                        } else {
+//                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = refFormLabel;
+//                        }
                         
                         // check if any of the group buttons are checked
                         
@@ -1202,11 +1374,30 @@ function nextPage(event) {
                         document.getElementById("ambiguousCheckbox" + (r+1) + "." + s).checked = true;
                         // add ref form and value
                         createAnimacyReferenceForms(r,s);
-                        if (refFormLabel == matchingCharId) {
-                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = "";
+                        // add ref form and value
+                        if (refFormLabel == "T") {
+                            document.getElementById("typeRadioButton" + (r+1) + "." + s).checked = true;
                         } else {
-                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = refFormLabel;
-                        }
+                            document.getElementById("referenceRadioButton" + (r+1) + "." + s).checked = true;
+                            createIndTextRef(r,s)
+                            if (refFormLabel == matchingCharId) {
+                                document.getElementById("referenceTextInput" + (r+1) + "." + s).value = "";
+                            } else {
+                                document.getElementById("referenceTextInput" + (r+1) + "." + s).value = refFormLabel;
+                            }
+                            // add the isSameAsOtherLabelRadio checkbox
+                            createSameAsOtherLabelCheckbox(r,s)
+                            if (document.getElementById("referenceRadioButton" + (r+1) + "." + s).checked == false) {
+                                document.getElementById("typeRadioButton" + (r+1) + "." + s).checked = true;
+                            }
+                        } // end of else for if (document.getElementById("referenceRadioButton" + (r+1) + "." + s).checked = false)
+//
+//                        createAnimacyReferenceForms(r,s);
+//                        if (refFormLabel == matchingCharId) {
+//                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = "";
+//                        } else {
+//                            document.getElementById("referenceTextInput" + (r+1) + "." + s).value = refFormLabel;
+//                        }
                         
                         // check if any of the group buttons are checked
                         
@@ -1237,9 +1428,9 @@ function nextPage(event) {
                         } // end of if isSameAsOtherLabel == true
                     } // end of if (getAnimacyType == "ambiguousAnimate")
                     
-                    if (getAnimacyType == "inanimate") {
-                        document.getElementById("inanimateCheckbox" + (r+1) + "." + s).checked = true;
-                    }
+//                    if (getAnimacyType == "inanimate") {
+//                        document.getElementById("inanimateCheckbox" + (r+1) + "." + s).checked = true;
+//                    }
                 }
             } // end of for (var r=0; r<pagesData[pageNum].panels.length; r++)
 
@@ -1674,7 +1865,7 @@ function validateInputs() {
                     var humanLikeAnimateValue = document.getElementById("humanLikeAnimateCheckbox" + (i+1) + "." + j).checked;
                     var nonHumanAnimateValue = document.getElementById("nonHumanAnimateCheckbox" + (i+1) + "." + j).checked;
                     var ambiguousAnimateValue = document.getElementById("ambiguousCheckbox" + (i+1) + "." + j).checked;
-                    var inanimateCheckboxValue = document.getElementById("inanimateCheckbox" + (i+1) + "." + j).checked;
+//                    var inanimateCheckboxValue = document.getElementById("inanimateCheckbox" + (i+1) + "." + j).checked;
                     //console.log("humanAnimateValue: ", humanAnimateValue);
                     //console.log("humanLikeAnimateValue: ", humanLikeAnimateValue);
                     //console.log("nonHumanAnimateValue: ", nonHumanAnimateValue);
@@ -1696,10 +1887,10 @@ function validateInputs() {
                         animacyType = "ambiguousAnimate";
                         panel.characters[j].animacyType = animacyType;
                     }
-                    if (inanimateCheckboxValue == true) {
-                        animacyType = "inanimate";
-                        panel.characters[j].animacyType = animacyType;
-                    }
+//                    if (inanimateCheckboxValue == true) {
+//                        animacyType = "inanimate";
+//                        panel.characters[j].animacyType = animacyType;
+//                    }
                     
                     if (animacyType == "") {
                         errorMessage += "Please select from the list of options in Section " + (i+1) + ", number " + (j+1) + "\n";
@@ -1712,16 +1903,49 @@ function validateInputs() {
                     //console.log("animacyType", animacyType);
                     // if the animacyValue is anything other than inanimate,
                     if (animacyType == "humanAnimate" || animacyType == "humanLikeAnimate" || animacyType == "nonHumanAnimate" || animacyType == "ambiguousAnimate") {
-                        // first get the text box referent value
-                        // if the value is there, add it to data
-                        var refValue = document.getElementById("referenceTextInput" + (i+1) + "." + j).value;
-                        //console.log("refValue: ", refValue);
-                        if (refValue == "" || refValue == null) {
-                            errorMessage += "Please add a label in Section " + (i+1) + ", number " + (j+1) + "\n";
-                            document.getElementById("referenceTextInput" + (i+1) + "." + j).style.backgroundColor = "LightPink";
-                        } else {
+                        var refValue = "";
+                        // get type radio button checked
+                        var typeButtonValue = document.getElementById("typeRadioButton" + (i+1) + "." + j).checked;
+                        //console.log("typeButtonValue: ", typeButtonValue);
+                        // get Ind radio button checked
+                        var indRefButtonValue = document.getElementById("referenceRadioButton"  + (i+1) + "." + j).checked;
+                        //console.log("indRefButtonValue", indRefButtonValue);
+                        // if neither are checked, throw an error
+                        if (typeButtonValue == false && indRefButtonValue == false) {
+                            errorMessage += "Please select an option in Section " + (i+1) + ", number " + (j+1) + "\n";
+                            document.getElementById("attributesRadioSetContainer" + (i+1) + "." + j).style.backgroundColor = "LightPink";
+                        }
+                        if (typeButtonValue == true) {
+                            // if type radio button checked, put refValue as T
+                            refValue = "T"; // record T for "Type"
                             panel.characters[j].label = refValue;
                         }
+                        if (indRefButtonValue == true) {
+                            // If the typeButton isn't pressed, get text box referent value
+                            var refValue = document.getElementById("referenceTextInput" + (i+1) + "." + j).value;
+                            if (refValue == "" || refValue == null) {
+                                errorMessage += "Please add a label in Section " + (i+1) + ", number " + (j+1) + "\n";
+                                document.getElementById("referenceTextInput" + (i+1) + "." + j).style.backgroundColor = "LightPink";
+                            } else {
+                                panel.characters[j].label = refValue;
+                            }
+                            // check value of isSameAsOtherLabel button
+                            var isSameAsOtherLabelValue = document.getElementById("isSameAsOtherLabelRadio" + (i+1) + "." + j).checked;
+                            if (isSameAsOtherLabelValue == true) {
+                                panel.characters[j].isSameAsOtherLabel = isSameAsOtherLabelValue;
+                                // value isSameAsOtherLabel ref
+                                var isSameAsOtherLabelRefValue = document.getElementById("isSameAsOtherLabelTextbox" + (i+1) + "." + j).value;
+                                if (isSameAsOtherLabelRefValue == "" || isSameAsOtherLabelRefValue == null) {
+                                    errorMessage += "Please add a label in Section " + (i+1) + ", number " + (j+1) + "\n";
+                                    document.getElementById("isSameAsOtherLabelTextbox" + (i+1) + "." + j).style.backgroundColor = "LightPink";
+                                } else { // end of if (isSameAsOtherLabelValue == true)
+                                    panel.characters[j].isSameAsOtherLabelRef = isSameAsOtherLabelRefValue;
+                                }
+                            } else { // end of if (isSameAsOtherLabelValue == true)
+                                panel.characters[j].isSameAsOtherLabel = isSameAsOtherLabelValue;
+                            } // end of else for if (isSameAsOtherLabelValue == true)
+                        } // end of (indRefButtonValue == true)
+      
                         // value of isAGroup in data
 //                        var isAGroupValue = document.getElementById("isAGroupRadio" + (i+1) + "." + j).checked;
 //                        console.log("isAGroupValue: ", isAGroupValue);
@@ -1743,21 +1967,21 @@ function validateInputs() {
 //                            panel.characters[j].isPartOfGroup = isPartOfGroupValue; // should be false
 //                        }
                         
-                        // value of isSameAsOtherLabel button
-                        var isSameAsOtherLabelValue = document.getElementById("isSameAsOtherLabelRadio" + (i+1) + "." + j).checked;
-                        if (isSameAsOtherLabelValue == true) {
-                            panel.characters[j].isSameAsOtherLabel = isSameAsOtherLabelValue;
-                            // value isSameAsOtherLabel ref
-                            var isSameAsOtherLabelRefValue = document.getElementById("isSameAsOtherLabelTextbox" + (i+1) + "." + j).value;
-                            if (isSameAsOtherLabelRefValue == "" || isSameAsOtherLabelRefValue == null) {
-                                    errorMessage += "Please add a label in Section " + (i+1) + ", number " + (j+1) + "\n";
-                                document.getElementById("isSameAsOtherLabelTextbox" + (i+1) + "." + j).style.backgroundColor = "LightPink";
-                            } else { // end of if (isSameAsOtherLabelValue == true)
-                                panel.characters[j].isSameAsOtherLabelRef = isSameAsOtherLabelRefValue;
-                            }
-                        } else { // end of if (isSameAsOtherLabelValue == true)
-                            panel.characters[j].isSameAsOtherLabel = isSameAsOtherLabelValue;
-                        }
+//                        // value of isSameAsOtherLabel button
+//                        var isSameAsOtherLabelValue = document.getElementById("isSameAsOtherLabelRadio" + (i+1) + "." + j).checked;
+//                        if (isSameAsOtherLabelValue == true) {
+//                            panel.characters[j].isSameAsOtherLabel = isSameAsOtherLabelValue;
+//                            // value isSameAsOtherLabel ref
+//                            var isSameAsOtherLabelRefValue = document.getElementById("isSameAsOtherLabelTextbox" + (i+1) + "." + j).value;
+//                            if (isSameAsOtherLabelRefValue == "" || isSameAsOtherLabelRefValue == null) {
+//                                    errorMessage += "Please add a label in Section " + (i+1) + ", number " + (j+1) + "\n";
+//                                document.getElementById("isSameAsOtherLabelTextbox" + (i+1) + "." + j).style.backgroundColor = "LightPink";
+//                            } else { // end of if (isSameAsOtherLabelValue == true)
+//                                panel.characters[j].isSameAsOtherLabelRef = isSameAsOtherLabelRefValue;
+//                            }
+//                        } else { // end of if (isSameAsOtherLabelValue == true)
+//                            panel.characters[j].isSameAsOtherLabel = isSameAsOtherLabelValue;
+//                        }
                         // if none of the buttons are selected,
                         //if (isAGroupValue == false && isPartOfGroupValue == false && isSameAsOtherLabelValue == false) {
                             //errorMessage += "Please select from the list of options in Section " + (i+1) + ", number " + (j+1) + "\n";
@@ -3034,7 +3258,7 @@ function sendDataToFireBase(event) {
     //                          jsonString: jsonString
     //                          });
     
-    db.collection("Animacy_Reference").add({time: Date().toLocaleString(),
+    db.collection("Animacy_Type_Ref_2").add({time: Date().toLocaleString(),
                               jsonData: jsonString}
                               ).then(function(snapshot) {
                                 if (storyNum == 32) {
@@ -4280,7 +4504,7 @@ function placeCharLabelOnCanvas() {
         //console.log("InputValue: ", InputValue);
         //console.log(typeof InputValue);
         pagesData[pageNum].panels[currentPanelNumber].characters[currentCharacterNum].label = InputValue; // put the label in pagesData
-        
+ 
         //console.log(pagesData[pageNum].panels[currentPanelNumber].characters[currentCharacterNum]);
         //console.log(pagesData[pageNum].panels[currentPanelNumber]);
         // below, the polygon will be redrawn by pulling out the appropriate value from pagesData
@@ -4960,7 +5184,7 @@ function createCharFeaturesForm(x, y) {
         humanAnimateCheckbox.setAttribute('onchange', "generateAnimateReferenceTask(event)");
         var humanAnimateCheckboxLabel = document.createElement('label');
         humanAnimateCheckboxLabel.setAttribute('for', "humanAnimateCheckbox" + y + "." + x);
-        humanAnimateCheckboxLabel.innerHTML = "1 Human animate";
+        humanAnimateCheckboxLabel.innerHTML = "1 Human";
         // human-like animate
         var humanLikeAnimateCheckbox = document.createElement('input');
         humanLikeAnimateCheckbox.setAttribute('type', 'radio');
@@ -4970,7 +5194,7 @@ function createCharFeaturesForm(x, y) {
         humanLikeAnimateCheckbox.setAttribute('onchange', "generateAnimateReferenceTask(event)");
         var humanLikeAnimateCheckboxLabel = document.createElement('label');
         humanLikeAnimateCheckboxLabel.setAttribute('for', "humanLikeAnimateCheckbox" + y + "." + x);
-        humanLikeAnimateCheckboxLabel.innerHTML = "2 Human-like animate";
+        humanLikeAnimateCheckboxLabel.innerHTML = "2 Human-like";
         // non-human animate
         var nonHumanAnimateCheckbox = document.createElement('input');
         nonHumanAnimateCheckbox.setAttribute('type', 'radio');
@@ -4980,7 +5204,7 @@ function createCharFeaturesForm(x, y) {
         nonHumanAnimateCheckbox.setAttribute('onchange', "generateAnimateReferenceTask(event)");
         var nonHumanAnimateCheckboxLabel = document.createElement('label');
         nonHumanAnimateCheckboxLabel.setAttribute('for', "nonHumanAnimateCheckbox" + y + "." + x);
-        nonHumanAnimateCheckboxLabel.innerHTML = "3 Non-human animate";
+        nonHumanAnimateCheckboxLabel.innerHTML = "3 Animal-like";
         // ambiguous animacy
         var ambiguousCheckbox = document.createElement('input');
         ambiguousCheckbox.setAttribute('type', 'radio');
@@ -4990,17 +5214,17 @@ function createCharFeaturesForm(x, y) {
         ambiguousCheckbox.setAttribute('onchange', "generateAnimateReferenceTask(event)");
         var ambiguousCheckboxLabel = document.createElement('label');
         ambiguousCheckboxLabel.setAttribute('for', "ambiguousCheckbox" + y + "." + x);
-        ambiguousCheckboxLabel.innerHTML = "4 Ambiguous animate"
+        ambiguousCheckboxLabel.innerHTML = "4 Not sure if animate"
         // inanimate
-        var inanimateCheckbox = document.createElement('input');
-        inanimateCheckbox.setAttribute('type', 'radio');
-        inanimateCheckbox.id = "inanimateCheckbox" + y + "." + x;
-        inanimateCheckbox.setAttribute('name', "animacyChecks");
-        inanimateCheckbox.setAttribute('value', "inanimateObject");
-        inanimateCheckbox.setAttribute('onchange', "generateAnimateReferenceTask(event)");
-        var inanimateCheckboxLabel = document.createElement('label');
-        inanimateCheckboxLabel.setAttribute('for', "inanimateCheckbox" + y + "." + x);
-        inanimateCheckboxLabel.innerHTML = "5 Inanimate";
+//        var inanimateCheckbox = document.createElement('input');
+//        inanimateCheckbox.setAttribute('type', 'radio');
+//        inanimateCheckbox.id = "inanimateCheckbox" + y + "." + x;
+//        inanimateCheckbox.setAttribute('name', "animacyChecks");
+//        inanimateCheckbox.setAttribute('value', "inanimateObject");
+//        inanimateCheckbox.setAttribute('onchange', "generateAnimateReferenceTask(event)");
+//        var inanimateCheckboxLabel = document.createElement('label');
+//        inanimateCheckboxLabel.setAttribute('for', "inanimateCheckbox" + y + "." + x);
+//        inanimateCheckboxLabel.innerHTML = "5 Inanimate";
         
         
         // create table to put animacy options in a vertical row
@@ -5043,14 +5267,14 @@ function createCharFeaturesForm(x, y) {
         row4.appendChild(row4Label);
         animacyOptionsTable.appendChild(row4);
         // inanimate object
-        var row5 = document.createElement('tr');
-        var row5Button = document.createElement('td');
-        var row5Label = document.createElement('td');
-        row5Button.appendChild(inanimateCheckbox);
-        row5Label.appendChild(inanimateCheckboxLabel);
-        row5.appendChild(row5Button);
-        row5.appendChild(row5Label);
-        animacyOptionsTable.appendChild(row5);
+//        var row5 = document.createElement('tr');
+//        var row5Button = document.createElement('td');
+//        var row5Label = document.createElement('td');
+//        row5Button.appendChild(inanimateCheckbox);
+//        row5Label.appendChild(inanimateCheckboxLabel);
+//        row5.appendChild(row5Button);
+//        row5.appendChild(row5Label);
+//        animacyOptionsTable.appendChild(row5);
         
         animacyCheckboxContainer.appendChild(animacyOptionsTable);
         
@@ -5595,33 +5819,69 @@ function generateAnimateReferenceTask(event) {
         }
         else {
             
-            // if not generate a text prompt to get a reference
+            // container to hold all references and attributes
             var referenceTextInputContainer = document.createElement('div');
             referenceTextInputContainer.id = "referenceTextInputContainer" + animacyContainerIDNum;
             referenceTextInputContainer.setAttribute('class', "referenceTextInputContainer");
-            var firstReferenceInputContainer = document.createElement('div');
-            firstReferenceInputContainer.setAttribute("class", "firstReferenceInputContainer");
-            var referenceTextInput = document.createElement('input');
-            referenceTextInput.setAttribute('type', 'text');
-            referenceTextInput.setAttribute("class", "referenceTextInput");
-            referenceTextInput.setAttribute('onkeydown', "stopEnter(event)");
-            referenceTextInput.setAttribute('onchange', "referenceInputs_animacyRef(event)");
-            referenceTextInput.addEventListener('keyup', function(e) {getInputValue_NoKeyPressedForOneSec(e)}); // add event listener to get and store input values
-            referenceTextInput.id = "referenceTextInput" + animacyContainerIDNum;
-            var referenceTextInputLabel = document.createElement('label');
-            referenceTextInputLabel.setAttribute('for', "referenceTextInput" + animacyContainerIDNum);
-            referenceTextInputLabel.id = "referenceTextInputLabel" + animacyContainerIDNum;
-            referenceTextInputLabel.innerHTML = "Label: ";
-            // add datalist
-            var referenceTextInput_datalist = document.createElement('datalist');
-            referenceTextInput_datalistID = "referenceTextInput_datalist" + animacyContainerIDNum;
-            referenceTextInput_datalist.setAttribute('id', referenceTextInput_datalistID);
-            document.body.appendChild(referenceTextInput_datalist);
-            referenceTextInput.setAttribute('list', referenceTextInput_datalistID);
+
+            // radio buttons to select between an individual or a type
+            // container for reference type
+//            var referenceTypeContainer = document.createElement('div');
+//            referenceTypeContainer.id = "referenceTypeContainer" + animacyContainerIDNum;
             
-            firstReferenceInputContainer.appendChild(referenceTextInputLabel);
-            firstReferenceInputContainer.appendChild(referenceTextInput);
-            referenceTextInputContainer.appendChild(firstReferenceInputContainer);
+            // after animacy type is selected,
+            // CREATE the INDIVIDUAL REF and the TYPE REF
+            
+            // ind ref radio button
+            var referenceRadioButton = document.createElement('input');
+            referenceRadioButton.setAttribute('type', 'radio');
+            referenceRadioButton.setAttribute('id', "referenceRadioButton" + animacyContainerIDNum);
+            referenceRadioButton.setAttribute('name', "referenceType");
+            referenceRadioButton.setAttribute('onchange', "generateGroupReferenceInputs(event)");
+            var referenceRadioButtonLabel = document.createElement('label');
+            referenceRadioButtonLabel.setAttribute('for', "referenceRadioButton" + animacyContainerIDNum);
+            referenceRadioButtonLabel.innerHTML = "Individual";
+            //console.log(referenceRadioButton.id);
+            // type radio button
+            var typeRadioButton = document.createElement('input');
+            typeRadioButton.setAttribute('type', 'radio');
+            typeRadioButton.setAttribute('id', "typeRadioButton" + animacyContainerIDNum);
+            typeRadioButton.setAttribute('name', "referenceType");
+            typeRadioButton.setAttribute('onchange', "generateGroupReferenceInputs(event)");
+            var typeRadioButtonLabel = document.createElement('label');
+            typeRadioButtonLabel.setAttribute('for', "typeRadioButton" + animacyContainerIDNum);
+            typeRadioButtonLabel.innerHTML = "Non-individual";
+            
+//            referenceTypeContainer.appendChild(referenceRadioButtonLabel);
+//            referenceTypeContainer.appendChild(referenceRadioButton);
+//            referenceTypeContainer.appendChild(typeRadioButtonLabel);
+//            referenceTypeContainer.appendChild(typeRadioButton);
+//            referenceTextInputContainer.appendChild(referenceTypeContainer);
+
+            // OR generate a text prompt to get a reference
+//            var firstReferenceInputContainer = document.createElement('div');
+//            firstReferenceInputContainer.setAttribute("class", "firstReferenceInputContainer");
+//            var referenceTextInput = document.createElement('input');
+//            referenceTextInput.setAttribute('type', 'text');
+//            referenceTextInput.setAttribute("class", "referenceTextInput");
+//            referenceTextInput.setAttribute('onkeydown', "stopEnter(event)");
+//            referenceTextInput.setAttribute('onchange', "referenceInputs_animacyRef(event)");
+//            referenceTextInput.addEventListener('keyup', function(e) {getInputValue_NoKeyPressedForOneSec(e)}); // add event listener to get and store input values
+//            referenceTextInput.id = "referenceTextInput" + animacyContainerIDNum;
+//            var referenceTextInputLabel = document.createElement('label');
+//            referenceTextInputLabel.setAttribute('for', "referenceTextInput" + animacyContainerIDNum);
+//            referenceTextInputLabel.id = "referenceTextInputLabel" + animacyContainerIDNum;
+//            referenceTextInputLabel.innerHTML = "Label: ";
+//            // add datalist
+//            var referenceTextInput_datalist = document.createElement('datalist');
+//            referenceTextInput_datalistID = "referenceTextInput_datalist" + animacyContainerIDNum;
+//            referenceTextInput_datalist.setAttribute('id', referenceTextInput_datalistID);
+//            document.body.appendChild(referenceTextInput_datalist);
+//            referenceTextInput.setAttribute('list', referenceTextInput_datalistID);
+//
+//            firstReferenceInputContainer.appendChild(referenceTextInputLabel);
+//            firstReferenceInputContainer.appendChild(referenceTextInput);
+//            referenceTextInputContainer.appendChild(firstReferenceInputContainer);
             
             // generate a new checkbox set to check if reference is a group, is part of a group, or the ref refers to another entity seen before
             // (I know it says radio, but I had to change it to checkbox and it would be a total bitch to change all the variable names!)
@@ -5650,18 +5910,18 @@ function generateAnimateReferenceTask(event) {
 //            isPartOfGroupRadioLabel.setAttribute('for', "isPartOfGroupRadio");
 //            isPartOfGroupRadioLabel.id = "isPartOfGroupRadioLabel" + animacyContainerIDNum;
 //            isPartOfGroupRadioLabel.innerHTML = "Part of group";
-            // Is the same as another label:
-            var isSameAsOtherLabelRadio = document.createElement('input');
-            isSameAsOtherLabelRadio.setAttribute('type', 'checkbox');
-            isSameAsOtherLabelRadio.setAttribute("class", "attributeCheckbox");
-            isSameAsOtherLabelRadio.setAttribute('name', "referenceAttributesRadioSet");
-            isSameAsOtherLabelRadio.id = "isSameAsOtherLabelRadio" + animacyContainerIDNum;
-            isSameAsOtherLabelRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
-            var isSameAsOtherLabelRadioLabel = document.createElement('label');
-            isSameAsOtherLabelRadioLabel.setAttribute('for', "isSameAsOtherLabelRadio");
-            isSameAsOtherLabelRadioLabel.id = "isSameAsOtherLabelRadioLabel" + animacyContainerIDNum;
-            isSameAsOtherLabelRadioLabel.innerHTML = "Same as other label"
-            
+//            // Is the same as another label:
+//            var isSameAsOtherLabelRadio = document.createElement('input');
+//            isSameAsOtherLabelRadio.setAttribute('type', 'checkbox');
+//            isSameAsOtherLabelRadio.setAttribute("class", "attributeCheckbox");
+//            isSameAsOtherLabelRadio.setAttribute('name', "referenceAttributesRadioSet");
+//            isSameAsOtherLabelRadio.id = "isSameAsOtherLabelRadio" + animacyContainerIDNum;
+//            isSameAsOtherLabelRadio.setAttribute('onchange', "generateGroupReferenceInputs(event)");
+//            var isSameAsOtherLabelRadioLabel = document.createElement('label');
+//            isSameAsOtherLabelRadioLabel.setAttribute('for', "isSameAsOtherLabelRadio");
+//            isSameAsOtherLabelRadioLabel.id = "isSameAsOtherLabelRadioLabel" + animacyContainerIDNum;
+//            isSameAsOtherLabelRadioLabel.innerHTML = "Same as other label"
+//
             // put the attribute radio set into a table
             var attributeRadioSetTable = document.createElement('table');
             attributeRadioSetTable.setAttribute("class", "attributeRadioSetTable");
@@ -5686,16 +5946,37 @@ function generateAnimateReferenceTask(event) {
 //            row2AttributeSet.appendChild(row2AttributeSetButton);
 //            row2AttributeSet.appendChild(row2AttributeSetLabel);
 //            attributeRadioSetTable.appendChild(row2AttributeSet);
+            // alternative rows
+            // row 1
+            var row1AttributeSet = document.createElement('tr');
+            row1AttributeSet.id = "row1AttributeSet" + animacyContainerIDNum;
+            var row1AttributeSetButton = document.createElement('td');
+            var row1AttributeSetLabel = document.createElement('td');
+            row1AttributeSetButton.appendChild(referenceRadioButtonLabel);
+            row1AttributeSetLabel.appendChild(referenceRadioButton);
+            row1AttributeSet.appendChild(row1AttributeSetButton);
+            row1AttributeSet.appendChild(row1AttributeSetLabel);
+            attributeRadioSetTable.appendChild(row1AttributeSet);
+            // row 2
+            var row2AttributeSet = document.createElement('tr');
+            row2AttributeSet.id = "row2AttributeSet" + animacyContainerIDNum;
+            var row2AttributeSetButton = document.createElement('td');
+            var row2AttributeSetLabel = document.createElement('td');
+            row2AttributeSetButton.appendChild(typeRadioButtonLabel);
+            row2AttributeSetLabel.appendChild(typeRadioButton);
+            row2AttributeSet.appendChild(row2AttributeSetButton);
+            row2AttributeSet.appendChild(row2AttributeSetLabel);
+            attributeRadioSetTable.appendChild(row2AttributeSet);
             // row 3
-            var row3AttributeSet = document.createElement('tr');
-            row3AttributeSet.id = "row3AttributeSet" + animacyContainerIDNum;
-            var row3AttributeSetButton = document.createElement('td');
-            var row3AttributeSetLabel = document.createElement('td');
-            row3AttributeSetButton.appendChild(isSameAsOtherLabelRadio);
-            row3AttributeSetLabel.appendChild(isSameAsOtherLabelRadioLabel);
-            row3AttributeSet.appendChild(row3AttributeSetButton);
-            row3AttributeSet.appendChild(row3AttributeSetLabel);
-            attributeRadioSetTable.appendChild(row3AttributeSet);
+//            var row3AttributeSet = document.createElement('tr');
+//            row3AttributeSet.id = "row3AttributeSet" + animacyContainerIDNum;
+//            var row3AttributeSetButton = document.createElement('td');
+//            var row3AttributeSetLabel = document.createElement('td');
+//            row3AttributeSetButton.appendChild(isSameAsOtherLabelRadio);
+//            row3AttributeSetLabel.appendChild(isSameAsOtherLabelRadioLabel);
+//            row3AttributeSet.appendChild(row3AttributeSetButton);
+//            row3AttributeSet.appendChild(row3AttributeSetLabel);
+//            attributeRadioSetTable.appendChild(row3AttributeSet);
             
             // append table to container
             attributesRadioSetContainer.appendChild(attributeRadioSetTable);
@@ -5703,6 +5984,7 @@ function generateAnimateReferenceTask(event) {
             referenceTextInputContainer.appendChild(attributesRadioSetContainer);
             // append to charFeaturesForm
             charFeaturesFormCurrent.appendChild(referenceTextInputContainer);
+            
             
         } // end of else for if (charFeaturesFormCurrent.children.length > 2)
     } // end of if (animacyRadioButtonValue == "humanAnimate" .... )
@@ -5715,22 +5997,102 @@ function generateAnimateReferenceTask(event) {
 } // end of generateAnimateReferenceTask()
 
 
+
 function generateGroupReferenceInputs(event) {
     // event = radio button press
     
     // depending on what radio button is pressed, generate reference text forms as needed
     var referenceAttributeSelector = event.target;
     var referenceAttributeSelectorID = event.target.getAttribute("id"); // id of group radion buttons/node set that was pressed
+   // console.log(referenceAttributeSelectorID);
     // regex to replace all leading non-digits with nothing
     var referenceAttributeSelectorIDNum = referenceAttributeSelectorID.replace(/^\D+/g, "");
     //console.log("groupSelectedCheckboxIDNum: " + groupSelectedCheckboxIDNum);
+    //console.log(referenceAttributeSelectorIDNum);
     charFeaturesFormCurrentGroup = document.getElementById("charFeaturesForm" + referenceAttributeSelectorIDNum);
     
     document.getElementById("attributesRadioSetContainer" + referenceAttributeSelectorIDNum).style.backgroundColor = "#F2D0FF";
     
+    // if the Individual Ref is checked, add reference textbox
+    var currentIndRefRadio = document.getElementById("referenceRadioButton" + referenceAttributeSelectorIDNum);
+    
+    // row for the Ind Ref
+    var currentRow1AttributeSet = document.getElementById("row1AttributeSet" + referenceAttributeSelectorIDNum);
+    
+    if (currentIndRefRadio.checked) {
+
+        // create new reference input
+        var referenceTextInput = document.createElement('input');
+        referenceTextInput.setAttribute('type', 'text');
+        referenceTextInput.setAttribute("class", "referenceTextInput");
+        referenceTextInput.setAttribute('onkeydown', "stopEnter(event)");
+        referenceTextInput.setAttribute('onchange', "referenceInputs_animacyRef(event)");
+        referenceTextInput.addEventListener('keyup', function(e) {getInputValue_NoKeyPressedForOneSec(e)}); // add event listener to get and store input values
+        referenceTextInput.id = "referenceTextInput" + referenceAttributeSelectorIDNum;
+        // add datalist
+        var referenceTextInput_datalist = document.createElement('datalist');
+        referenceTextInput_datalistID = "referenceTextInput_datalist" + referenceAttributeSelectorIDNum;
+        referenceTextInput_datalist.setAttribute('id', referenceTextInput_datalistID);
+        document.body.appendChild(referenceTextInput_datalist);
+        referenceTextInput.setAttribute('list', referenceTextInput_datalistID);
+        
+        //console.log(currentRow1AttributeSet.children.length);
+        if (currentRow1AttributeSet.children.length > 2) { // if the form already exists, remove
+             currentRow1AttributeSet.removeChild(currentRow1AttributeSet.lastChild);
+        }
+        else {
+            // add to the table
+            var refTextBoxTd = document.createElement('td');
+            refTextBoxTd.appendChild(referenceTextInput);
+            currentRow1AttributeSet.appendChild(refTextBoxTd);
+        }
+        
+        // add the sameAsOtherLabel choice
+        var isSameAsOtherLabelRadio = document.createElement('input');
+        isSameAsOtherLabelRadio.setAttribute('type', 'checkbox');
+        isSameAsOtherLabelRadio.setAttribute("class", "attributeCheckbox");
+        isSameAsOtherLabelRadio.setAttribute('name', "referenceAttributesRadioSet");
+        isSameAsOtherLabelRadio.id = "isSameAsOtherLabelRadio" + referenceAttributeSelectorIDNum;
+        isSameAsOtherLabelRadio.setAttribute('onchange', "createSameAsOTherLabelTextbox(event)");
+        var isSameAsOtherLabelRadioLabel = document.createElement('label');
+        isSameAsOtherLabelRadioLabel.setAttribute('for', "isSameAsOtherLabelRadio");
+        isSameAsOtherLabelRadioLabel.id = "isSameAsOtherLabelRadioLabel" + referenceAttributeSelectorIDNum;
+        isSameAsOtherLabelRadioLabel.innerHTML = "Had a different label"
+        
+        var referenceTable = document.getElementById("attributeRadioSetTable" + referenceAttributeSelectorIDNum);
+        // if it's already there, don't add it
+        if (referenceTable.children.length > 2) {
+             referenceTable.removeChild(referenceTable.lastChild);
+        }
+        else {
+            // row 3
+            var row3AttributeSet = document.createElement('tr');
+            row3AttributeSet.id = "row3AttributeSet" + referenceAttributeSelectorIDNum;
+            var row3AttributeSetButton = document.createElement('td');
+            var row3AttributeSetLabel = document.createElement('td');
+            row3AttributeSetButton.appendChild(isSameAsOtherLabelRadio);
+            row3AttributeSetLabel.appendChild(isSameAsOtherLabelRadioLabel);
+            row3AttributeSet.appendChild(row3AttributeSetButton);
+            row3AttributeSet.appendChild(row3AttributeSetLabel);
+            referenceTable.appendChild(row3AttributeSet);
+        }
+    } // end of if (currentIndRefRadio.checked)
+    
+    // if the Type Reference button is checked
+    var currentTypeRefRadio = document.getElementById("typeRadioButton" + referenceAttributeSelectorIDNum);
+    if (currentTypeRefRadio.checked) {
+        // if there is an Ind ref box, remove it
+        if (currentRow1AttributeSet.children.length > 2) { // if the textform already exists, remove
+            currentRow1AttributeSet.removeChild(currentRow1AttributeSet.lastChild);
+            // this also means the isSameAsOtherLabel checkbox is there, remove it
+            var referenceTable = document.getElementById("attributeRadioSetTable" + referenceAttributeSelectorIDNum);
+            referenceTable.removeChild(referenceTable.lastChild);
+        }
+    } // end of if (currentTypeRefRadio.checked)
+    
 //    var currentIsAGroupRadio = document.getElementById("isAGroupRadio" + referenceAttributeSelectorIDNum);
 //    var currentIsPartOfGroupRadio = document.getElementById("isPartOfGroupRadio" + referenceAttributeSelectorIDNum);
-    var currentIsSameAsOtherLabelRadio = document.getElementById("isSameAsOtherLabelRadio" + referenceAttributeSelectorIDNum);
+//    var currentIsSameAsOtherLabelRadio = document.getElementById("isSameAsOtherLabelRadio" + referenceAttributeSelectorIDNum);
     
     // if isPartOfGroupRadio is checked, add reference textbox
 //    if (currentIsPartOfGroupRadio.checked) {
@@ -5788,61 +6150,104 @@ function generateGroupReferenceInputs(event) {
 //        }
 //    } // end of if (currentIsPartOfGroupRadio.checked == false)
     
-    // if isSameAsOtherLabel is checked, add reference textbox
-    if (currentIsSameAsOtherLabelRadio.checked) {
-        // get the relevant row
-        var currentRow3AttributeSet = document.getElementById("row3AttributeSet" + referenceAttributeSelectorIDNum);
+//    // if isSameAsOtherLabel is checked, add reference textbox
+//    if (currentIsSameAsOtherLabelRadio.checked) {
+//        // get the relevant row
+//        var currentRow3AttributeSet = document.getElementById("row3AttributeSet" + referenceAttributeSelectorIDNum);
+//        if (currentRow3AttributeSet.children.length > 2) { // if the form already exists, move on
+//            //console.log("IsSameAsOtherLabelRadio true, form already there");
+//        }
+//        else {
+//
+//            var isSameAsOtherLabelTextbox = document.createElement('input');
+//            isSameAsOtherLabelTextbox.setAttribute('type', 'text');
+//            isSameAsOtherLabelTextbox.id = "isSameAsOtherLabelTextbox" + referenceAttributeSelectorIDNum;
+//            isSameAsOtherLabelTextbox.setAttribute("class", "referenceTextInput");
+//            isSameAsOtherLabelTextbox.setAttribute('onkeydown', "stopEnter(event)");
+//            isSameAsOtherLabelTextbox.setAttribute('onchange', "referenceInputs_animacyRef(event)");
+//            isSameAsOtherLabelTextbox.addEventListener('keyup', function(e) {getInputValue_NoKeyPressedForOneSec(e)}); // add event listener to get and store input values
+//            var isSameAsOtherLabelTextboxLabel = document.createElement('label');
+//            isSameAsOtherLabelTextboxLabel.setAttribute('for', isSameAsOtherLabelTextbox);
+//            isSameAsOtherLabelTextboxLabel.id = "isSameAsOtherLabelTextboxLabel" + referenceAttributeSelectorIDNum;
+//            isSameAsOtherLabelTextboxLabel.innerHTML = "Label: ";
+//            // add datalist
+//            var isSameAsOtherLabelTextbox_datalist = document.createElement('datalist');
+//            isSameAsOtherLabelTextbox_datalistID = "isSameAsOtherLabelTextbox_datalist" + referenceAttributeSelectorIDNum;
+//            isSameAsOtherLabelTextbox_datalist.setAttribute('id', isSameAsOtherLabelTextbox_datalistID);
+//            document.body.appendChild(isSameAsOtherLabelTextbox_datalist);
+//            isSameAsOtherLabelTextbox.setAttribute('list', isSameAsOtherLabelTextbox_datalistID);
+//
+//            // add new tr row 3.5 under 3 tr, append the new ref textbox
+//            //var isSameAsOtherLabelTextboxRow = document.createElement('tr');
+//            //var isSameAsOtherLabelTextboxRowLabel = document.createElement('td');
+//
+//            // just make the text input box for now
+//            var isSameAsOtherLabelTextboxRowText = document.createElement('td');
+//            //isSameAsOtherLabelTextboxRowLabel.appendChild(isSameAsOtherLabelTextboxLabel);
+//            isSameAsOtherLabelTextboxRowText.appendChild(isSameAsOtherLabelTextbox);
+//            //isSameAsOtherLabelTextboxRow.appendChild(isSameAsOtherLabelTextboxRowLabel);
+//            //isSameAsOtherLabelTextboxRow.appendChild(isSameAsOtherLabelTextboxRowText);
+//
+//            //currentRow3AttributeSet.appendChild(isSameAsOtherLabelTextboxRow);
+//            currentRow3AttributeSet.appendChild(isSameAsOtherLabelTextboxRowText);
+//            //console.log("IsSameAsOtherLabelRadio true, new form made");
+//        } // end of else for if (currentRow3AttributeSet.children.length > 2)
+//    } // end of if (currentIsSameAsOtherLabelRadio.checked)
+//
+//    // if isSameAsOtherLabel is checked, add reference textbox
+//    if (currentIsSameAsOtherLabelRadio.checked == false) {
+//        // get the relevant row
+//        var currentRow3AttributeSet = document.getElementById("row3AttributeSet" + referenceAttributeSelectorIDNum);
+//        if (currentRow3AttributeSet.children.length > 2) { // if the form already exists, remove last child
+//            currentRow3AttributeSet.removeChild(currentRow3AttributeSet.lastChild);
+//            //console.log("IsSameAsOtherLabelRadio false, form removed");
+//        }
+//    } // end of if (currentIsSameAsOtherLabelRadio.checked == false)
+    
+} // end of function generateGroupReferenceInputs(event)
+
+function createSameAsOTherLabelTextbox(event) {
+    
+    var currentSameLabel = event.target;
+    var currentSameLabelID = event.target.getAttribute("id");
+    // regex to replace all leading non-digits with nothing
+    var currentSameLabelIDNum = currentSameLabelID.replace(/^\D+/g, "");
+
+    // get the relevant row
+    var currentRow3AttributeSet = document.getElementById("row3AttributeSet" + currentSameLabelIDNum);
+    
+    if (currentSameLabel.checked) {
         if (currentRow3AttributeSet.children.length > 2) { // if the form already exists, move on
-            //console.log("IsSameAsOtherLabelRadio true, form already there");
+            // do nothing
         }
         else {
-            
             var isSameAsOtherLabelTextbox = document.createElement('input');
             isSameAsOtherLabelTextbox.setAttribute('type', 'text');
-            isSameAsOtherLabelTextbox.id = "isSameAsOtherLabelTextbox" + referenceAttributeSelectorIDNum;
+            isSameAsOtherLabelTextbox.id = "isSameAsOtherLabelTextbox" + currentSameLabelIDNum;
             isSameAsOtherLabelTextbox.setAttribute("class", "referenceTextInput");
             isSameAsOtherLabelTextbox.setAttribute('onkeydown', "stopEnter(event)");
             isSameAsOtherLabelTextbox.setAttribute('onchange', "referenceInputs_animacyRef(event)");
             isSameAsOtherLabelTextbox.addEventListener('keyup', function(e) {getInputValue_NoKeyPressedForOneSec(e)}); // add event listener to get and store input values
-            var isSameAsOtherLabelTextboxLabel = document.createElement('label');
-            isSameAsOtherLabelTextboxLabel.setAttribute('for', isSameAsOtherLabelTextbox);
-            isSameAsOtherLabelTextboxLabel.id = "isSameAsOtherLabelTextboxLabel" + referenceAttributeSelectorIDNum;
-            isSameAsOtherLabelTextboxLabel.innerHTML = "Label: ";
             // add datalist
             var isSameAsOtherLabelTextbox_datalist = document.createElement('datalist');
-            isSameAsOtherLabelTextbox_datalistID = "isSameAsOtherLabelTextbox_datalist" + referenceAttributeSelectorIDNum;
+            isSameAsOtherLabelTextbox_datalistID = "isSameAsOtherLabelTextbox_datalist" + currentSameLabelIDNum;
             isSameAsOtherLabelTextbox_datalist.setAttribute('id', isSameAsOtherLabelTextbox_datalistID);
             document.body.appendChild(isSameAsOtherLabelTextbox_datalist);
             isSameAsOtherLabelTextbox.setAttribute('list', isSameAsOtherLabelTextbox_datalistID);
-            
-            // add new tr row 3.5 under 3 tr, append the new ref textbox
-            //var isSameAsOtherLabelTextboxRow = document.createElement('tr');
-            //var isSameAsOtherLabelTextboxRowLabel = document.createElement('td');
-            
-            // just make the text input box for now
+        
+            // add textbox as a new col
             var isSameAsOtherLabelTextboxRowText = document.createElement('td');
-            //isSameAsOtherLabelTextboxRowLabel.appendChild(isSameAsOtherLabelTextboxLabel);
             isSameAsOtherLabelTextboxRowText.appendChild(isSameAsOtherLabelTextbox);
-            //isSameAsOtherLabelTextboxRow.appendChild(isSameAsOtherLabelTextboxRowLabel);
-            //isSameAsOtherLabelTextboxRow.appendChild(isSameAsOtherLabelTextboxRowText);
-            
-            //currentRow3AttributeSet.appendChild(isSameAsOtherLabelTextboxRow);
             currentRow3AttributeSet.appendChild(isSameAsOtherLabelTextboxRowText);
-            //console.log("IsSameAsOtherLabelRadio true, new form made");
-        } // end of else for if (currentRow3AttributeSet.children.length > 2)
-    } // end of if (currentIsSameAsOtherLabelRadio.checked)
+        } // end of else
+    } // end of (currentSameLabel.checked)
     
-    // if isSameAsOtherLabel is checked, add reference textbox
-    if (currentIsSameAsOtherLabelRadio.checked == false) {
-        // get the relevant row
-        var currentRow3AttributeSet = document.getElementById("row3AttributeSet" + referenceAttributeSelectorIDNum);
-        if (currentRow3AttributeSet.children.length > 2) { // if the form already exists, remove last child
-            currentRow3AttributeSet.removeChild(currentRow3AttributeSet.lastChild);
-            //console.log("IsSameAsOtherLabelRadio false, form removed");
-        }
-    } // end of if (currentIsSameAsOtherLabelRadio.checked == false)
+    if (!currentSameLabel.checked) {
+        // remove the textbox
+        currentRow3AttributeSet.removeChild(currentRow3AttributeSet.lastChild);
+    } // end of if (!currentSameLabel.checked)
     
-} // end of function generateGroupReferenceInputs(event)
+} // end of function createSameAsOTherLabelTextbox(event)
 
 
 function stopEnter(event) {
@@ -6515,7 +6920,13 @@ function drawCharacterInfoOnCanvas(errorFound) {
                     context.fillStyle = "white";
                     context.font = "15px Arial Black";
                     context.fill();
+                    if (char.label == "T") {
+                        // put id
+                        context.fillText(char.id, firstXCoord-13, firstYCoord);
+                    }
+                    else {
                     context.fillText(char.label, firstXCoord-13, firstYCoord); // center into the circle
+                    }
                 }
                 
                 // replace the label with the index
@@ -6582,7 +6993,7 @@ function drawCharacterInfoOnCanvas(errorFound) {
                         context.fillText(char.label, char.left-6, char.top+6); // center into the circle
                     }
                 }
-            }
+            } // end of (characterFeaturesTaskSwitch == true)
         }
     }
 } // end of drawCharacterInfoOnCanvas()
@@ -6623,7 +7034,7 @@ function drawTextSectionInfoOnCanvas() {
 /* Starts the annotation task with the Next Story */
 function nextStory(event) {
     //console.log("It worked!"); //test
-    location.href = 'https://app.prolific.co/submissions/complete?cc=CVWTXSEO'; // go back to prolific
+    location.href = 'https://app.prolific.co/submissions/complete?cc=CSARBHX1'; // go back to prolific
 }
 
 
